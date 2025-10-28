@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { apiService } from '../services/api.service';
 
 interface User {
   id: string;
@@ -17,6 +18,9 @@ interface AuthState {
   setAuth: (user: User, token: string, refreshToken: string) => void;
   clearAuth: () => void;
   updateUser: (updates: Partial<User>) => void;
+  login: (username: string, password: string) => Promise<void>;
+  register: (username: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -47,6 +51,47 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({
           user: state.user ? { ...state.user, ...updates } : null,
         })),
+
+      login: async (username, password) => {
+        const response = await apiService.login(username, password);
+        localStorage.setItem('accessToken', response.accessToken);
+        localStorage.setItem('refreshToken', response.refreshToken);
+        set({
+          user: response.user,
+          token: response.accessToken,
+          refreshToken: response.refreshToken,
+          isAuthenticated: true,
+        });
+      },
+
+      register: async (username, password) => {
+        const response = await apiService.register(username, password);
+        localStorage.setItem('accessToken', response.accessToken);
+        localStorage.setItem('refreshToken', response.refreshToken);
+        set({
+          user: response.user,
+          token: response.accessToken,
+          refreshToken: response.refreshToken,
+          isAuthenticated: true,
+        });
+      },
+
+      logout: async () => {
+        try {
+          await apiService.logout();
+        } catch (error) {
+          console.error('Logout error:', error);
+        } finally {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          set({
+            user: null,
+            token: null,
+            refreshToken: null,
+            isAuthenticated: false,
+          });
+        }
+      },
     }),
     {
       name: 'auth-storage',

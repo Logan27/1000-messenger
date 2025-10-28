@@ -3,6 +3,45 @@ import { wsService } from '../services/websocket.service';
 import { useAuthStore } from '../store/authStore';
 import { useChatStore } from '../store/chatStore';
 
+interface MessageMetadata {
+  images?: Array<{
+    url: string;
+    thumbnailUrl: string;
+    originalUrl: string;
+  }>;
+  [key: string]: unknown;
+}
+
+interface Reaction {
+  id: string;
+  messageId: string;
+  userId: string;
+  emoji: string;
+}
+
+interface Message {
+  id: string;
+  chatId: string;
+  senderId: string;
+  content: string;
+  contentType: 'text' | 'image' | 'system';
+  metadata?: MessageMetadata;
+  createdAt: string;
+  isEdited: boolean;
+  reactions?: Reaction[];
+}
+
+interface ReadReceiptData {
+  messageId: string;
+  readBy: string;
+}
+
+interface ReactionData {
+  messageId: string;
+  emoji: string;
+  userId: string;
+}
+
 export const useWebSocket = () => {
   const { token, isAuthenticated } = useAuthStore();
   const { addMessage, updateMessageStatus, addReaction } = useChatStore();
@@ -15,47 +54,49 @@ export const useWebSocket = () => {
 
     // Listen for new messages
     wsService.on('message:new', (message) => {
-      addMessage(message);
+      addMessage(message as Message);
     });
 
     // Listen for message read receipts
     wsService.on('message:read', (data) => {
-      updateMessageStatus(data.messageId, 'read', data.readBy);
+      const readData = data as ReadReceiptData;
+      updateMessageStatus(readData.messageId, 'read', readData.readBy);
     });
 
     // Listen for message edits
-    wsService.on('message:edited', (data) => {
+    wsService.on('message:edited', (_data) => {
       // Update message in store
     });
 
     // Listen for message deletions
-    wsService.on('message:deleted', (data) => {
+    wsService.on('message:deleted', (_data) => {
       // Remove message from store
     });
 
     // Listen for reactions
     wsService.on('reaction:added', (data) => {
-      addReaction(data.messageId, data.emoji, data.userId);
+      const reactionData = data as ReactionData;
+      addReaction(reactionData.messageId, reactionData.emoji, reactionData.userId);
     });
 
     // Listen for typing indicators
-    wsService.on('typing:start', (data) => {
+    wsService.on('typing:start', (_data) => {
       // Show typing indicator
     });
 
-    wsService.on('typing:stop', (data) => {
+    wsService.on('typing:stop', (_data) => {
       // Hide typing indicator
     });
 
     // Listen for user status changes
-    wsService.on('user:status', (data) => {
+    wsService.on('user:status', (_data) => {
       // Update user status in store
     });
 
     return () => {
       wsService.disconnect();
     };
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated, token, addMessage, updateMessageStatus, addReaction]);
 
   const sendMessage = useCallback((chatId: string, content: string) => {
     wsService.emit('message:send', { chatId, content });

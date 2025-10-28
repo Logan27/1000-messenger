@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo, useCallback } from 'react';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import { ChatHeader } from './ChatHeader';
@@ -11,29 +11,39 @@ export const ChatWindow: React.FC = () => {
   const { activeChat, messages, typingUsers } = useChatStore();
   const { startTyping, stopTyping } = useWebSocket();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
-  const currentMessages = activeChat ? messages[activeChat] || [] : [];
-  const currentTypingUsers = activeChat ? typingUsers[activeChat] || [] : [];
+  const currentMessages = useMemo(
+    () => (activeChat ? messages[activeChat] || [] : []),
+    [activeChat, messages]
+  );
+  const currentTypingUsers = useMemo(
+    () => (activeChat ? typingUsers[activeChat] || [] : []),
+    [activeChat, typingUsers]
+  );
 
-  useEffect(() => {
-    if (activeChat) {
-      loadMessages(activeChat);
-    }
-  }, [activeChat]);
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [currentMessages]);
-
-  const loadMessages = async (chatId: string) => {
+  const loadMessages = useCallback(async (chatId: string) => {
     try {
       const response = await apiService.getMessages(chatId);
       useChatStore.getState().setMessages(chatId, response.data);
     } catch (error) {
       console.error('Failed to load messages:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (activeChat) {
+      loadMessages(activeChat);
+    }
+  }, [activeChat, loadMessages]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [currentMessages, scrollToBottom]);
 
   const handleSendMessage = async (content: string, files?: File[]) => {
     if (!activeChat) return;
@@ -82,10 +92,6 @@ export const ChatWindow: React.FC = () => {
     typingTimeoutRef.current = setTimeout(() => {
       stopTyping(activeChat);
     }, 3000);
-  };
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   if (!activeChat) {
