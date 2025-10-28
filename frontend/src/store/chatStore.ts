@@ -7,7 +7,7 @@ interface Message {
   senderId: string;
   content: string;
   contentType: 'text' | 'image' | 'system';
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   isEdited: boolean;
   reactions?: Reaction[];
@@ -20,13 +20,20 @@ interface Reaction {
   emoji: string;
 }
 
+interface Participant {
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl?: string;
+}
+
 interface Chat {
   id: string;
   type: 'direct' | 'group';
   name?: string;
   slug?: string;
   avatarUrl?: string;
-  participants: any[];
+  participants: Participant[];
   lastMessage?: Message;
   unreadCount: number;
   lastMessageAt?: string;
@@ -62,7 +69,7 @@ interface ChatState {
 export const useChatStore = create<ChatState>()(
   devtools(
     persist(
-      (set, get) => ({
+      (set) => ({
         chats: [],
         messages: {},
         activeChat: null,
@@ -179,7 +186,7 @@ export const useChatStore = create<ChatState>()(
             return { messages: newMessages };
           }),
 
-        updateMessageStatus: (messageId, status, userId) =>
+        updateMessageStatus: () =>
           set((state) => {
             // Update delivery status metadata
             return state;

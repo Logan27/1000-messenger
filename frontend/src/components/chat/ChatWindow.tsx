@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import { ChatHeader } from './ChatHeader';
@@ -13,7 +13,10 @@ export const ChatWindow: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
 
-  const currentMessages = activeChat ? messages[activeChat] || [] : [];
+  const currentMessages = useMemo(() => 
+    activeChat ? messages[activeChat] || [] : [], 
+    [activeChat, messages]
+  );
   const currentTypingUsers = activeChat ? typingUsers[activeChat] || [] : [];
 
   useEffect(() => {

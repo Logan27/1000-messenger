@@ -50,15 +50,15 @@ class WebSocketService {
     });
   }
 
-  on(event: string, callback: (data: any) => void) {
+  on(event: string, callback: (data: unknown) => void) {
     this.socket?.on(event, callback);
   }
 
-  off(event: string, callback?: (data: any) => void) {
+  off(event: string, callback?: (data: unknown) => void) {
     this.socket?.off(event, callback);
   }
 
-  emit(event: string, data: any) {
+  emit(event: string, data: unknown) {
     this.socket?.emit(event, data);
   }
 

@@ -10,16 +10,17 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@heroicons/react": "^2.0.18",
+    "axios": "^1.6.0",
+    "date-fns": "^2.30.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.1",
-    "zustand": "^4.4.7",
     "socket.io-client": "^4.7.4",
-    "axios": "^1.6.0",
-    "date-fns": "^2.30.0",
-    "@heroicons/react": "^2.0.18"
+    "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@types/node": "^24.9.2",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "@typescript-eslint/eslint-plugin": "^6.10.0",

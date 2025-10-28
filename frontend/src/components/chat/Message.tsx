@@ -3,13 +3,22 @@ import { format } from 'date-fns';
 import { useAuthStore } from '../../store/authStore';
 import { apiService } from '../../services/api.service';
 
+interface ImageMetadata {
+  url: string;
+  originalUrl: string;
+}
+
+interface MessageMetadata {
+  images?: ImageMetadata[];
+}
+
 interface MessageProps {
   message: {
     id: string;
     senderId: string;
     content: string;
     contentType: string;
-    metadata?: any;
+    metadata?: MessageMetadata;
     createdAt: string;
     isEdited: boolean;
     reactions?: Array<{ id: string; emoji: string; userId: string }>;
@@ -44,7 +53,7 @@ export const Message: React.FC<MessageProps> = ({
             <div dangerouslySetInnerHTML={{ __html: message.content }} />
           )}
           <div className="grid grid-cols-2 gap-2">
-            {message.metadata.images.map((img: any, idx: number) => (
+            {message.metadata.images.map((img, idx) => (
               <img
                 key={idx}
                 src={img.url}

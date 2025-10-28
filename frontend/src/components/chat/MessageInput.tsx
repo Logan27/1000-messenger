@@ -2,7 +2,6 @@ import React, { useState, useRef, KeyboardEvent } from 'react';
 import { 
   PaperAirplaneIcon, 
   PhotoIcon,
-  FaceSmileIcon,
 } from '@heroicons/react/24/outline';
 
 interface MessageInputProps {
