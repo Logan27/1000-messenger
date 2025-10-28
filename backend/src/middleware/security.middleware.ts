@@ -11,7 +11,7 @@ export const securityHeaders = helmet({
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", process.env.S3_PUBLIC_URL || ""],
+      connectSrc: ["'self'", process.env['S3_PUBLIC_URL'] || ""],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -40,7 +40,7 @@ export const authRateLimit = rateLimit({
 export const messageRateLimit = rateLimit({
   windowMs: 1000, // 1 second
   max: LIMITS.MESSAGES_PER_SECOND_PER_USER,
-  keyGenerator: (req) => req.user?.userId || req.ip,
+  keyGenerator: (req) => req.user?.userId || req.ip || 'unknown',
   message: 'Too many messages, slow down',
 });
 

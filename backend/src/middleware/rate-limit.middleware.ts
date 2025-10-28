@@ -16,14 +16,14 @@ export const authRateLimit = rateLimit({
   max: 5, // 5 attempts
   message: 'Too many login attempts, please try again later',
   skipSuccessfulRequests: true,
-  keyGenerator: (req) => req.ip,
+  keyGenerator: (req) => req.ip || 'unknown',
 });
 
 // Message sending rate limiting
 export const messageRateLimit = rateLimit({
   windowMs: 1000, // 1 second
   max: LIMITS.MESSAGES_PER_SECOND_PER_USER,
-  keyGenerator: (req) => req.user?.userId || req.ip,
+  keyGenerator: (req) => req.user?.userId || req.ip || 'unknown',
   message: 'Too many messages, please slow down',
 });
 
@@ -31,7 +31,7 @@ export const messageRateLimit = rateLimit({
 export const uploadRateLimit = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 10, // 10 uploads per minute
-  keyGenerator: (req) => req.user?.userId || req.ip,
+  keyGenerator: (req) => req.user?.userId || req.ip || 'unknown',
   message: 'Too many file uploads, please try again later',
 });
 
@@ -39,6 +39,6 @@ export const uploadRateLimit = rateLimit({
 export const searchRateLimit = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 30, // 30 searches per minute
-  keyGenerator: (req) => req.user?.userId || req.ip,
+  keyGenerator: (req) => req.user?.userId || req.ip || 'unknown',
   message: 'Too many search requests, please try again later',
 });

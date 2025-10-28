@@ -1,5 +1,4 @@
 import { pool, readPool } from '../config/database';
-import { logger } from '../utils/logger.util';
 
 export interface Message {
   id: string;
@@ -122,9 +121,9 @@ export class MessageRepository {
   async createDeliveryRecords(messageId: string, userIds: string[]): Promise<void> {
     if (userIds.length === 0) return;
 
-    const values = userIds.map((userId, idx) => {
+    const values = userIds.map((_userId, idx) => {
       const base = idx * 3;
-      return `($${base + 1}, $${base + 2}, $${base + 3})`;
+      return `(${base + 1}, ${base + 2}, ${base + 3})`;
     }).join(', ');
 
     const query = `

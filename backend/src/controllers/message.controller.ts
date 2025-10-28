@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { MessageService } from '../services/message.service';
-import { logger } from '../utils/logger.util';
 
 export class MessageController {
   constructor(private messageService: MessageService) {}
@@ -34,8 +33,8 @@ export class MessageController {
     try {
       const { chatId } = req.params;
       const userId = req.user!.userId;
-      const limit = parseInt(req.query.limit as string) || 50;
-      const cursor = req.query.cursor as string;
+      const limit = parseInt(req.query['limit'] as string) || 50;
+      const cursor = req.query['cursor'] as string;
 
       const result = await this.messageService.getMessages(chatId, userId, limit, cursor);
       
