@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import { ChatHeader } from './ChatHeader';
@@ -11,10 +11,15 @@ export const ChatWindow: React.FC = () => {
   const { activeChat, messages, typingUsers } = useChatStore();
   const { startTyping, stopTyping } = useWebSocket();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
-  const currentMessages = activeChat ? messages[activeChat] || [] : [];
-  const currentTypingUsers = activeChat ? typingUsers[activeChat] || [] : [];
+  const currentMessages = useMemo(() => {
+    return activeChat ? messages[activeChat] || [] : [];
+  }, [activeChat, messages]);
+
+  const currentTypingUsers = useMemo(() => {
+    return activeChat ? typingUsers[activeChat] || [] : [];
+  }, [activeChat, typingUsers]);
 
   useEffect(() => {
     if (activeChat) {
@@ -41,12 +46,10 @@ export const ChatWindow: React.FC = () => {
     try {
       // Upload images first if any
       let metadata = {};
-      
+
       if (files && files.length > 0) {
-        const uploadedImages = await Promise.all(
-          files.map(file => apiService.uploadImage(file))
-        );
-        
+        const uploadedImages = await Promise.all(files.map(file => apiService.uploadImage(file)));
+
         metadata = {
           images: uploadedImages.map(img => ({
             url: img.mediumUrl,
@@ -101,20 +104,15 @@ export const ChatWindow: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col h-full">
       <ChatHeader chatId={activeChat} />
-      
+
       <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
         <MessageList messages={currentMessages} />
         <div ref={messagesEndRef} />
       </div>
 
-      {currentTypingUsers.length > 0 && (
-        <TypingIndicator users={currentTypingUsers} />
-      )}
+      {currentTypingUsers.length > 0 && <TypingIndicator users={currentTypingUsers} />}
 
-      <MessageInput 
-        onSend={handleSendMessage}
-        onTyping={handleTyping}
-      />
+      <MessageInput onSend={handleSendMessage} onTyping={handleTyping} />
     </div>
   );
 };

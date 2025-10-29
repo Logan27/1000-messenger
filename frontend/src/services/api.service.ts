@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import { config } from '../config';
 
 class ApiService {
@@ -19,20 +19,20 @@ class ApiService {
   private setupInterceptors() {
     // Request interceptor to add auth token
     this.api.interceptors.request.use(
-      (config) => {
+      config => {
         const token = localStorage.getItem('accessToken');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
-      (error) => Promise.reject(error)
+      error => Promise.reject(error)
     );
 
     // Response interceptor to handle token refresh
     this.api.interceptors.response.use(
-      (response) => response,
-      async (error) => {
+      response => response,
+      async error => {
         const originalRequest = error.config;
 
         if (error.response?.status === 401 && !originalRequest._retry) {
@@ -43,7 +43,7 @@ class ApiService {
             if (refreshToken) {
               const response = await this.refreshToken(refreshToken);
               localStorage.setItem('accessToken', response.accessToken);
-              
+
               // Retry original request
               originalRequest.headers.Authorization = `Bearer ${response.accessToken}`;
               return this.api(originalRequest);
@@ -106,17 +106,20 @@ class ApiService {
   // Message endpoints
   async getMessages(chatId: string, limit = 50, cursor?: string) {
     const response = await this.api.get(`/messages/${chatId}`, {
-      params: { limit, cursor }
+      params: { limit, cursor },
     });
     return response.data;
   }
 
-  async sendMessage(chatId: string, message: {
-    content: string;
-    contentType?: 'text' | 'image' | 'system';
-    metadata?: any;
-    replyToId?: string;
-  }) {
+  async sendMessage(
+    chatId: string,
+    message: {
+      content: string;
+      contentType?: 'text' | 'image' | 'system';
+      metadata?: Record<string, unknown>;
+      replyToId?: string;
+    }
+  ) {
     const response = await this.api.post(`/messages/${chatId}`, message);
     return response.data;
   }
@@ -159,7 +162,7 @@ class ApiService {
 
   async searchUsers(query: string, limit = 20) {
     const response = await this.api.get('/users/search', {
-      params: { q: query, limit }
+      params: { q: query, limit },
     });
     return response.data;
   }

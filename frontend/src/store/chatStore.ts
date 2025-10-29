@@ -7,7 +7,7 @@ interface Message {
   senderId: string;
   content: string;
   contentType: 'text' | 'image' | 'system';
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   isEdited: boolean;
   reactions?: Reaction[];
@@ -26,7 +26,7 @@ interface Chat {
   name?: string;
   slug?: string;
   avatarUrl?: string;
-  participants: any[];
+  participants: Array<Record<string, unknown>>;
   lastMessage?: Message;
   unreadCount: number;
   lastMessageAt?: string;
@@ -37,24 +37,24 @@ interface ChatState {
   messages: Record<string, Message[]>;
   activeChat: string | null;
   typingUsers: Record<string, string[]>;
-  
+
   // Actions
   setChats: (chats: Chat[]) => void;
   addChat: (chat: Chat) => void;
   setActiveChat: (chatId: string | null) => void;
-  
+
   setMessages: (chatId: string, messages: Message[]) => void;
   addMessage: (message: Message) => void;
   updateMessage: (messageId: string, updates: Partial<Message>) => void;
   deleteMessage: (messageId: string) => void;
-  
+
   addReaction: (messageId: string, emoji: string, userId: string) => void;
   removeReaction: (messageId: string, reactionId: string) => void;
-  
+
   updateMessageStatus: (messageId: string, status: string, userId: string) => void;
-  
+
   setTyping: (chatId: string, userId: string, isTyping: boolean) => void;
-  
+
   incrementUnread: (chatId: string) => void;
   resetUnread: (chatId: string) => void;
 }
@@ -62,33 +62,33 @@ interface ChatState {
 export const useChatStore = create<ChatState>()(
   devtools(
     persist(
-      (set, get) => ({
+      set => ({
         chats: [],
         messages: {},
         activeChat: null,
         typingUsers: {},
 
-        setChats: (chats) => set({ chats }),
+        setChats: chats => set({ chats }),
 
-        addChat: (chat) =>
-          set((state) => ({
+        addChat: chat =>
+          set(state => ({
             chats: [chat, ...state.chats],
           })),
 
-        setActiveChat: (chatId) => set({ activeChat: chatId }),
+        setActiveChat: chatId => set({ activeChat: chatId }),
 
         setMessages: (chatId, messages) =>
-          set((state) => ({
+          set(state => ({
             messages: {
               ...state.messages,
               [chatId]: messages,
             },
           })),
 
-        addMessage: (message) =>
-          set((state) => {
+        addMessage: message =>
+          set(state => {
             const chatMessages = state.messages[message.chatId] || [];
-            
+
             // Check if message already exists
             if (chatMessages.some(m => m.id === message.id)) {
               return state;
@@ -112,9 +112,9 @@ export const useChatStore = create<ChatState>()(
           }),
 
         updateMessage: (messageId, updates) =>
-          set((state) => {
+          set(state => {
             const newMessages = { ...state.messages };
-            
+
             for (const chatId in newMessages) {
               newMessages[chatId] = newMessages[chatId].map(msg =>
                 msg.id === messageId ? { ...msg, ...updates } : msg
@@ -124,23 +124,21 @@ export const useChatStore = create<ChatState>()(
             return { messages: newMessages };
           }),
 
-        deleteMessage: (messageId) =>
-          set((state) => {
+        deleteMessage: messageId =>
+          set(state => {
             const newMessages = { ...state.messages };
-            
+
             for (const chatId in newMessages) {
-              newMessages[chatId] = newMessages[chatId].filter(
-                msg => msg.id !== messageId
-              );
+              newMessages[chatId] = newMessages[chatId].filter(msg => msg.id !== messageId);
             }
 
             return { messages: newMessages };
           }),
 
         addReaction: (messageId, emoji, userId) =>
-          set((state) => {
+          set(state => {
             const newMessages = { ...state.messages };
-            
+
             for (const chatId in newMessages) {
               newMessages[chatId] = newMessages[chatId].map(msg => {
                 if (msg.id === messageId) {
@@ -161,9 +159,9 @@ export const useChatStore = create<ChatState>()(
           }),
 
         removeReaction: (messageId, reactionId) =>
-          set((state) => {
+          set(state => {
             const newMessages = { ...state.messages };
-            
+
             for (const chatId in newMessages) {
               newMessages[chatId] = newMessages[chatId].map(msg => {
                 if (msg.id === messageId) {
@@ -179,16 +177,16 @@ export const useChatStore = create<ChatState>()(
             return { messages: newMessages };
           }),
 
-        updateMessageStatus: (messageId, status, userId) =>
-          set((state) => {
+        updateMessageStatus: (_messageId, _status, _userId) =>
+          set(state => {
             // Update delivery status metadata
             return state;
           }),
 
         setTyping: (chatId, userId, isTyping) =>
-          set((state) => {
+          set(state => {
             const typingUsers = state.typingUsers[chatId] || [];
-            
+
             return {
               typingUsers: {
                 ...state.typingUsers,
@@ -199,17 +197,15 @@ export const useChatStore = create<ChatState>()(
             };
           }),
 
-        incrementUnread: (chatId) =>
-          set((state) => ({
+        incrementUnread: chatId =>
+          set(state => ({
             chats: state.chats.map(chat =>
-              chat.id === chatId
-                ? { ...chat, unreadCount: chat.unreadCount + 1 }
-                : chat
+              chat.id === chatId ? { ...chat, unreadCount: chat.unreadCount + 1 } : chat
             ),
           })),
 
-        resetUnread: (chatId) =>
-          set((state) => ({
+        resetUnread: chatId =>
+          set(state => ({
             chats: state.chats.map(chat =>
               chat.id === chatId ? { ...chat, unreadCount: 0 } : chat
             ),
@@ -217,7 +213,7 @@ export const useChatStore = create<ChatState>()(
       }),
       {
         name: 'chat-storage',
-        partialize: (state) => ({
+        partialize: state => ({
           chats: state.chats,
           activeChat: state.activeChat,
         }),

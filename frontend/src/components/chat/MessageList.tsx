@@ -7,7 +7,7 @@ interface MessageListProps {
     senderId: string;
     content: string;
     contentType: string;
-    metadata?: any;
+    metadata?: Record<string, unknown>;
     createdAt: string;
     isEdited: boolean;
     reactions?: Array<{ id: string; emoji: string; userId: string }>;
@@ -17,7 +17,7 @@ interface MessageListProps {
 export const MessageList: React.FC<MessageListProps> = ({ messages }) => {
   return (
     <div className="space-y-4">
-      {messages.map((message) => (
+      {messages.map(message => (
         <Message
           key={message.id}
           message={message}

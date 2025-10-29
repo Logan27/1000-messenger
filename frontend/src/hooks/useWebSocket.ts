@@ -14,48 +14,51 @@ export const useWebSocket = () => {
     wsService.connect(token);
 
     // Listen for new messages
-    wsService.on('message:new', (message) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    wsService.on('message:new', (message: any) => {
       addMessage(message);
     });
 
     // Listen for message read receipts
-    wsService.on('message:read', (data) => {
-      updateMessageStatus(data.messageId, 'read', data.readBy);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    wsService.on('message:read', (data: any) => {
+      updateMessageStatus(data.messageId as string, 'read', data.readBy as string);
     });
 
     // Listen for message edits
-    wsService.on('message:edited', (data) => {
+    wsService.on('message:edited', _data => {
       // Update message in store
     });
 
     // Listen for message deletions
-    wsService.on('message:deleted', (data) => {
+    wsService.on('message:deleted', _data => {
       // Remove message from store
     });
 
     // Listen for reactions
-    wsService.on('reaction:added', (data) => {
-      addReaction(data.messageId, data.emoji, data.userId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    wsService.on('reaction:added', (data: any) => {
+      addReaction(data.messageId as string, data.emoji as string, data.userId as string);
     });
 
     // Listen for typing indicators
-    wsService.on('typing:start', (data) => {
+    wsService.on('typing:start', _data => {
       // Show typing indicator
     });
 
-    wsService.on('typing:stop', (data) => {
+    wsService.on('typing:stop', _data => {
       // Hide typing indicator
     });
 
     // Listen for user status changes
-    wsService.on('user:status', (data) => {
+    wsService.on('user:status', _data => {
       // Update user status in store
     });
 
     return () => {
       wsService.disconnect();
     };
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated, token, addMessage, updateMessageStatus, addReaction]);
 
   const sendMessage = useCallback((chatId: string, content: string) => {
     wsService.emit('message:send', { chatId, content });

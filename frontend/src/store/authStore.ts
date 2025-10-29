@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { apiService } from '../services/api.service';
 
 interface User {
   id: string;
@@ -13,7 +14,10 @@ interface AuthState {
   token: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
-  
+
+  login: (username: string, password: string) => Promise<void>;
+  register: (username: string, password: string) => Promise<void>;
+  logout: () => void;
   setAuth: (user: User, token: string, refreshToken: string) => void;
   clearAuth: () => void;
   updateUser: (updates: Partial<User>) => void;
@@ -21,11 +25,46 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    set => ({
       user: null,
       token: null,
       refreshToken: null,
       isAuthenticated: false,
+
+      login: async (username, password) => {
+        const response = await apiService.login(username, password);
+        localStorage.setItem('accessToken', response.accessToken);
+        localStorage.setItem('refreshToken', response.refreshToken);
+        set({
+          user: response.user,
+          token: response.accessToken,
+          refreshToken: response.refreshToken,
+          isAuthenticated: true,
+        });
+      },
+
+      register: async (username, password) => {
+        const response = await apiService.register(username, password);
+        localStorage.setItem('accessToken', response.accessToken);
+        localStorage.setItem('refreshToken', response.refreshToken);
+        set({
+          user: response.user,
+          token: response.accessToken,
+          refreshToken: response.refreshToken,
+          isAuthenticated: true,
+        });
+      },
+
+      logout: () => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        set({
+          user: null,
+          token: null,
+          refreshToken: null,
+          isAuthenticated: false,
+        });
+      },
 
       setAuth: (user, token, refreshToken) =>
         set({
@@ -43,8 +82,8 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: false,
         }),
 
-      updateUser: (updates) =>
-        set((state) => ({
+      updateUser: updates =>
+        set(state => ({
           user: state.user ? { ...state.user, ...updates } : null,
         })),
     }),
