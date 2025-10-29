@@ -1,6 +1,5 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
 import { config } from '../config/env';
 import { LIMITS } from '../config/constants';
 import { UserRepository } from '../repositories/user.repository';
@@ -72,16 +71,29 @@ export class AuthService {
     const refreshToken = this.generateRefreshToken(user.id);
 
     // Create session
-    await this.sessionService.createSession({
+    const sessionData: any = {
       userId: user.id,
       sessionToken: refreshToken,
-      deviceId: deviceInfo?.deviceId,
-      deviceType: deviceInfo?.deviceType,
-      deviceName: deviceInfo?.deviceName,
-      ipAddress: deviceInfo?.ipAddress,
-      userAgent: deviceInfo?.userAgent,
       expiresAt: new Date(Date.now() + LIMITS.SESSION_DURATION_DAYS * 24 * 60 * 60 * 1000),
-    });
+    };
+    
+    if (deviceInfo?.deviceId !== undefined) {
+      sessionData.deviceId = deviceInfo.deviceId;
+    }
+    if (deviceInfo?.deviceType !== undefined) {
+      sessionData.deviceType = deviceInfo.deviceType;
+    }
+    if (deviceInfo?.deviceName !== undefined) {
+      sessionData.deviceName = deviceInfo.deviceName;
+    }
+    if (deviceInfo?.ipAddress !== undefined) {
+      sessionData.ipAddress = deviceInfo.ipAddress;
+    }
+    if (deviceInfo?.userAgent !== undefined) {
+      sessionData.userAgent = deviceInfo.userAgent;
+    }
+    
+    await this.sessionService.createSession(sessionData);
 
     // Update last seen
     await this.userRepo.updateLastSeen(user.id);
@@ -134,7 +146,7 @@ export class AuthService {
     return jwt.sign(
       { userId, type: 'access' },
       config.JWT_SECRET,
-      { expiresIn: LIMITS.ACCESS_TOKEN_DURATION }
+      { expiresIn: LIMITS.ACCESS_TOKEN_DURATION as string | number }
     );
   }
 
@@ -142,7 +154,7 @@ export class AuthService {
     return jwt.sign(
       { userId, type: 'refresh' },
       config.JWT_REFRESH_SECRET,
-      { expiresIn: LIMITS.REFRESH_TOKEN_DURATION }
+      { expiresIn: LIMITS.REFRESH_TOKEN_DURATION as string | number }
     );
   }
 

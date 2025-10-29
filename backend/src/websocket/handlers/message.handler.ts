@@ -16,14 +16,23 @@ export class MessageHandler {
       replyToId?: string;
     }) => {
       try {
-        const message = await this.messageService.sendMessage({
+        const messageDto: any = {
           chatId: data.chatId,
           senderId: userId,
           content: data.content,
-          contentType: data.contentType,
-          metadata: data.metadata,
-          replyToId: data.replyToId,
-        });
+        };
+        
+        if (data.contentType !== undefined) {
+          messageDto.contentType = data.contentType;
+        }
+        if (data.metadata !== undefined) {
+          messageDto.metadata = data.metadata;
+        }
+        if (data.replyToId !== undefined) {
+          messageDto.replyToId = data.replyToId;
+        }
+        
+        const message = await this.messageService.sendMessage(messageDto);
 
         // Send confirmation back to sender
         socket.emit('message:sent', {

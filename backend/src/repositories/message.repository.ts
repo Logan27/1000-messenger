@@ -1,5 +1,4 @@
 import { pool, readPool } from '../config/database';
-import { logger } from '../utils/logger.util';
 
 export interface Message {
   id: string;
