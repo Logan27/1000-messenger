@@ -3,7 +3,7 @@ import { CHAT_TYPE, PARTICIPANT_ROLE } from '../config/constants';
 
 export interface Chat {
   id: string;
-  type: typeof CHAT_TYPE[keyof typeof CHAT_TYPE];
+  type: (typeof CHAT_TYPE)[keyof typeof CHAT_TYPE];
   name?: string;
   slug?: string;
   avatarUrl?: string;
@@ -40,7 +40,7 @@ export class ChatRepository {
       SELECT * FROM chats 
       WHERE id = $1 AND is_deleted = FALSE
     `;
-    
+
     const result = await readPool.query(query, [id]);
     return result.rows[0] ? this.mapRow(result.rows[0]) : null;
   }
@@ -50,7 +50,7 @@ export class ChatRepository {
       SELECT * FROM chats 
       WHERE slug = $1 AND is_deleted = FALSE
     `;
-    
+
     const result = await readPool.query(query, [slug]);
     return result.rows[0] ? this.mapRow(result.rows[0]) : null;
   }
@@ -123,7 +123,7 @@ export class ChatRepository {
     const result = await readPool.query(query, [user1Id, user2Id]);
     return result.rows.map(row => row.id);
   }
-  
+
   async addParticipant(
     chatId: string,
     userId: string,
@@ -191,7 +191,9 @@ export class ChatRepository {
   }
 
   async incrementUnreadCounts(chatId: string, userIds: string[]): Promise<void> {
-    if (userIds.length === 0) return;
+    if (userIds.length === 0) {
+      return;
+    }
 
     const query = `
       UPDATE chat_participants

@@ -8,42 +8,42 @@ export class MessageHandler {
   setupHandlers(socket: Socket) {
     const { userId } = socket.data;
 
-    socket.on('message:send', async (data: {
-      chatId: string;
-      content: string;
-      contentType?: 'text' | 'image' | 'system';
-      metadata?: Record<string, any>;
-      replyToId?: string;
-    }) => {
-      try {
-        const message = await this.messageService.sendMessage({
-          chatId: data.chatId,
-          senderId: userId,
-          content: data.content,
-          contentType: data.contentType,
-          metadata: data.metadata,
-          replyToId: data.replyToId,
-        });
+    socket.on(
+      'message:send',
+      async (data: {
+        chatId: string;
+        content: string;
+        contentType?: 'text' | 'image' | 'system';
+        metadata?: Record<string, any>;
+        replyToId?: string;
+      }) => {
+        try {
+          const message = await this.messageService.sendMessage({
+            chatId: data.chatId,
+            senderId: userId,
+            content: data.content,
+            contentType: data.contentType,
+            metadata: data.metadata,
+            replyToId: data.replyToId,
+          });
 
-        // Send confirmation back to sender
-        socket.emit('message:sent', {
-          messageId: message.id,
-          chatId: data.chatId,
-          timestamp: message.createdAt,
-        });
-      } catch (error) {
-        logger.error('Failed to send message', error);
-        socket.emit('message:error', {
-          error: error instanceof Error ? error.message : 'Failed to send message',
-          chatId: data.chatId,
-        });
+          // Send confirmation back to sender
+          socket.emit('message:sent', {
+            messageId: message.id,
+            chatId: data.chatId,
+            timestamp: message.createdAt,
+          });
+        } catch (error) {
+          logger.error('Failed to send message', error);
+          socket.emit('message:error', {
+            error: error instanceof Error ? error.message : 'Failed to send message',
+            chatId: data.chatId,
+          });
+        }
       }
-    });
+    );
 
-    socket.on('message:edit', async (data: {
-      messageId: string;
-      content: string;
-    }) => {
+    socket.on('message:edit', async (data: { messageId: string; content: string }) => {
       try {
         await this.messageService.editMessage(data.messageId, userId, data.content);
         socket.emit('message:edit:success', { messageId: data.messageId });
@@ -77,10 +77,7 @@ export class MessageHandler {
       }
     });
 
-    socket.on('reaction:add', async (data: {
-      messageId: string;
-      emoji: string;
-    }) => {
+    socket.on('reaction:add', async (data: { messageId: string; emoji: string }) => {
       try {
         await this.messageService.addReaction(data.messageId, userId, data.emoji);
       } catch (error) {

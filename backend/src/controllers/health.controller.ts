@@ -6,10 +6,10 @@ import { logger } from '../utils/logger.util';
 export class HealthController {
   health = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      res.json({ 
-        status: 'ok', 
+      res.json({
+        status: 'ok',
         timestamp: new Date().toISOString(),
-        uptime: process.uptime()
+        uptime: process.uptime(),
       });
     } catch (error) {
       next(error);
@@ -41,16 +41,16 @@ export class HealthController {
       const isReady = checks.database && checks.redis;
 
       if (isReady) {
-        res.json({ 
-          status: 'ready', 
+        res.json({
+          status: 'ready',
           checks,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       } else {
-        res.status(503).json({ 
-          status: 'not ready', 
+        res.status(503).json({
+          status: 'not ready',
           checks,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
     } catch (error) {

@@ -12,9 +12,9 @@ export class TypingHandler {
         if (!this.typingUsers.has(data.chatId)) {
           this.typingUsers.set(data.chatId, new Set());
         }
-        
+
         this.typingUsers.get(data.chatId)!.add(userId);
-        
+
         // Broadcast to other users in the chat
         socket.to(`chat:${data.chatId}`).emit('typing:start', {
           chatId: data.chatId,
@@ -32,13 +32,13 @@ export class TypingHandler {
         const chatTypingUsers = this.typingUsers.get(data.chatId);
         if (chatTypingUsers) {
           chatTypingUsers.delete(userId);
-          
+
           // If no one is typing, clean up the chat entry
           if (chatTypingUsers.size === 0) {
             this.typingUsers.delete(data.chatId);
           }
         }
-        
+
         // Broadcast to other users in the chat
         socket.to(`chat:${data.chatId}`).emit('typing:stop', {
           chatId: data.chatId,
@@ -61,7 +61,7 @@ export class TypingHandler {
     for (const [chatId, users] of this.typingUsers.entries()) {
       if (users.has(userId)) {
         users.delete(userId);
-        
+
         // If no one is typing, clean up the chat entry
         if (users.size === 0) {
           this.typingUsers.delete(chatId);

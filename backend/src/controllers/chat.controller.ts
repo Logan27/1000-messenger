@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { v4 as uuidv4 } from 'uuid';
 import { ChatService } from '../services/chat.service';
 import { LIMITS } from '../config/constants';
-import { logger } from '../utils/logger.util';
 
 export class ChatController {
   constructor(private chatService: ChatService) {}
@@ -11,7 +9,7 @@ export class ChatController {
     try {
       const userId = req.user!.userId;
       const chats = await this.chatService.getUserChats(userId);
-      
+
       res.json({ chats });
     } catch (error) {
       next(error);
@@ -24,7 +22,7 @@ export class ChatController {
       const userId = req.user!.userId;
 
       const chat = await this.chatService.getChatById(chatId, userId);
-      
+
       res.json({ chat });
     } catch (error) {
       next(error);
@@ -37,7 +35,7 @@ export class ChatController {
       const userId = req.user!.userId;
 
       const chat = await this.chatService.getChatBySlug(slug, userId);
-      
+
       res.json({ chat });
     } catch (error) {
       next(error);
@@ -50,7 +48,7 @@ export class ChatController {
       const { contactId } = req.body;
 
       const chat = await this.chatService.createDirectChat(userId, contactId);
-      
+
       res.status(201).json({ chat });
     } catch (error) {
       next(error);
@@ -71,13 +69,13 @@ export class ChatController {
       }
 
       if (participantIds.length > LIMITS.GROUP_MAX_PARTICIPANTS - 1) {
-        return res.status(400).json({ 
-          error: `Maximum ${LIMITS.GROUP_MAX_PARTICIPANTS} participants allowed` 
+        return res.status(400).json({
+          error: `Maximum ${LIMITS.GROUP_MAX_PARTICIPANTS} participants allowed`,
         });
       }
 
       const chat = await this.chatService.createGroupChat(userId, name, participantIds);
-      
+
       res.status(201).json({ chat });
     } catch (error) {
       next(error);
@@ -91,7 +89,7 @@ export class ChatController {
       const { name, avatarUrl } = req.body;
 
       const chat = await this.chatService.updateChat(chatId, userId, { name, avatarUrl });
-      
+
       res.json({ chat });
     } catch (error) {
       next(error);
@@ -109,7 +107,7 @@ export class ChatController {
       }
 
       await this.chatService.addParticipants(chatId, userId, participantIds);
-      
+
       res.json({ message: 'Participants added successfully' });
     } catch (error) {
       next(error);
@@ -122,7 +120,7 @@ export class ChatController {
       const userId = req.user!.userId;
 
       await this.chatService.removeParticipant(chatId, userId, targetUserId);
-      
+
       res.json({ message: 'Participant removed successfully' });
     } catch (error) {
       next(error);
@@ -135,7 +133,7 @@ export class ChatController {
       const userId = req.user!.userId;
 
       await this.chatService.leaveChat(chatId, userId);
-      
+
       res.json({ message: 'Left chat successfully' });
     } catch (error) {
       next(error);
@@ -148,7 +146,7 @@ export class ChatController {
       const userId = req.user!.userId;
 
       await this.chatService.deleteChat(chatId, userId);
-      
+
       res.json({ message: 'Chat deleted successfully' });
     } catch (error) {
       next(error);

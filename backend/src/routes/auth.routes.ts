@@ -17,27 +17,13 @@ const authController = new AuthController(authService);
 const authMiddleware = new AuthMiddleware(authService);
 
 // Public routes
-router.post('/register', 
-  authRateLimit,
-  validate(registerSchema),
-  authController.register
-);
+router.post('/register', authRateLimit, validate(registerSchema), authController.register);
 
-router.post('/login', 
-  authRateLimit,
-  validate(loginSchema),
-  authController.login
-);
+router.post('/login', authRateLimit, validate(loginSchema), authController.login);
 
-router.post('/refresh', 
-  authRateLimit,
-  authController.refreshToken
-);
+router.post('/refresh', authRateLimit, authController.refreshToken);
 
 // Protected routes
-router.post('/logout', 
-  authMiddleware.authenticate,
-  authController.logout
-);
+router.post('/logout', authMiddleware.authenticate, authController.logout);
 
 export { router as authRoutes };

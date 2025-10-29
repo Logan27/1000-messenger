@@ -25,12 +25,7 @@ export class MessageDeliveryQueue {
   async initialize() {
     try {
       // Create consumer group if it doesn't exist
-      await redisClient.xGroupCreate(
-        this.STREAM_KEY,
-        this.CONSUMER_GROUP,
-        '0',
-        { MKSTREAM: true }
-      );
+      await redisClient.xGroupCreate(this.STREAM_KEY, this.CONSUMER_GROUP, '0', { MKSTREAM: true });
     } catch (error: any) {
       if (!error.message.includes('BUSYGROUP')) {
         throw error;
@@ -46,11 +41,7 @@ export class MessageDeliveryQueue {
       createdAt: new Date(),
     };
 
-    await redisClient.xAdd(
-      this.STREAM_KEY,
-      '*',
-      { data: JSON.stringify(message) }
-    );
+    await redisClient.xAdd(this.STREAM_KEY, '*', { data: JSON.stringify(message) });
 
     logger.debug(`Message queued for delivery: ${data.messageId}`);
   }
@@ -92,12 +83,12 @@ export class MessageDeliveryQueue {
       return;
     }
 
-    for (const [stream, messageList] of messages) {
+    for (const [_stream, messageList] of messages) {
       for (const { id, message } of messageList) {
         try {
           const data: QueuedMessage = JSON.parse(message.data);
           await this.deliverMessage(data);
-          
+
           // Acknowledge message
           await redisClient.xAck(this.STREAM_KEY, this.CONSUMER_GROUP, id);
         } catch (error) {
@@ -109,20 +100,15 @@ export class MessageDeliveryQueue {
 
   private async processPendingMessages() {
     // Process messages that weren't acknowledged (e.g., if worker crashed)
-    const pending = await redisClient.xPending(
-      this.STREAM_KEY,
-      this.CONSUMER_GROUP,
-      '-',
-      '+',
-      10
-    );
+    const pending = await redisClient.xPending(this.STREAM_KEY, this.CONSUMER_GROUP, '-', '+', 10);
 
     if (!pending || pending.length === 0) {
       return;
     }
 
     for (const item of pending) {
-      if (item.millisecondsSinceLastDelivery > 60000) { // 1 minute
+      if (item.millisecondsSinceLastDelivery > 60000) {
+        // 1 minute
         // Claim the message
         const claimed = await redisClient.xClaim(
           this.STREAM_KEY,
@@ -136,7 +122,7 @@ export class MessageDeliveryQueue {
           try {
             const data: QueuedMessage = JSON.parse(message.data);
             data.attempts++;
-            
+
             if (data.attempts > 5) {
               logger.error(`Message ${data.messageId} failed after 5 attempts`);
               await redisClient.xAck(this.STREAM_KEY, this.CONSUMER_GROUP, id);
@@ -174,17 +160,13 @@ export class MessageDeliveryQueue {
 
         // Check if user is online
         const isOnline = await this.isUserOnline(recipientId);
-        
+
         if (isOnline) {
           // Send via WebSocket
           this.socketManager.sendToUser(recipientId, 'message:new', message);
-          
+
           // Mark as delivered
-          await this.messageRepo.updateDeliveryStatus(
-            data.messageId,
-            recipientId,
-            'delivered'
-          );
+          await this.messageRepo.updateDeliveryStatus(data.messageId, recipientId, 'delivered');
         }
       } catch (error) {
         logger.error(`Failed to deliver message to user ${recipientId}`, error);

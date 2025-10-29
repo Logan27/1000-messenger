@@ -1,8 +1,4 @@
-import { 
-  PutObjectCommand, 
-  GetObjectCommand,
-  DeleteObjectCommand 
-} from '@aws-sdk/client-s3';
+import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
@@ -26,10 +22,7 @@ export interface UploadResult {
 }
 
 export class StorageService {
-  async uploadImage(
-    file: Express.Multer.File,
-    userId: string
-  ): Promise<UploadResult> {
+  async uploadImage(file: Express.Multer.File, userId: string): Promise<UploadResult> {
     // Validate file
     this.validateImage(file);
 
@@ -58,7 +51,7 @@ export class StorageService {
       .resize(300, 300, { fit: 'cover', position: 'center' })
       .jpeg({ quality: 80 })
       .toBuffer();
-    
+
     const thumbnailKey = `${basePath}/thumbnail.jpg`;
     const thumbnailUrl = await this.uploadToS3(thumbnailKey, thumbnail, 'image/jpeg');
 
@@ -67,7 +60,7 @@ export class StorageService {
       .resize(800, 800, { fit: 'inside' })
       .jpeg({ quality: 85 })
       .toBuffer();
-    
+
     const mediumKey = `${basePath}/medium.jpg`;
     const mediumUrl = await this.uploadToS3(mediumKey, medium, 'image/jpeg');
 
@@ -90,9 +83,7 @@ export class StorageService {
   }
 
   async deleteImage(storageKey: string, thumbnailKey?: string, mediumKey?: string) {
-    const deletePromises = [
-      this.deleteFromS3(storageKey),
-    ];
+    const deletePromises = [this.deleteFromS3(storageKey)];
 
     if (thumbnailKey) {
       deletePromises.push(this.deleteFromS3(thumbnailKey));
@@ -115,11 +106,7 @@ export class StorageService {
     return await getSignedUrl(s3Client, command, { expiresIn });
   }
 
-  private async uploadToS3(
-    key: string,
-    buffer: Buffer,
-    contentType: string
-  ): Promise<string> {
+  private async uploadToS3(key: string, buffer: Buffer, contentType: string): Promise<string> {
     const command = new PutObjectCommand({
       Bucket: S3_CONFIG.bucket,
       Key: key,
@@ -149,7 +136,7 @@ export class StorageService {
 
   private validateImage(file: Express.Multer.File) {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    
+
     if (!allowedTypes.includes(file.mimetype)) {
       throw new Error('Invalid file type. Allowed: JPEG, PNG, GIF, WebP');
     }

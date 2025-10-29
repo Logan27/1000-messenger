@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service';
-import { logger } from '../utils/logger.util';
 
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -14,7 +13,7 @@ export class AuthController {
       }
 
       const user = await this.authService.register(username, password);
-      
+
       res.status(201).json({ user });
     } catch (error) {
       next(error);
@@ -38,7 +37,7 @@ export class AuthController {
       };
 
       const result = await this.authService.login(username, password, deviceInfo);
-      
+
       res.json(result);
     } catch (error) {
       next(error);
@@ -54,7 +53,7 @@ export class AuthController {
       }
 
       const result = await this.authService.refreshAccessToken(refreshToken);
-      
+
       res.json(result);
     } catch (error) {
       next(error);
@@ -67,7 +66,7 @@ export class AuthController {
       const { refreshToken } = req.body;
 
       await this.authService.logout(userId, refreshToken);
-      
+
       res.json({ message: 'Logged out successfully' });
     } catch (error) {
       next(error);

@@ -6,7 +6,7 @@ import { logger } from '../utils/logger.util';
 export const pool = new Pool({
   connectionString: config.DATABASE_URL,
   max: 100, // Maximum connections
-  min: 20,  // Minimum connections
+  min: 20, // Minimum connections
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
   application_name: 'chat-backend-primary',
@@ -22,11 +22,11 @@ export const readPool = new Pool({
   application_name: 'chat-backend-replica',
 });
 
-pool.on('error', (err) => {
+pool.on('error', err => {
   logger.error('Unexpected database error', err);
 });
 
-readPool.on('error', (err) => {
+readPool.on('error', err => {
   logger.error('Unexpected read replica error', err);
 });
 
@@ -44,9 +44,6 @@ export async function testConnection(): Promise<boolean> {
 
 // Graceful shutdown
 export async function closeConnections(): Promise<void> {
-  await Promise.all([
-    pool.end(),
-    readPool.end(),
-  ]);
+  await Promise.all([pool.end(), readPool.end()]);
   logger.info('Database connections closed');
 }

@@ -1,6 +1,5 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
 import { config } from '../config/env';
 import { LIMITS } from '../config/constants';
 import { UserRepository } from '../repositories/user.repository';
@@ -45,7 +44,7 @@ export class AuthService {
   }
 
   async login(
-    username: string, 
+    username: string,
     password: string,
     deviceInfo?: {
       deviceId?: string;
@@ -131,19 +130,15 @@ export class AuthService {
   }
 
   private generateAccessToken(userId: string): string {
-    return jwt.sign(
-      { userId, type: 'access' },
-      config.JWT_SECRET,
-      { expiresIn: LIMITS.ACCESS_TOKEN_DURATION }
-    );
+    return jwt.sign({ userId, type: 'access' }, config.JWT_SECRET, {
+      expiresIn: LIMITS.ACCESS_TOKEN_DURATION,
+    });
   }
 
   private generateRefreshToken(userId: string): string {
-    return jwt.sign(
-      { userId, type: 'refresh' },
-      config.JWT_REFRESH_SECRET,
-      { expiresIn: LIMITS.REFRESH_TOKEN_DURATION }
-    );
+    return jwt.sign({ userId, type: 'refresh' }, config.JWT_REFRESH_SECRET, {
+      expiresIn: LIMITS.REFRESH_TOKEN_DURATION,
+    });
   }
 
   async verifyAccessToken(token: string): Promise<{ userId: string }> {

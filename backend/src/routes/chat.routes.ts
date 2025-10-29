@@ -29,11 +29,7 @@ router.get('/:chatId', chatController.getChatById);
 router.get('/slug/:slug', chatController.getChatBySlug);
 
 router.post('/direct', chatController.createDirectChat);
-router.post('/group', 
-  messageRateLimit,
-  validate(chatSchema),
-  chatController.createGroupChat
-);
+router.post('/group', messageRateLimit, validate(chatSchema), chatController.createGroupChat);
 
 router.put('/:chatId', chatController.updateChat);
 router.post('/:chatId/participants', chatController.addParticipants);

@@ -47,18 +47,10 @@ async function startServer() {
     server = http.createServer(app);
 
     // Initialize WebSocket manager
-    socketManager = new SocketManager(
-      server,
-      authService,
-      sessionService,
-      userRepo
-    );
+    socketManager = new SocketManager(server, authService, sessionService, userRepo);
 
     // Initialize message delivery queue
-    messageQueue = new MessageDeliveryQueue(
-      messageRepo,
-      socketManager
-    );
+    messageQueue = new MessageDeliveryQueue(messageRepo, socketManager);
     await messageQueue.initialize();
     messageQueue.startProcessing();
 
@@ -73,7 +65,6 @@ async function startServer() {
     // Graceful shutdown handlers
     process.on('SIGTERM', gracefulShutdown);
     process.on('SIGINT', gracefulShutdown);
-
   } catch (error) {
     logger.error('Failed to start server', error);
     process.exit(1);

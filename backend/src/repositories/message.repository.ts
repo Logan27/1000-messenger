@@ -1,5 +1,4 @@
 import { pool, readPool } from '../config/database';
-import { logger } from '../utils/logger.util';
 
 export interface Message {
   id: string;
@@ -46,7 +45,7 @@ export class MessageRepository {
       SELECT * FROM messages 
       WHERE id = $1 AND is_deleted = FALSE
     `;
-    
+
     const result = await readPool.query(query, [id]);
     return result.rows[0] ? this.mapRow(result.rows[0]) : null;
   }
@@ -120,12 +119,16 @@ export class MessageRepository {
   }
 
   async createDeliveryRecords(messageId: string, userIds: string[]): Promise<void> {
-    if (userIds.length === 0) return;
+    if (userIds.length === 0) {
+      return;
+    }
 
-    const values = userIds.map((userId, idx) => {
-      const base = idx * 3;
-      return `($${base + 1}, $${base + 2}, $${base + 3})`;
-    }).join(', ');
+    const values = userIds
+      .map((userId, idx) => {
+        const base = idx * 3;
+        return `($${base + 1}, $${base + 2}, $${base + 3})`;
+      })
+      .join(', ');
 
     const query = `
       INSERT INTO message_delivery (message_id, user_id, status)
@@ -187,11 +190,7 @@ export class MessageRepository {
       VALUES ($1, $2, $3)
     `;
 
-    await pool.query(query, [
-      data.messageId,
-      data.oldContent,
-      JSON.stringify(data.oldMetadata),
-    ]);
+    await pool.query(query, [data.messageId, data.oldContent, JSON.stringify(data.oldMetadata)]);
   }
 
   async addReaction(messageId: string, userId: string, emoji: string) {
@@ -248,7 +247,7 @@ export class MessageRepository {
 
     const params = chatId ? [userId, searchQuery, chatId] : [userId, searchQuery];
     const result = await readPool.query(query, params);
-    
+
     return result.rows.map(row => this.mapRow(row));
   }
 
