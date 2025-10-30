@@ -40,9 +40,8 @@ async function startServer() {
         messageQueue = new message_delivery_queue_1.MessageDeliveryQueue(messageRepo, socketManager);
         await messageQueue.initialize();
         messageQueue.startProcessing();
-        const port = parseInt(env_1.config.PORT);
-        server.listen(port, () => {
-            logger_util_1.logger.info(`🚀 Server running on port ${port}`);
+        server.listen(env_1.config.PORT, () => {
+            logger_util_1.logger.info(`🚀 Server running on port ${env_1.config.PORT}`);
             logger_util_1.logger.info(`📡 WebSocket ready for connections`);
             logger_util_1.logger.info(`🌍 Environment: ${env_1.config.NODE_ENV}`);
         });
