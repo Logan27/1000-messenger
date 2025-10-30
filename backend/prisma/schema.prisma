@@ -3,13 +3,14 @@
 // ORM: Prisma 5+
 //
 // This is the Prisma schema file that defines the database models
-// and their relationships. The schema will be populated in subsequent
-// tasks (T019) with all required entities.
+// and their relationships for a real-time messenger application
+// with support for direct/group chats, messages, attachments, reactions,
+// delivery tracking, and unread message management.
 //
 // Learn more: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
@@ -18,6 +19,239 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Models will be defined here in task T019
-// Expected entities: users, contacts, chats, chat_participants, messages,
-// attachments, message_reactions, message_delivery, unread_messages
+// ============================================================================
+// 1. User Management
+// ============================================================================
+
+model User {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username     String    @unique @db.VarChar(50)
+  passwordHash String    @map("password_hash") @db.VarChar(255)
+  displayName  String?   @map("display_name") @db.VarChar(100)
+  avatarUrl    String?   @map("avatar_url") @db.VarChar(500)
+  status       String    @default("offline") @db.VarChar(20)
+  lastSeen     DateTime? @map("last_seen") @db.Timestamp()
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamp()
+
+  // Relations
+  contactsInitiated   Contact[]         @relation("UserContacts")
+  contactsReceived    Contact[]         @relation("ContactUser")
+  contactRequestsMade Contact[]         @relation("RequestedBy")
+  ownedChats          Chat[]            @relation("ChatOwner")
+  chatParticipations  ChatParticipant[]
+  sentMessages        Message[]         @relation("MessageSender")
+  messageReactions    MessageReaction[]
+  messageDeliveries   MessageDelivery[]
+  unreadMessages      UnreadMessage[]
+
+  @@index([username])
+  @@index([status])
+  @@index([lastSeen(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@map("users")
+}
+
+// ============================================================================
+// 2. Contact Management
+// ============================================================================
+
+model Contact {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  contactId   String    @map("contact_id") @db.Uuid
+  status      String    @db.VarChar(20)
+  requestedBy String    @map("requested_by") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp()
+  acceptedAt  DateTime? @map("accepted_at") @db.Timestamp()
+
+  // Relations
+  user            User @relation("UserContacts", fields: [userId], references: [id], onDelete: Cascade)
+  contact         User @relation("ContactUser", fields: [contactId], references: [id], onDelete: Cascade)
+  requestedByUser User @relation("RequestedBy", fields: [requestedBy], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contactId])
+  @@index([userId, status])
+  @@index([contactId, status])
+  @@map("contacts")
+}
+
+// ============================================================================
+// 3. Chat Management
+// ============================================================================
+
+model Chat {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type          String    @db.VarChar(20)
+  name          String?   @db.VarChar(100)
+  slug          String?   @unique @db.VarChar(100)
+  avatarUrl     String?   @map("avatar_url") @db.VarChar(500)
+  ownerId       String?   @map("owner_id") @db.Uuid
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamp()
+  lastMessageAt DateTime? @map("last_message_at") @db.Timestamp()
+  isDeleted     Boolean   @default(false) @map("is_deleted")
+
+  // Relations
+  owner          User?             @relation("ChatOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  participants   ChatParticipant[]
+  messages       Message[]
+  unreadMessages UnreadMessage[]
+
+  @@index([type])
+  @@index([slug])
+  @@index([ownerId])
+  @@index([lastMessageAt(sort: Desc)])
+  @@map("chats")
+}
+
+// ============================================================================
+// 4. Chat Participants
+// ============================================================================
+
+model ChatParticipant {
+  id       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  chatId   String    @map("chat_id") @db.Uuid
+  userId   String    @map("user_id") @db.Uuid
+  role     String    @default("member") @db.VarChar(20)
+  joinedAt DateTime  @default(now()) @map("joined_at") @db.Timestamp()
+  leftAt   DateTime? @map("left_at") @db.Timestamp()
+
+  // Relations
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([chatId, userId])
+  @@index([chatId, leftAt])
+  @@index([userId, leftAt])
+  @@index([chatId, joinedAt])
+  @@map("chat_participants")
+}
+
+// ============================================================================
+// 5. Messages
+// ============================================================================
+
+model Message {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  chatId      String    @map("chat_id") @db.Uuid
+  senderId    String?   @map("sender_id") @db.Uuid
+  content     String    @db.Text
+  contentType String    @default("text") @map("content_type") @db.VarChar(20)
+  metadata    Json      @default("{}") @db.JsonB
+  replyToId   String?   @map("reply_to_id") @db.Uuid
+  isEdited    Boolean   @default(false) @map("is_edited")
+  editedAt    DateTime? @map("edited_at") @db.Timestamp()
+  isDeleted   Boolean   @default(false) @map("is_deleted")
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamp()
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp()
+
+  // Relations
+  chat           Chat              @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender         User?             @relation("MessageSender", fields: [senderId], references: [id], onDelete: SetNull)
+  replyTo        Message?          @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies        Message[]         @relation("MessageReplies")
+  attachments    Attachment[]
+  reactions      MessageReaction[]
+  deliveries     MessageDelivery[]
+  unreadMessages UnreadMessage[]
+
+  @@index([chatId, createdAt(sort: Desc)])
+  @@index([senderId, createdAt(sort: Desc)])
+  @@index([replyToId])
+  @@map("messages")
+}
+
+// ============================================================================
+// 6. Attachments
+// ============================================================================
+
+model Attachment {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  messageId    String   @map("message_id") @db.Uuid
+  fileName     String   @map("file_name") @db.VarChar(255)
+  fileType     String   @map("file_type") @db.VarChar(50)
+  fileSize     Int      @map("file_size")
+  storageKey   String   @map("storage_key") @db.VarChar(500)
+  thumbnailKey String   @map("thumbnail_key") @db.VarChar(500)
+  url          String   @db.VarChar(500)
+  thumbnailUrl String   @map("thumbnail_url") @db.VarChar(500)
+  width        Int?
+  height       Int?
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  // Relations
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+  @@index([createdAt(sort: Desc)])
+  @@map("attachments")
+}
+
+// ============================================================================
+// 7. Message Reactions
+// ============================================================================
+
+model MessageReaction {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  messageId String   @map("message_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  emoji     String   @db.VarChar(10)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  // Relations
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId, emoji])
+  @@index([messageId, emoji])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("message_reactions")
+}
+
+// ============================================================================
+// 8. Message Delivery
+// ============================================================================
+
+model MessageDelivery {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  messageId   String    @map("message_id") @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  status      String    @default("pending") @db.VarChar(20)
+  deliveredAt DateTime? @map("delivered_at") @db.Timestamp()
+  readAt      DateTime? @map("read_at") @db.Timestamp()
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp()
+
+  // Relations
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+  @@index([messageId, status])
+  @@index([userId, status])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("message_delivery")
+}
+
+// ============================================================================
+// 9. Unread Messages
+// ============================================================================
+
+model UnreadMessage {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  chatId    String   @map("chat_id") @db.Uuid
+  messageId String   @map("message_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chat    Chat    @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chatId, messageId])
+  @@index([userId, chatId])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([chatId, userId])
+  @@map("unread_messages")
+}
