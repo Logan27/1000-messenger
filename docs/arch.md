@@ -2477,7 +2477,7 @@ cp .env.example .env
 # Edit .env with your configuration
 
 # 4. Start development databases
-docker-compose up -d postgres redis minio
+docker compose up -d postgres redis minio
 
 # 5. Run database migrations
 npm run migrate

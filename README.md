@@ -41,6 +41,14 @@ A modern, scalable chat application with real-time messaging, group chats, and f
 - Docker & Docker Compose
 - Node.js 20+ (for local development)
 
+### Verify Your Setup
+
+Run the verification script to check if your environment is ready:
+
+```bash
+./scripts/verify-dev-setup.sh
+```
+
 ### Using Docker Compose (Recommended)
 
 ```bash
@@ -49,13 +57,13 @@ git clone <repo-url>
 cd chat-application
 
 # Start all services
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f backend
+docker compose logs -f backend
 
 # Stop services
-docker-compose down
+docker compose down
 ```
 
 Access the application:
@@ -64,31 +72,64 @@ Access the application:
 - Backend API: http://localhost:3000
 - MinIO Console: http://localhost:9001
 
-### Local Development
+### Local Development (Infrastructure Only)
 
-#### Backend
+For the best development experience, run only the infrastructure services in Docker and run the backend/frontend locally:
+
+```bash
+# 1. Start infrastructure services (PostgreSQL, Redis, MinIO)
+docker compose -f docker-compose.dev.yml up -d
+
+# 2. Wait for services to be healthy
+docker compose -f docker-compose.dev.yml ps
+
+# 3. View logs if needed
+docker compose -f docker-compose.dev.yml logs -f
+
+# Stop services when done
+docker compose -f docker-compose.dev.yml down
+```
+
+Access infrastructure services:
+- PostgreSQL: `localhost:5432`
+- Redis: `localhost:6379`
+- MinIO Console: http://localhost:9001 (credentials: minioadmin/minioadmin)
+- MinIO API: http://localhost:9000
+
+#### Backend Setup
+
 ```bash
 cd backend
 npm install
-cp env.example .env
-# Edit .env with your configuration
 
-# Run migrations
+# Copy environment file
+cp .env.example .env
+# Edit .env if needed (defaults work with docker-compose.dev.yml)
+
+# Run database migrations
 npm run migrate
 
-# Start development server
+# Start development server (with hot-reload)
 npm run dev
 ```
 
-#### Frontend
+The backend will run at: http://localhost:3000
+
+#### Frontend Setup
+
 ```bash
 cd frontend
 npm install
-cp .env.example .env
 
-# Start development server
+# Copy environment file
+cp .env.example .env
+# Edit .env if needed (defaults work with backend on localhost:3000)
+
+# Start development server (with hot-reload)
 npm run dev
 ```
+
+The frontend will run at: http://localhost:5173
 
 ## Deployment
 
