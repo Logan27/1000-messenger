@@ -63,11 +63,17 @@ Multi-stage Dockerfile with:
 
 Production nginx configuration with:
 - SPA routing (try_files fallback)
-- Gzip compression
-- Cache headers
-- Security headers
-- Health check endpoint
-- Error pages
+- Gzip compression (multiple formats including fonts and SVG)
+- Cache headers (1 year for immutable assets, no-cache for index.html)
+- Security headers (X-Frame-Options, CSP, XSS-Protection, etc.)
+- Content Security Policy (CSP) for enhanced security
+- Rate limiting (DDoS protection with configurable zones)
+- Health check endpoint (/health)
+- Client settings (12M max body size for image uploads)
+- Connection and timeout settings optimized for real-time apps
+- Special handling for manifest files, robots.txt, sitemap.xml
+- Protection against access to hidden and backup files
+- Error pages with proper fallback
 
 ### docker-entrypoint.sh
 
