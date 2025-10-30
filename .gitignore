@@ -1,4 +1,4 @@
-# IDE
+# IDE and Editor
 /.cursor
 .vscode/
 .idea/
@@ -9,18 +9,16 @@
 # Dependencies
 node_modules/
 package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
-# Environment
-.env
-.env.local
-.env.*.local
 
 # Build outputs
 dist/
 build/
 *.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.*.local
 
 # Logs
 logs/
@@ -28,27 +26,19 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-lerna-debug.log*
+pnpm-debug.log*
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Docker
-docker-compose.override.yml
-
-# Test coverage
+# Testing
 coverage/
 .nyc_output/
 
-# Temp files
+# Temporary
 *.tmp
 .cache/
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# MinIO data (local)
-.minio.sys/
+# Docker
+docker-compose.override.yml
