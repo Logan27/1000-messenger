@@ -26,7 +26,7 @@ interface MessageListProps {
 export const MessageList: React.FC<MessageListProps> = ({ messages }) => {
   return (
     <div className="space-y-4">
-      {messages.map((message) => (
+      {messages.map(message => (
         <Message
           key={message.id}
           message={message}

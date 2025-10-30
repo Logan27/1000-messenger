@@ -7,7 +7,7 @@ import { ChatLayout } from './components/chat/ChatLayout';
 
 function App() {
   const { isAuthenticated } = useAuthStore();
-  
+
   // Initialize WebSocket connection
   useWebSocket();
 
@@ -15,17 +15,17 @@ function App() {
     <Router>
       <div className="min-h-screen bg-gray-100">
         <Routes>
-          <Route 
-            path="/login" 
-            element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />} 
+          <Route
+            path="/login"
+            element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />}
           />
-          <Route 
-            path="/register" 
-            element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />} 
+          <Route
+            path="/register"
+            element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />}
           />
-          <Route 
-            path="/*" 
-            element={isAuthenticated ? <ChatLayout /> : <Navigate to="/login" replace />} 
+          <Route
+            path="/*"
+            element={isAuthenticated ? <ChatLayout /> : <Navigate to="/login" replace />}
           />
         </Routes>
       </div>

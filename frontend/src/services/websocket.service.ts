@@ -27,38 +27,40 @@ class WebSocketService {
     if (!this.socket) return;
 
     this.socket.on('connect', () => {
-      console.log('✅ WebSocket connected');
       this.reconnectAttempts = 0;
     });
 
-    this.socket.on('disconnect', (reason) => {
-      console.log('❌ WebSocket disconnected:', reason);
+    this.socket.on('disconnect', reason => {
+      console.warn('❌ WebSocket disconnected:', reason);
     });
 
-    this.socket.on('connect_error', (error) => {
+    this.socket.on('connect_error', error => {
       console.error('WebSocket connection error:', error);
       this.reconnectAttempts++;
     });
 
-    this.socket.on('reconnect_attempt', (attempt) => {
-      console.log(`Reconnection attempt ${attempt}/${this.maxReconnectAttempts}`);
+    this.socket.on('reconnect_attempt', attempt => {
+      console.warn(`Reconnection attempt ${attempt}/${this.maxReconnectAttempts}`);
     });
 
-    this.socket.on('server:shutdown', (data) => {
+    this.socket.on('server:shutdown', data => {
       console.warn('Server shutdown:', data.message);
       // Show notification to user
     });
   }
 
-  on(event: string, callback: (data: unknown) => void) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  on(event: string, callback: (data: any) => void) {
     this.socket?.on(event, callback);
   }
 
-  off(event: string, callback?: (data: unknown) => void) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  off(event: string, callback?: (data: any) => void) {
     this.socket?.off(event, callback);
   }
 
-  emit(event: string, data: unknown) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  emit(event: string, data: any) {
     this.socket?.emit(event, data);
   }
 

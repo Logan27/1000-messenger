@@ -1,8 +1,5 @@
 import React, { useState, useRef, KeyboardEvent } from 'react';
-import { 
-  PaperAirplaneIcon, 
-  PhotoIcon,
-} from '@heroicons/react/24/outline';
+import { PaperAirplaneIcon, PhotoIcon } from '@heroicons/react/24/outline';
 
 interface MessageInputProps {
   onSend: (content: string, files?: File[]) => void;
@@ -49,7 +46,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, onTyping }) 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const imageFiles = files.filter(file => file.type.startsWith('image/'));
-    
+
     if (imageFiles.length > 5) {
       alert('Maximum 5 images allowed');
       return;
@@ -108,7 +105,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, onTyping }) 
         <textarea
           ref={textareaRef}
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={e => setContent(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="Type a message..."
           className="flex-1 resize-none border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
