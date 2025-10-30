@@ -1,4 +1,4 @@
-import { redisClient } from '../config/redis';
+import { redisClient, REDIS_CONFIG } from '../config/redis';
 import { MessageRepository } from '../repositories/message.repository';
 import { SocketManager } from '../websocket/socket.manager';
 import { logger } from '../utils/logger.util';
@@ -12,7 +12,7 @@ interface QueuedMessage {
 }
 
 export class MessageDeliveryQueue {
-  private readonly STREAM_KEY = 'message-delivery-stream';
+  private readonly STREAM_KEY = REDIS_CONFIG.STREAMS.MESSAGE_DELIVERY;
   private readonly CONSUMER_GROUP = 'message-delivery-workers';
   private readonly CONSUMER_NAME = `worker-${process.pid}`;
   private isProcessing = false;

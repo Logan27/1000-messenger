@@ -1,5 +1,4 @@
 import { pool } from '../config/database';
-import { redisClient } from '../config/redis';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface Session {
@@ -114,7 +113,8 @@ export class SessionService {
     await pool.query(query, [sessionToken]);
 
     // Remove from Redis
-    await redisClient.del(`session:${sessionToken}`);
+    const { REDIS_CONFIG, cacheHelpers } = await import('../config/redis');
+    await cacheHelpers.del(`${REDIS_CONFIG.KEYS.SESSION}${sessionToken}`);
   }
 
   async invalidateAllUserSessions(userId: string): Promise<void> {
@@ -127,11 +127,9 @@ export class SessionService {
     await pool.query(query, [userId]);
 
     // Remove all user sessions from Redis
-    const pattern = `session:${userId}:*`;
-    const keys = await redisClient.keys(pattern);
-    if (keys.length > 0) {
-      await redisClient.del(keys);
-    }
+    const { REDIS_CONFIG, cacheHelpers } = await import('../config/redis');
+    const pattern = `${REDIS_CONFIG.KEYS.SESSION}${userId}:*`;
+    await cacheHelpers.delPattern(pattern);
   }
 
   async updateLastActivity(sessionToken: string): Promise<void> {
@@ -145,14 +143,15 @@ export class SessionService {
   }
 
   private async cacheSession(session: Session): Promise<void> {
-    const key = `session:${session.sessionToken}`;
-    await redisClient.setEx(key, 3600, JSON.stringify(session)); // 1 hour TTL
+    const { REDIS_CONFIG, cacheHelpers } = await import('../config/redis');
+    const key = `${REDIS_CONFIG.KEYS.SESSION}${session.sessionToken}`;
+    await cacheHelpers.set(key, session, REDIS_CONFIG.TTL.SESSION);
   }
 
   private async getCachedSession(token: string): Promise<Session | null> {
-    const key = `session:${token}`;
-    const cached = await redisClient.get(key);
-    return cached ? JSON.parse(cached) : null;
+    const { REDIS_CONFIG, cacheHelpers } = await import('../config/redis');
+    const key = `${REDIS_CONFIG.KEYS.SESSION}${token}`;
+    return await cacheHelpers.get<Session>(key);
   }
 
   private mapRow(row: any): Session {

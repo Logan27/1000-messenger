@@ -1,3 +1,45 @@
+import { RedisClientType } from 'redis';
+export declare const REDIS_CONFIG: {
+    readonly MAX_RECONNECT_ATTEMPTS: 10;
+    readonly RECONNECT_DELAY_BASE: 100;
+    readonly SOCKET_TIMEOUT: 5000;
+    readonly COMMAND_TIMEOUT: 5000;
+    readonly TTL: {
+        readonly SESSION: 3600;
+        readonly USER_STATUS: 300;
+        readonly CHAT_LIST: 600;
+        readonly MESSAGE_CACHE: 1800;
+        readonly CONTACT_LIST: 600;
+        readonly TYPING_INDICATOR: 5;
+        readonly PRESENCE: 300;
+    };
+    readonly KEYS: {
+        readonly SESSION: "session:";
+        readonly USER_STATUS: "user:status:";
+        readonly USER_ONLINE: "user:online:";
+        readonly CHAT_LIST: "chat:list:";
+        readonly CHAT_UNREAD: "chat:unread:";
+        readonly MESSAGE: "message:";
+        readonly CONTACT_LIST: "contact:list:";
+        readonly TYPING: "typing:";
+        readonly PRESENCE: "presence:";
+        readonly RATE_LIMIT: "ratelimit:";
+    };
+    readonly CHANNELS: {
+        readonly MESSAGE_NEW: "message:new";
+        readonly MESSAGE_EDIT: "message:edit";
+        readonly MESSAGE_DELETE: "message:delete";
+        readonly MESSAGE_REACTION: "message:reaction";
+        readonly USER_STATUS: "user:status";
+        readonly TYPING_START: "typing:start";
+        readonly TYPING_STOP: "typing:stop";
+        readonly READ_RECEIPT: "read:receipt";
+        readonly CHAT_UPDATE: "chat:update";
+    };
+    readonly STREAMS: {
+        readonly MESSAGE_DELIVERY: "message-delivery-stream";
+    };
+};
 declare const redisClient: import("@redis/client").RedisClientType<{
     graph: {
         CONFIG_GET: typeof import("@redis/graph/dist/commands/CONFIG_GET");
@@ -870,5 +912,26 @@ declare const redisSubClient: import("@redis/client").RedisClientType<{
 } & import("redis").RedisModules, import("redis").RedisFunctions, import("redis").RedisScripts>;
 export declare function connectRedis(): Promise<void>;
 export declare function closeRedis(): Promise<void>;
+export declare function checkRedisHealth(): Promise<boolean>;
+export declare const cacheHelpers: {
+    getOrSet<T>(key: string, ttl: number, fetchFn: () => Promise<T>): Promise<T>;
+    set(key: string, value: any, ttl: number): Promise<void>;
+    get<T>(key: string): Promise<T | null>;
+    del(key: string): Promise<void>;
+    delPattern(pattern: string): Promise<void>;
+    setPermanent(key: string, value: any): Promise<void>;
+    incr(key: string): Promise<number>;
+    incrWithExpiry(key: string, ttl: number): Promise<number>;
+    sadd(key: string, ...members: string[]): Promise<void>;
+    srem(key: string, ...members: string[]): Promise<void>;
+    smembers(key: string): Promise<string[]>;
+    sismember(key: string, member: string): Promise<boolean>;
+};
+export declare const pubSubHelpers: {
+    publish(channel: string, message: any): Promise<void>;
+    subscribe(channel: string, handler: (message: any) => void): Promise<void>;
+    unsubscribe(channel: string): Promise<void>;
+};
 export { redisClient, redisPubClient, redisSubClient };
+export type { RedisClientType };
 //# sourceMappingURL=redis.d.ts.map

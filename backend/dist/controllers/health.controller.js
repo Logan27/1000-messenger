@@ -30,8 +30,7 @@ class HealthController {
                 logger_util_1.logger.error('Database health check failed', error);
             }
             try {
-                await redis_1.redisClient.ping();
-                checks.redis = true;
+                checks.redis = await (0, redis_1.checkRedisHealth)();
             }
             catch (error) {
                 logger_util_1.logger.error('Redis health check failed', error);
