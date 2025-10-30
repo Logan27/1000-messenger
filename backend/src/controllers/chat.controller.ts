@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { v4 as uuidv4 } from 'uuid';
 import { ChatService } from '../services/chat.service';
 import { LIMITS } from '../config/constants';
-import { logger } from '../utils/logger.util';
 
 export class ChatController {
   constructor(private chatService: ChatService) {}

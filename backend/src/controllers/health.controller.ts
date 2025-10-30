@@ -4,7 +4,7 @@ import { redisClient } from '../config/redis';
 import { logger } from '../utils/logger.util';
 
 export class HealthController {
-  health = async (req: Request, res: Response, next: NextFunction) => {
+  health = async (_req: Request, res: Response, next: NextFunction) => {
     try {
       res.json({ 
         status: 'ok', 
@@ -16,7 +16,7 @@ export class HealthController {
     }
   };
 
-  ready = async (req: Request, res: Response, next: NextFunction) => {
+  ready = async (_req: Request, res: Response, next: NextFunction) => {
     try {
       const checks = {
         database: false,

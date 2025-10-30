@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io';
 import { AuthService } from '../../services/auth.service';
 import { SessionService } from '../../services/session.service';
-import { logger } from '../utils/logger.util';
+import { logger } from '../../utils/logger.util';
 
 export class SocketAuthMiddleware {
   constructor(
@@ -11,7 +11,7 @@ export class SocketAuthMiddleware {
 
   async authenticate(socket: Socket, next: (err?: Error) => void) {
     try {
-      const token = socket.handshake.auth.token;
+      const token = socket.handshake.auth['token'];
       
       if (!token) {
         return next(new Error('Authentication token required'));

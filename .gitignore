@@ -1,11 +1,14 @@
 /.cursor
 
 # Dependencies
+# Node.js
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
+.pnpm-debug.log*
 
 # Build outputs
 dist/
@@ -13,6 +16,9 @@ build/
 *.local
 
 # Environment variables
+*.tsbuildinfo
+
+# Environment files
 .env
 .env.local
 .env.*.local
@@ -30,6 +36,9 @@ Thumbs.db
 
 # Testing
 coverage/
+# Test coverage
+coverage/
+*.lcov
 
 # Logs
 logs/
@@ -37,3 +46,6 @@ logs/
 
 # Misc
 .cache/
+# Temporary files
+tmp/
+temp/

@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../services/user.service';
-import { logger } from '../utils/logger.util';
 
 export class UserController {
   constructor(private userService: UserService) {}
@@ -32,7 +31,7 @@ export class UserController {
   searchUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { q } = req.query;
-      const limit = parseInt(req.query.limit as string) || 20;
+      const limit = parseInt(req.query['limit'] as string) || 20;
 
       if (!q || typeof q !== 'string') {
         return res.status(400).json({ error: 'Search query is required' });

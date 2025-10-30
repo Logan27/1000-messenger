@@ -23,7 +23,7 @@ export class SocketManager {
   ) {
     this.io = new SocketServer(httpServer, {
       cors: {
-        origin: process.env.FRONTEND_URL,
+        origin: process.env['FRONTEND_URL'],
         credentials: true,
       },
       transports: ['websocket', 'polling'], // WebSocket with polling fallback
@@ -45,7 +45,7 @@ export class SocketManager {
   private setupMiddleware() {
     this.io.use(async (socket, next) => {
       try {
-        const token = socket.handshake.auth.token;
+        const token = socket.handshake.auth['token'];
         
         if (!token) {
           return next(new Error('Authentication token required'));
@@ -175,7 +175,7 @@ export class SocketManager {
     }
   }
 
-  private async getUserChatIds(userId: string): Promise<string[]> {
+  private async getUserChatIds(_userId: string): Promise<string[]> {
     // Simplified - would use ChatRepository
     return [];
   }
