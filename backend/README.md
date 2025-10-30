@@ -71,6 +71,21 @@ cp env.example .env
 nano .env
 ```
 
+### Docker Setup
+
+For containerized deployment, see [DOCKER.md](./DOCKER.md) for detailed instructions.
+
+Quick start with Docker:
+
+```bash
+# Build Docker image
+docker build -t chat-backend:latest .
+
+# Run with Docker Compose (recommended for development)
+cd ..
+docker-compose up -d backend
+```
+
 ### Development
 
 ```bash
