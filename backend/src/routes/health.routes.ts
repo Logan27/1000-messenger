@@ -7,5 +7,6 @@ const healthController = new HealthController();
 // Health check routes (no authentication required)
 router.get('/', healthController.health);
 router.get('/ready', healthController.ready);
+router.get('/detailed', healthController.detailed);
 
 export { router as healthRoutes };
