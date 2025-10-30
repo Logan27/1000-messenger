@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { config } from '../config/env';
+import { config, JWT_CONFIG } from '../config/env';
 import { LIMITS } from '../config/constants';
 import { UserRepository } from '../repositories/user.repository';
 import { SessionService } from './session.service';
@@ -146,7 +146,7 @@ export class AuthService {
     return jwt.sign(
       { userId, type: 'access' },
       config.JWT_SECRET,
-      { expiresIn: LIMITS.ACCESS_TOKEN_DURATION as string | number }
+      { expiresIn: JWT_CONFIG.ACCESS_TOKEN_EXPIRY }
     );
   }
 
@@ -154,7 +154,7 @@ export class AuthService {
     return jwt.sign(
       { userId, type: 'refresh' },
       config.JWT_REFRESH_SECRET,
-      { expiresIn: LIMITS.REFRESH_TOKEN_DURATION as string | number }
+      { expiresIn: JWT_CONFIG.REFRESH_TOKEN_EXPIRY }
     );
   }
 

@@ -59,9 +59,8 @@ async function startServer() {
     messageQueue.startProcessing();
 
     // Start server
-    const port = parseInt(config.PORT);
-    server.listen(port, () => {
-      logger.info(`🚀 Server running on port ${port}`);
+    server.listen(config.PORT, () => {
+      logger.info(`🚀 Server running on port ${config.PORT}`);
       logger.info(`📡 WebSocket ready for connections`);
       logger.info(`🌍 Environment: ${config.NODE_ENV}`);
     });
