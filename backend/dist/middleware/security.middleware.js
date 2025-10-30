@@ -8,6 +8,7 @@ const helmet_1 = __importDefault(require("helmet"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const sanitize_html_1 = __importDefault(require("sanitize-html"));
 const constants_1 = require("../config/constants");
+const env_1 = require("../config/env");
 exports.securityHeaders = (0, helmet_1.default)({
     contentSecurityPolicy: {
         directives: {
@@ -15,7 +16,7 @@ exports.securityHeaders = (0, helmet_1.default)({
             styleSrc: ["'self'", "'unsafe-inline'"],
             scriptSrc: ["'self'"],
             imgSrc: ["'self'", 'data:', 'https:'],
-            connectSrc: ["'self'", process.env.S3_PUBLIC_URL || ''],
+            connectSrc: ["'self'", env_1.config.S3_PUBLIC_URL || ''],
             fontSrc: ["'self'"],
             objectSrc: ["'none'"],
             mediaSrc: ["'self'"],

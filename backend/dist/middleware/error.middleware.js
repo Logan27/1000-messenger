@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.notFoundHandler = exports.errorHandler = void 0;
 const logger_util_1 = require("../utils/logger.util");
+const env_1 = require("../config/env");
 const errorHandler = (error, req, res, _next) => {
     logger_util_1.logger.error('Unhandled error', {
         error: error.message,
@@ -10,7 +11,7 @@ const errorHandler = (error, req, res, _next) => {
         method: req.method,
         ip: req.ip,
     });
-    const isDevelopment = process.env.NODE_ENV === 'development';
+    const isDevelopment = env_1.config.NODE_ENV === 'development';
     res.status(500).json({
         error: isDevelopment ? error.message : 'Internal server error',
         ...(isDevelopment && { stack: error.stack }),

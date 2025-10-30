@@ -9,6 +9,9 @@ build/
 *.log
 *.tsbuildinfo
 
+# Prisma
+**/src/generated/
+
 # Environment variables
 .env
 .env.local

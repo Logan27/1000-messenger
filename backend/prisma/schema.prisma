@@ -1,0 +1,23 @@
+// Prisma Schema File - Real-Time Messenger Application
+// Database: PostgreSQL 15+
+// ORM: Prisma 5+
+//
+// This is the Prisma schema file that defines the database models
+// and their relationships. The schema will be populated in subsequent
+// tasks (T019) with all required entities.
+//
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Models will be defined here in task T019
+// Expected entities: users, contacts, chats, chat_participants, messages,
+// attachments, message_reactions, message_delivery, unread_messages

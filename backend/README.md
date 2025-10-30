@@ -9,6 +9,7 @@ Node.js backend service with TypeScript 5+ for the chat application.
 - **Framework**: Express.js
 - **Real-time**: Socket.IO
 - **Database**: PostgreSQL 15
+- **ORM**: Prisma 5+
 - **Cache**: Redis 7
 - **Storage**: MinIO / AWS S3
 - **Testing**: Jest
@@ -30,11 +31,16 @@ backend/
 │   ├── websocket/        # WebSocket handlers
 │   ├── queues/           # Message queue handlers
 │   ├── database/         # Database migrations
+│   ├── generated/        # Generated code (Prisma client, etc.)
 │   ├── app.ts            # Express app setup
 │   └── server.ts         # Entry point
+├── prisma/
+│   ├── schema.prisma     # Prisma schema definition
+│   └── migrations/       # Prisma migrations (generated)
 ├── tests/                # Test files
 ├── dist/                 # Compiled JavaScript (generated)
 ├── package.json          # Dependencies and scripts
+├── prisma.config.ts      # Prisma configuration
 ├── tsconfig.json         # TypeScript configuration
 ├── jest.config.js        # Jest configuration
 ├── .eslintrc.json        # ESLint configuration
@@ -94,7 +100,19 @@ npm run start
 ### Database
 
 ```bash
-# Run database migrations
+# Generate Prisma client (run after schema changes)
+npm run prisma:generate
+
+# Run Prisma migrations (development)
+npm run prisma:migrate
+
+# Deploy migrations (production)
+npm run prisma:migrate:deploy
+
+# Open Prisma Studio (database GUI)
+npm run prisma:studio
+
+# Run database migrations (legacy)
 npm run migrate
 
 # Seed database with test data
@@ -210,14 +228,25 @@ See `env.example` for all available environment variables:
 
 ## Scripts
 
+### Development
 - `npm run dev` - Start development server with auto-reload
 - `npm run build` - Compile TypeScript
 - `npm run start` - Start production server
-- `npm run migrate` - Run database migrations
+
+### Prisma / Database
+- `npm run prisma:generate` - Generate Prisma client
+- `npm run prisma:migrate` - Run Prisma migrations (development)
+- `npm run prisma:migrate:deploy` - Deploy migrations (production)
+- `npm run prisma:studio` - Open Prisma Studio (database GUI)
+- `npm run migrate` - Run database migrations (legacy)
 - `npm run seed` - Seed database
+
+### Testing
 - `npm test` - Run tests
 - `npm test:watch` - Run tests in watch mode
 - `npm test:coverage` - Run tests with coverage
+
+### Code Quality
 - `npm run lint` - Run ESLint
 - `npm run lint:fix` - Fix ESLint issues
 - `npm run type-check` - Run TypeScript type checking

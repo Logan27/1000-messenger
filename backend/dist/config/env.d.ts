@@ -13,7 +13,7 @@ export declare const config: {
     FRONTEND_URL: string;
     ENABLE_METRICS: string;
     LOG_LEVEL: "error" | "warn" | "info" | "http" | "verbose" | "debug" | "silly";
-    S3_PUBLIC_URL?: string | undefined;
     DATABASE_REPLICA_URL?: string | undefined;
+    S3_PUBLIC_URL?: string | undefined;
 };
 //# sourceMappingURL=env.d.ts.map
