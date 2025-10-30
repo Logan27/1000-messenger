@@ -115,6 +115,9 @@ npm run start
 ### Database
 
 ```bash
+# Run SQL migrations (initial schema)
+npm run migrate
+
 # Generate Prisma client (run after schema changes)
 npm run prisma:generate
 
@@ -127,12 +130,11 @@ npm run prisma:migrate:deploy
 # Open Prisma Studio (database GUI)
 npm run prisma:studio
 
-# Run database migrations (legacy)
-npm run migrate
-
 # Seed database with test data
 npm run seed
 ```
+
+**Note**: The `npm run migrate` command runs SQL migrations from `src/database/migrations/` which includes the initial schema. For ongoing development, use Prisma migrations with `npm run prisma:migrate`.
 
 ### Testing
 
