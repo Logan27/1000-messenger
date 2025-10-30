@@ -5,7 +5,7 @@ export interface Contact {
   id: string;
   userId: string;
   contactId: string;
-  status: typeof CONTACT_STATUS[keyof typeof CONTACT_STATUS];
+  status: (typeof CONTACT_STATUS)[keyof typeof CONTACT_STATUS];
   requestedBy: string;
   createdAt: Date;
   acceptedAt?: Date;
@@ -29,7 +29,7 @@ export class ContactRepository {
       SELECT * FROM contacts 
       WHERE user_id = $1 AND contact_id = $2
     `;
-    
+
     const result = await readPool.query(query, [userId, contactId]);
     return result.rows[0] ? this.mapRow(result.rows[0]) : null;
   }
@@ -42,7 +42,7 @@ export class ContactRepository {
         AND status = 'accepted'
       LIMIT 1
     `;
-    
+
     const result = await readPool.query(query, [user1Id, user2Id]);
     return result.rows.length > 0;
   }

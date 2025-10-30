@@ -63,21 +63,23 @@ export class SessionService {
   async findByToken(token: string): Promise<Session | null> {
     // Try Redis first
     const cached = await this.getCachedSession(token);
-    if (cached) return cached;
+    if (cached) {
+      return cached;
+    }
 
     // Fallback to database
     const query = `
       SELECT * FROM user_sessions 
       WHERE session_token = $1 AND is_active = TRUE AND expires_at > CURRENT_TIMESTAMP
     `;
-    
+
     const result = await pool.query(query, [token]);
     const session = result.rows[0] ? this.mapRow(result.rows[0]) : null;
-    
+
     if (session) {
       await this.cacheSession(session);
     }
-    
+
     return session;
   }
 
@@ -87,7 +89,7 @@ export class SessionService {
       WHERE user_id = $1 AND is_active = TRUE AND expires_at > CURRENT_TIMESTAMP
       ORDER BY last_activity DESC
     `;
-    
+
     const result = await pool.query(query, [userId]);
     return result.rows.map(row => this.mapRow(row));
   }
@@ -110,7 +112,7 @@ export class SessionService {
     `;
 
     await pool.query(query, [sessionToken]);
-    
+
     // Remove from Redis
     await redisClient.del(`session:${sessionToken}`);
   }
@@ -123,7 +125,7 @@ export class SessionService {
     `;
 
     await pool.query(query, [userId]);
-    
+
     // Remove all user sessions from Redis
     const pattern = `session:${userId}:*`;
     const keys = await redisClient.keys(pattern);

@@ -11,7 +11,7 @@ export class ReadReceiptHandler {
     socket.on('message:mark-read', async (data: { messageId: string }) => {
       try {
         await this.messageService.markAsRead(data.messageId, userId);
-        
+
         socket.emit('message:read:success', {
           messageId: data.messageId,
           readBy: userId,

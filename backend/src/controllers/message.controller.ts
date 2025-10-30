@@ -22,7 +22,7 @@ export class MessageController {
         metadata,
         replyToId,
       });
-      
+
       res.status(201).json({ message });
     } catch (error) {
       next(error);
@@ -37,7 +37,7 @@ export class MessageController {
       const cursor = req.query['cursor'] as string;
 
       const result = await this.messageService.getMessages(chatId, userId, limit, cursor);
-      
+
       res.json(result);
     } catch (error) {
       next(error);
@@ -55,7 +55,7 @@ export class MessageController {
       }
 
       const message = await this.messageService.editMessage(messageId, userId, content.trim());
-      
+
       res.json({ message });
     } catch (error) {
       next(error);
@@ -68,7 +68,7 @@ export class MessageController {
       const userId = req.user!.userId;
 
       await this.messageService.deleteMessage(messageId, userId);
-      
+
       res.json({ message: 'Message deleted successfully' });
     } catch (error) {
       next(error);
@@ -81,7 +81,7 @@ export class MessageController {
       const userId = req.user!.userId;
 
       await this.messageService.markAsRead(messageId, userId);
-      
+
       res.json({ message: 'Message marked as read' });
     } catch (error) {
       next(error);
@@ -99,7 +99,7 @@ export class MessageController {
       }
 
       const reaction = await this.messageService.addReaction(messageId, userId, emoji);
-      
+
       res.json({ reaction });
     } catch (error) {
       next(error);
@@ -112,7 +112,7 @@ export class MessageController {
       const userId = req.user!.userId;
 
       await this.messageService.removeReaction(reactionId, userId);
-      
+
       res.json({ message: 'Reaction removed successfully' });
     } catch (error) {
       next(error);

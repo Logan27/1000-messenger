@@ -25,7 +25,12 @@ const authService = new AuthService(userRepo, sessionService);
 const messageDeliveryQueue = {} as MessageDeliveryQueue;
 const socketManager = {} as SocketManager;
 
-const messageService = new MessageService(messageRepo, chatRepo, messageDeliveryQueue, socketManager);
+const messageService = new MessageService(
+  messageRepo,
+  chatRepo,
+  messageDeliveryQueue,
+  socketManager
+);
 const messageController = new MessageController(messageService);
 const authMiddleware = new AuthMiddleware(authService);
 
@@ -33,11 +38,7 @@ const authMiddleware = new AuthMiddleware(authService);
 router.use(authMiddleware.authenticate);
 
 // Message routes
-router.post('/:chatId', 
-  messageRateLimit,
-  validate(messageSchema),
-  messageController.sendMessage
-);
+router.post('/:chatId', messageRateLimit, validate(messageSchema), messageController.sendMessage);
 
 router.get('/:chatId', messageController.getMessages);
 router.put('/:messageId', messageController.editMessage);

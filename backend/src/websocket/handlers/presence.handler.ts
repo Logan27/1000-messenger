@@ -11,7 +11,7 @@ export class PresenceHandler {
     socket.on('presence:update', async (data: { status: 'online' | 'away' | 'offline' }) => {
       try {
         await this.userRepo.updateStatus(userId, data.status);
-        
+
         // Broadcast status change to all connected clients
         socket.broadcast.emit('user:status', {
           userId,

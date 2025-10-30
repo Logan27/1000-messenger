@@ -14,7 +14,7 @@ interface SocketData {
 
 export class SocketManager {
   private io: SocketServer;
-  
+
   constructor(
     httpServer: HttpServer,
     private authService: AuthService,
@@ -45,15 +45,15 @@ export class SocketManager {
   private setupMiddleware() {
     this.io.use(async (socket, next) => {
       try {
-        const token = socket.handshake.auth['token'];
-        
+        const token = socket.handshake.auth.token;
+
         if (!token) {
           return next(new Error('Authentication token required'));
         }
 
         // Verify token
         const { userId } = await this.authService.verifyAccessToken(token);
-        
+
         // Store user data in socket
         socket.data = {
           userId,
@@ -71,7 +71,7 @@ export class SocketManager {
   private setupConnectionHandler() {
     this.io.on('connection', async (socket: Socket) => {
       const { userId, sessionId } = socket.data as SocketData;
-      
+
       logger.info(`User connected: ${userId}, socket: ${socket.id}`);
 
       // Join user's personal room
@@ -93,10 +93,10 @@ export class SocketManager {
       // Handle disconnect
       socket.on('disconnect', async () => {
         logger.info(`User disconnected: ${userId}, socket: ${socket.id}`);
-        
+
         // Check if user has other active sessions
         const activeSessions = await this.sessionService.getActiveUserSessions(userId);
-        
+
         if (activeSessions.length === 0) {
           await this.userRepo.updateStatus(userId, 'offline');
           this.broadcastUserStatus(userId, 'offline');
@@ -133,7 +133,7 @@ export class SocketManager {
   private async joinUserChats(userId: string, socket: Socket) {
     // Get all user's active chats
     const chatIds = await this.getUserChatIds(userId);
-    
+
     for (const chatId of chatIds) {
       socket.join(`chat:${chatId}`);
     }
@@ -161,7 +161,7 @@ export class SocketManager {
   public async addUserToChat(userId: string, chatId: string) {
     // Get all sockets for this user
     const sockets = await this.io.in(`user:${userId}`).fetchSockets();
-    
+
     for (const socket of sockets) {
       socket.join(`chat:${chatId}`);
     }
@@ -169,7 +169,7 @@ export class SocketManager {
 
   public async removeUserFromChat(userId: string, chatId: string) {
     const sockets = await this.io.in(`user:${userId}`).fetchSockets();
-    
+
     for (const socket of sockets) {
       socket.leave(`chat:${chatId}`);
     }

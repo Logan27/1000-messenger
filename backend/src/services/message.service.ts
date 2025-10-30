@@ -77,7 +77,7 @@ export class MessageService {
 
   async editMessage(messageId: string, userId: string, newContent: string) {
     const message = await this.messageRepo.findById(messageId);
-    
+
     if (!message) {
       throw new Error('Message not found');
     }
@@ -116,7 +116,7 @@ export class MessageService {
 
   async deleteMessage(messageId: string, userId: string) {
     const message = await this.messageRepo.findById(messageId);
-    
+
     if (!message) {
       throw new Error('Message not found');
     }
@@ -149,9 +149,8 @@ export class MessageService {
 
     return {
       data: messages,
-      nextCursor: messages.length > 0 
-        ? messages[messages.length - 1].createdAt.toISOString()
-        : null,
+      nextCursor:
+        messages.length > 0 ? messages[messages.length - 1].createdAt.toISOString() : null,
       hasMore: messages.length === limit,
     };
   }
@@ -211,7 +210,7 @@ export class MessageService {
     await this.messageRepo.deleteReaction(reactionId);
 
     const message = await this.messageRepo.findById(reaction.messageId);
-    
+
     // Broadcast reaction removal
     this.socketManager.broadcastToChat(message!.chatId, 'reaction:removed', {
       reactionId,

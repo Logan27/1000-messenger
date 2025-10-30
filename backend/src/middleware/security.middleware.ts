@@ -10,8 +10,8 @@ export const securityHeaders = helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", process.env['S3_PUBLIC_URL'] || ""],
+      imgSrc: ["'self'", 'data:', 'https:'],
+      connectSrc: ["'self'", process.env.S3_PUBLIC_URL || ''],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -40,7 +40,7 @@ export const authRateLimit = rateLimit({
 export const messageRateLimit = rateLimit({
   windowMs: 1000, // 1 second
   max: LIMITS.MESSAGES_PER_SECOND_PER_USER,
-  keyGenerator: (req) => req.user?.userId || req.ip || 'unknown',
+  keyGenerator: req => req.user?.userId || req.ip,
   message: 'Too many messages, slow down',
 });
 
@@ -56,20 +56,20 @@ export const sanitizeContent = (content: string): string => {
 // File upload validation
 export const validateImageUpload = (req: any, res: any, next: any) => {
   const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-  
+
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
   if (!allowedTypes.includes(req.file.mimetype)) {
-    return res.status(400).json({ 
-      error: 'Invalid file type. Allowed: JPEG, PNG, GIF, WebP' 
+    return res.status(400).json({
+      error: 'Invalid file type. Allowed: JPEG, PNG, GIF, WebP',
     });
   }
 
   if (req.file.size > LIMITS.IMAGE_MAX_SIZE) {
-    return res.status(400).json({ 
-      error: `File too large. Maximum size: ${LIMITS.IMAGE_MAX_SIZE / (1024 * 1024)}MB` 
+    return res.status(400).json({
+      error: `File too large. Maximum size: ${LIMITS.IMAGE_MAX_SIZE / (1024 * 1024)}MB`,
     });
   }
 

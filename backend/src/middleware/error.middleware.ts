@@ -1,12 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger.util';
 
-export const errorHandler = (
-  error: Error,
-  req: Request,
-  res: Response,
-  _next: NextFunction
-) => {
+export const errorHandler = (error: Error, req: Request, res: Response, _next: NextFunction) => {
   logger.error('Unhandled error', {
     error: error.message,
     stack: error.stack,
@@ -16,8 +11,8 @@ export const errorHandler = (
   });
 
   // Don't leak error details in production
-  const isDevelopment = process.env['NODE_ENV'] === 'development';
-  
+  const isDevelopment = process.env.NODE_ENV === 'development';
+
   res.status(500).json({
     error: isDevelopment ? error.message : 'Internal server error',
     ...(isDevelopment && { stack: error.stack }),

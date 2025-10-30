@@ -11,15 +11,15 @@ export class SocketAuthMiddleware {
 
   async authenticate(socket: Socket, next: (err?: Error) => void) {
     try {
-      const token = socket.handshake.auth['token'];
-      
+      const token = socket.handshake.auth.token;
+
       if (!token) {
         return next(new Error('Authentication token required'));
       }
 
       // Verify access token
       const { userId } = await this.authService.verifyAccessToken(token);
-      
+
       // Check if session exists and is valid
       const session = await this.sessionService.findByToken(token);
       if (!session || !session.isActive) {
