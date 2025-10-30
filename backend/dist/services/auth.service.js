@@ -106,10 +106,10 @@ class AuthService {
         logger_util_1.logger.info(`User logged out: ${userId}`);
     }
     generateAccessToken(userId) {
-        return jsonwebtoken_1.default.sign({ userId, type: 'access' }, env_1.config.JWT_SECRET, { expiresIn: constants_1.LIMITS.ACCESS_TOKEN_DURATION });
+        return jsonwebtoken_1.default.sign({ userId, type: 'access' }, env_1.config.JWT_SECRET, { expiresIn: env_1.JWT_CONFIG.ACCESS_TOKEN_EXPIRY });
     }
     generateRefreshToken(userId) {
-        return jsonwebtoken_1.default.sign({ userId, type: 'refresh' }, env_1.config.JWT_REFRESH_SECRET, { expiresIn: constants_1.LIMITS.REFRESH_TOKEN_DURATION });
+        return jsonwebtoken_1.default.sign({ userId, type: 'refresh' }, env_1.config.JWT_REFRESH_SECRET, { expiresIn: env_1.JWT_CONFIG.REFRESH_TOKEN_EXPIRY });
     }
     async verifyAccessToken(token) {
         try {

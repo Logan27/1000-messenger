@@ -1,6 +1,24 @@
-export declare const config: {
+import { z } from 'zod';
+declare const envSchema: z.ZodEffects<z.ZodObject<{
+    NODE_ENV: z.ZodDefault<z.ZodEnum<["development", "production", "test"]>>;
+    PORT: z.ZodEffects<z.ZodDefault<z.ZodString>, number, string | undefined>;
+    DATABASE_URL: z.ZodString;
+    DATABASE_REPLICA_URL: z.ZodOptional<z.ZodString>;
+    REDIS_URL: z.ZodString;
+    S3_ENDPOINT: z.ZodString;
+    S3_ACCESS_KEY: z.ZodString;
+    S3_SECRET_KEY: z.ZodString;
+    S3_BUCKET: z.ZodString;
+    S3_PUBLIC_URL: z.ZodOptional<z.ZodString>;
+    AWS_REGION: z.ZodDefault<z.ZodString>;
+    JWT_SECRET: z.ZodEffects<z.ZodString, string, string>;
+    JWT_REFRESH_SECRET: z.ZodEffects<z.ZodString, string, string>;
+    FRONTEND_URL: z.ZodDefault<z.ZodString>;
+    ENABLE_METRICS: z.ZodDefault<z.ZodEffects<z.ZodString, boolean, string>>;
+    LOG_LEVEL: z.ZodDefault<z.ZodEnum<["error", "warn", "info", "http", "verbose", "debug", "silly"]>>;
+}, "strip", z.ZodTypeAny, {
     NODE_ENV: "development" | "production" | "test";
-    PORT: string;
+    PORT: number;
     DATABASE_URL: string;
     REDIS_URL: string;
     S3_ENDPOINT: string;
@@ -11,9 +29,73 @@ export declare const config: {
     JWT_SECRET: string;
     JWT_REFRESH_SECRET: string;
     FRONTEND_URL: string;
-    ENABLE_METRICS: string;
+    ENABLE_METRICS: boolean;
     LOG_LEVEL: "error" | "warn" | "info" | "http" | "verbose" | "debug" | "silly";
     DATABASE_REPLICA_URL?: string | undefined;
     S3_PUBLIC_URL?: string | undefined;
+}, {
+    DATABASE_URL: string;
+    REDIS_URL: string;
+    S3_ENDPOINT: string;
+    S3_ACCESS_KEY: string;
+    S3_SECRET_KEY: string;
+    S3_BUCKET: string;
+    JWT_SECRET: string;
+    JWT_REFRESH_SECRET: string;
+    NODE_ENV?: "development" | "production" | "test" | undefined;
+    PORT?: string | undefined;
+    DATABASE_REPLICA_URL?: string | undefined;
+    S3_PUBLIC_URL?: string | undefined;
+    AWS_REGION?: string | undefined;
+    FRONTEND_URL?: string | undefined;
+    ENABLE_METRICS?: string | undefined;
+    LOG_LEVEL?: "error" | "warn" | "info" | "http" | "verbose" | "debug" | "silly" | undefined;
+}>, {
+    NODE_ENV: "development" | "production" | "test";
+    PORT: number;
+    DATABASE_URL: string;
+    REDIS_URL: string;
+    S3_ENDPOINT: string;
+    S3_ACCESS_KEY: string;
+    S3_SECRET_KEY: string;
+    S3_BUCKET: string;
+    AWS_REGION: string;
+    JWT_SECRET: string;
+    JWT_REFRESH_SECRET: string;
+    FRONTEND_URL: string;
+    ENABLE_METRICS: boolean;
+    LOG_LEVEL: "error" | "warn" | "info" | "http" | "verbose" | "debug" | "silly";
+    DATABASE_REPLICA_URL?: string | undefined;
+    S3_PUBLIC_URL?: string | undefined;
+}, {
+    DATABASE_URL: string;
+    REDIS_URL: string;
+    S3_ENDPOINT: string;
+    S3_ACCESS_KEY: string;
+    S3_SECRET_KEY: string;
+    S3_BUCKET: string;
+    JWT_SECRET: string;
+    JWT_REFRESH_SECRET: string;
+    NODE_ENV?: "development" | "production" | "test" | undefined;
+    PORT?: string | undefined;
+    DATABASE_REPLICA_URL?: string | undefined;
+    S3_PUBLIC_URL?: string | undefined;
+    AWS_REGION?: string | undefined;
+    FRONTEND_URL?: string | undefined;
+    ENABLE_METRICS?: string | undefined;
+    LOG_LEVEL?: "error" | "warn" | "info" | "http" | "verbose" | "debug" | "silly" | undefined;
+}>;
+declare let config: z.infer<typeof envSchema>;
+export { config };
+export type Config = z.infer<typeof envSchema>;
+export declare const JWT_CONFIG: {
+    readonly ACCESS_TOKEN_EXPIRY: "15m";
+    readonly REFRESH_TOKEN_EXPIRY: "7d";
+    readonly ACCESS_TOKEN_EXPIRY_MS: number;
+    readonly REFRESH_TOKEN_EXPIRY_MS: number;
 };
+export declare const isProduction: () => boolean;
+export declare const isDevelopment: () => boolean;
+export declare const isTest: () => boolean;
+export declare const getServerUrl: () => string;
 //# sourceMappingURL=env.d.ts.map
