@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { ContactService } from '../services/contact.service';
-import { logger } from '../utils/logger.util';
 
 export class ContactController {
   constructor(private contactService: ContactService) {}
