@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import { config } from '../config';
 
 class ApiService {
@@ -114,7 +114,7 @@ class ApiService {
   async sendMessage(chatId: string, message: {
     content: string;
     contentType?: 'text' | 'image' | 'system';
-    metadata?: any;
+    metadata?: Record<string, unknown>;
     replyToId?: string;
   }) {
     const response = await this.api.post(`/messages/${chatId}`, message);

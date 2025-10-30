@@ -1,13 +1,22 @@
 import React from 'react';
 import { Message } from './Message';
 
+interface MessageMetadata {
+  images?: Array<{
+    url: string;
+    thumbnailUrl: string;
+    originalUrl: string;
+  }>;
+  [key: string]: unknown;
+}
+
 interface MessageListProps {
   messages: Array<{
     id: string;
     senderId: string;
     content: string;
     contentType: string;
-    metadata?: any;
+    metadata?: MessageMetadata;
     createdAt: string;
     isEdited: boolean;
     reactions?: Array<{ id: string; emoji: string; userId: string }>;

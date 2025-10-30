@@ -1,13 +1,29 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
+interface Participant {
+  id: string;
+  username: string;
+  displayName?: string;
+  avatarUrl?: string;
+}
+
+interface MessageMetadata {
+  images?: Array<{
+    url: string;
+    thumbnailUrl: string;
+    originalUrl: string;
+  }>;
+  [key: string]: unknown;
+}
+
 interface Message {
   id: string;
   chatId: string;
   senderId: string;
   content: string;
   contentType: 'text' | 'image' | 'system';
-  metadata?: any;
+  metadata?: MessageMetadata;
   createdAt: string;
   isEdited: boolean;
   reactions?: Reaction[];
@@ -26,7 +42,7 @@ interface Chat {
   name?: string;
   slug?: string;
   avatarUrl?: string;
-  participants: any[];
+  participants: Participant[];
   lastMessage?: Message;
   unreadCount: number;
   lastMessageAt?: string;
@@ -62,7 +78,7 @@ interface ChatState {
 export const useChatStore = create<ChatState>()(
   devtools(
     persist(
-      (set, get) => ({
+      (set) => ({
         chats: [],
         messages: {},
         activeChat: null,
@@ -179,7 +195,7 @@ export const useChatStore = create<ChatState>()(
             return { messages: newMessages };
           }),
 
-        updateMessageStatus: (messageId, status, userId) =>
+        updateMessageStatus: (_messageId, _status, _userId) =>
           set((state) => {
             // Update delivery status metadata
             return state;
