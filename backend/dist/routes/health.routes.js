@@ -8,4 +8,5 @@ exports.healthRoutes = router;
 const healthController = new health_controller_1.HealthController();
 router.get('/', healthController.health);
 router.get('/ready', healthController.ready);
+router.get('/metrics', healthController.metrics);
 //# sourceMappingURL=health.routes.js.map
