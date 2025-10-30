@@ -23,6 +23,7 @@ const envSchema = zod_1.z.object({
     JWT_REFRESH_SECRET: zod_1.z.string().min(32),
     FRONTEND_URL: zod_1.z.string().default('http://localhost:5173'),
     ENABLE_METRICS: zod_1.z.string().default('true'),
+    LOG_LEVEL: zod_1.z.enum(['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly']).default('info'),
 });
 exports.config = envSchema.parse(process.env);
 //# sourceMappingURL=env.js.map

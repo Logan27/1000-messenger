@@ -152,8 +152,9 @@ class ChatRepository {
         await database_1.pool.query(query, [chatId]);
     }
     async incrementUnreadCounts(chatId, userIds) {
-        if (userIds.length === 0)
+        if (userIds.length === 0) {
             return;
+        }
         const query = `
       UPDATE chat_participants
       SET unread_count = unread_count + 1

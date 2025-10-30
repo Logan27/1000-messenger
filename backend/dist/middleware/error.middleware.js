@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.notFoundHandler = exports.errorHandler = void 0;
 const logger_util_1 = require("../utils/logger.util");
-const errorHandler = (error, req, res, next) => {
+const errorHandler = (error, req, res, _next) => {
     logger_util_1.logger.error('Unhandled error', {
         error: error.message,
         stack: error.stack,

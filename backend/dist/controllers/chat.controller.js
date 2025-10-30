@@ -62,7 +62,7 @@ class ChatController {
             }
             if (participantIds.length > constants_1.LIMITS.GROUP_MAX_PARTICIPANTS - 1) {
                 return res.status(400).json({
-                    error: `Maximum ${constants_1.LIMITS.GROUP_MAX_PARTICIPANTS} participants allowed`
+                    error: `Maximum ${constants_1.LIMITS.GROUP_MAX_PARTICIPANTS} participants allowed`,
                 });
             }
             const chat = await this.chatService.createGroupChat(userId, name, participantIds);

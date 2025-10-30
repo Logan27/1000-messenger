@@ -1,5 +1,5 @@
 export declare const config: {
-    NODE_ENV: "production" | "development" | "test";
+    NODE_ENV: "development" | "production" | "test";
     PORT: string;
     DATABASE_URL: string;
     REDIS_URL: string;
@@ -12,6 +12,7 @@ export declare const config: {
     JWT_REFRESH_SECRET: string;
     FRONTEND_URL: string;
     ENABLE_METRICS: string;
+    LOG_LEVEL: "error" | "warn" | "info" | "http" | "verbose" | "debug" | "silly";
     S3_PUBLIC_URL?: string | undefined;
     DATABASE_REPLICA_URL?: string | undefined;
 };

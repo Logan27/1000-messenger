@@ -85,12 +85,15 @@ class MessageRepository {
         return result.rows.map(row => this.mapRow(row));
     }
     async createDeliveryRecords(messageId, userIds) {
-        if (userIds.length === 0)
+        if (userIds.length === 0) {
             return;
-        const values = userIds.map((userId, idx) => {
+        }
+        const values = userIds
+            .map((userId, idx) => {
             const base = idx * 3;
             return `($${base + 1}, $${base + 2}, $${base + 3})`;
-        }).join(', ');
+        })
+            .join(', ');
         const query = `
       INSERT INTO message_delivery (message_id, user_id, status)
       VALUES ${values}
@@ -134,11 +137,7 @@ class MessageRepository {
       INSERT INTO message_edit_history (message_id, old_content, old_metadata)
       VALUES ($1, $2, $3)
     `;
-        await database_1.pool.query(query, [
-            data.messageId,
-            data.oldContent,
-            JSON.stringify(data.oldMetadata),
-        ]);
+        await database_1.pool.query(query, [data.messageId, data.oldContent, JSON.stringify(data.oldMetadata)]);
     }
     async addReaction(messageId, userId, emoji) {
         const query = `

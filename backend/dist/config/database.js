@@ -22,10 +22,10 @@ exports.readPool = new pg_1.Pool({
     connectionTimeoutMillis: 2000,
     application_name: 'chat-backend-replica',
 });
-exports.pool.on('error', (err) => {
+exports.pool.on('error', err => {
     logger_util_1.logger.error('Unexpected database error', err);
 });
-exports.readPool.on('error', (err) => {
+exports.readPool.on('error', err => {
     logger_util_1.logger.error('Unexpected read replica error', err);
 });
 async function testConnection() {
@@ -40,10 +40,7 @@ async function testConnection() {
     }
 }
 async function closeConnections() {
-    await Promise.all([
-        exports.pool.end(),
-        exports.readPool.end(),
-    ]);
+    await Promise.all([exports.pool.end(), exports.readPool.end()]);
     logger_util_1.logger.info('Database connections closed');
 }
 //# sourceMappingURL=database.js.map

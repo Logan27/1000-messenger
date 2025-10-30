@@ -10,7 +10,7 @@ class HealthController {
             res.json({
                 status: 'ok',
                 timestamp: new Date().toISOString(),
-                uptime: process.uptime()
+                uptime: process.uptime(),
             });
         }
         catch (error) {
@@ -41,14 +41,14 @@ class HealthController {
                 res.json({
                     status: 'ready',
                     checks,
-                    timestamp: new Date().toISOString()
+                    timestamp: new Date().toISOString(),
                 });
             }
             else {
                 res.status(503).json({
                     status: 'not ready',
                     checks,
-                    timestamp: new Date().toISOString()
+                    timestamp: new Date().toISOString(),
                 });
             }
         }

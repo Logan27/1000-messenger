@@ -32,8 +32,8 @@ class MessageController {
         try {
             const { chatId } = req.params;
             const userId = req.user.userId;
-            const limit = parseInt(req.query.limit) || 50;
-            const cursor = req.query.cursor;
+            const limit = parseInt(req.query['limit']) || 50;
+            const cursor = req.query['cursor'];
             const result = await this.messageService.getMessages(chatId, userId, limit, cursor);
             res.json(result);
         }

@@ -33,8 +33,9 @@ class SessionService {
     }
     async findByToken(token) {
         const cached = await this.getCachedSession(token);
-        if (cached)
+        if (cached) {
             return cached;
+        }
         const query = `
       SELECT * FROM user_sessions 
       WHERE session_token = $1 AND is_active = TRUE AND expires_at > CURRENT_TIMESTAMP

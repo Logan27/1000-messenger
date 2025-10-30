@@ -2,6 +2,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import sanitizeHtml from 'sanitize-html';
 import { LIMITS } from '../config/constants';
+import { config } from '../config/env';
 
 // Helmet security headers
 export const securityHeaders = helmet({
@@ -11,7 +12,7 @@ export const securityHeaders = helmet({
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
       imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'", process.env.S3_PUBLIC_URL || ''],
+      connectSrc: ["'self'", config.S3_PUBLIC_URL || ''],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],

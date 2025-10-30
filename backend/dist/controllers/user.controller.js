@@ -30,7 +30,7 @@ class UserController {
     searchUsers = async (req, res, next) => {
         try {
             const { q } = req.query;
-            const limit = parseInt(req.query.limit) || 20;
+            const limit = parseInt(req.query['limit']) || 20;
             if (!q || typeof q !== 'string') {
                 return res.status(400).json({ error: 'Search query is required' });
             }

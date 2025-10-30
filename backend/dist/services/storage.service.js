@@ -59,9 +59,7 @@ class StorageService {
         return result;
     }
     async deleteImage(storageKey, thumbnailKey, mediumKey) {
-        const deletePromises = [
-            this.deleteFromS3(storageKey),
-        ];
+        const deletePromises = [this.deleteFromS3(storageKey)];
         if (thumbnailKey) {
             deletePromises.push(this.deleteFromS3(thumbnailKey));
         }

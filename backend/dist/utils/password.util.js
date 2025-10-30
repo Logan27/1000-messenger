@@ -7,9 +7,9 @@ exports.hashPassword = hashPassword;
 exports.comparePassword = comparePassword;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 async function hashPassword(password) {
-    return bcrypt_1.default.hash(password, 12);
+    return await bcrypt_1.default.hash(password, 12);
 }
 async function comparePassword(password, hash) {
-    return bcrypt_1.default.compare(password, hash);
+    return await bcrypt_1.default.compare(password, hash);
 }
 //# sourceMappingURL=password.util.js.map

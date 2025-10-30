@@ -31,6 +31,7 @@ const envSchema = z.object({
 
   // Monitoring
   ENABLE_METRICS: z.string().default('true'),
+  LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly']).default('info'),
 });
 
 export const config = envSchema.parse(process.env);

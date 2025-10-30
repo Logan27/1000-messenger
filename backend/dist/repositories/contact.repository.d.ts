@@ -3,7 +3,7 @@ export interface Contact {
     id: string;
     userId: string;
     contactId: string;
-    status: typeof CONTACT_STATUS[keyof typeof CONTACT_STATUS];
+    status: (typeof CONTACT_STATUS)[keyof typeof CONTACT_STATUS];
     requestedBy: string;
     createdAt: Date;
     acceptedAt?: Date;

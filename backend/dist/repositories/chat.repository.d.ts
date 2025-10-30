@@ -1,7 +1,7 @@
 import { CHAT_TYPE } from '../config/constants';
 export interface Chat {
     id: string;
-    type: typeof CHAT_TYPE[keyof typeof CHAT_TYPE];
+    type: (typeof CHAT_TYPE)[keyof typeof CHAT_TYPE];
     name?: string;
     slug?: string;
     avatarUrl?: string;

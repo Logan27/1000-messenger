@@ -61,7 +61,7 @@ class MessageDeliveryQueue {
         if (!messages || messages.length === 0) {
             return;
         }
-        for (const [stream, messageList] of messages) {
+        for (const [_stream, messageList] of messages) {
             for (const { id, message } of messageList) {
                 try {
                     const data = JSON.parse(message.data);

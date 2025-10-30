@@ -1,4 +1,5 @@
 import winston from 'winston';
+import { config } from '../config/env';
 
 const logFormat = winston.format.combine(
   winston.format.timestamp(),
@@ -7,7 +8,7 @@ const logFormat = winston.format.combine(
 );
 
 export const logger = winston.createLogger({
-  level: process.env['LOG_LEVEL'] || 'info',
+  level: config.LOG_LEVEL,
   format: logFormat,
   defaultMeta: { service: 'chat-backend' },
   transports: [
@@ -16,7 +17,7 @@ export const logger = winston.createLogger({
   ],
 });
 
-if (process.env['NODE_ENV'] !== 'production') {
+if (config.NODE_ENV !== 'production') {
   logger.add(new winston.transports.Console({
     format: winston.format.combine(
       winston.format.colorize(),

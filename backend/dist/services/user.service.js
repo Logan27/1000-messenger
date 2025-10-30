@@ -12,11 +12,13 @@ class UserService {
     }
     async canViewUserProfile(userId, viewerId) {
         const areContacts = await this.contactRepo.areContacts(userId, viewerId);
-        if (areContacts)
+        if (areContacts) {
             return true;
+        }
         const sharedChats = await this.chatRepo.findSharedChats(userId, viewerId);
-        if (sharedChats.length > 0)
+        if (sharedChats.length > 0) {
             return true;
+        }
         return false;
     }
 }
