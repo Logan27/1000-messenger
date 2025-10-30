@@ -14,7 +14,7 @@ export declare function getPoolStats(): {
         waitingCount: number;
     };
 };
-export declare function queryWithRetry<T = any>(queryText: string, values?: any[], useReadPool?: boolean, maxRetries?: number): Promise<QueryResult<T>>;
+export declare function queryWithRetry(queryText: string, values?: any[], useReadPool?: boolean, maxRetries?: number): Promise<QueryResult>;
 export declare function checkReplicaHealth(): Promise<boolean>;
 export declare function closeConnections(): Promise<void>;
 //# sourceMappingURL=database.d.ts.map

@@ -100,11 +100,7 @@ redisSubClient.on('reconnecting', () => logger_util_1.logger.warn('Redis Sub Cli
 redisSubClient.on('end', () => logger_util_1.logger.warn('Redis Sub Client connection closed'));
 async function connectRedis() {
     try {
-        await Promise.all([
-            redisClient.connect(),
-            redisPubClient.connect(),
-            redisSubClient.connect(),
-        ]);
+        await Promise.all([redisClient.connect(), redisPubClient.connect(), redisSubClient.connect()]);
         logger_util_1.logger.info('Redis connections established successfully');
     }
     catch (error) {
@@ -114,11 +110,7 @@ async function connectRedis() {
 }
 async function closeRedis() {
     try {
-        await Promise.all([
-            redisClient.quit(),
-            redisPubClient.quit(),
-            redisSubClient.quit(),
-        ]);
+        await Promise.all([redisClient.quit(), redisPubClient.quit(), redisSubClient.quit()]);
         logger_util_1.logger.info('Redis connections closed gracefully');
     }
     catch (error) {
@@ -266,7 +258,7 @@ exports.pubSubHelpers = {
     },
     async subscribe(channel, handler) {
         try {
-            await redisSubClient.subscribe(channel, (message) => {
+            await redisSubClient.subscribe(channel, message => {
                 try {
                     const parsed = JSON.parse(message);
                     handler(parsed);

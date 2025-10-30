@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.HealthController = void 0;
 const database_1 = require("../config/database");
 const redis_1 = require("../config/redis");
+const storage_1 = require("../config/storage");
 const logger_util_1 = require("../utils/logger.util");
 class HealthController {
     health = async (_req, res, next) => {
@@ -22,7 +23,7 @@ class HealthController {
             const checks = {
                 database: false,
                 redis: false,
-                replica: false,
+                storage: false,
             };
             try {
                 checks.database = await (0, database_1.testConnection)();
@@ -31,18 +32,22 @@ class HealthController {
                 logger_util_1.logger.error('Database health check failed', error);
             }
             try {
-                checks.redis = await (0, redis_1.checkRedisHealth)();
+                checks.redis = await checkRedisHealth();
             }
             catch (error) {
                 logger_util_1.logger.error('Redis health check failed', error);
             }
             try {
-                checks.replica = await (0, database_1.checkReplicaHealth)();
+                const storageHealth = await (0, storage_1.healthCheck)();
+                checks.storage = storageHealth.healthy;
+                if (!storageHealth.healthy) {
+                    logger_util_1.logger.warn(`Storage health check failed: ${storageHealth.message}`);
+                }
             }
             catch (error) {
-                logger_util_1.logger.error('Replica health check failed', error);
+                logger_util_1.logger.error('Storage health check failed', error);
             }
-            const isReady = checks.database && checks.redis;
+            const isReady = checks.database && checks.redis && checks.storage;
             if (isReady) {
                 res.json({
                     status: 'ready',
@@ -62,35 +67,48 @@ class HealthController {
             next(error);
         }
     };
-    metrics = async (_req, res, next) => {
+    detailed = async (_req, res, next) => {
         try {
-            const poolStats = (0, database_1.getPoolStats)();
-            res.json({
-                status: 'ok',
+            const checks = {
+                database: { healthy: false, message: '' },
+                redis: { healthy: false, message: '' },
+                storage: { healthy: false, message: '', info: {} },
+            };
+            try {
+                checks.database.healthy = await (0, database_1.testConnection)();
+                checks.database.message = checks.database.healthy
+                    ? 'Database connection successful'
+                    : 'Database connection failed';
+            }
+            catch (error) {
+                checks.database.message = error.message || 'Database check failed';
+                logger_util_1.logger.error('Database health check failed', error);
+            }
+            try {
+                await redis_1.redisClient.ping();
+                checks.redis.healthy = true;
+                checks.redis.message = 'Redis connection successful';
+            }
+            catch (error) {
+                checks.redis.message = error.message || 'Redis check failed';
+                logger_util_1.logger.error('Redis health check failed', error);
+            }
+            try {
+                const storageHealth = await (0, storage_1.healthCheck)();
+                checks.storage.healthy = storageHealth.healthy;
+                checks.storage.message = storageHealth.message;
+                checks.storage.info = (0, storage_1.getStorageInfo)();
+            }
+            catch (error) {
+                checks.storage.message = error.message || 'Storage check failed';
+                logger_util_1.logger.error('Storage health check failed', error);
+            }
+            const allHealthy = checks.database.healthy && checks.redis.healthy && checks.storage.healthy;
+            res.status(allHealthy ? 200 : 503).json({
+                status: allHealthy ? 'healthy' : 'unhealthy',
+                checks,
                 timestamp: new Date().toISOString(),
-                database: {
-                    primary: {
-                        ...poolStats.primary,
-                        utilization: poolStats.primary.totalCount > 0
-                            ? ((poolStats.primary.totalCount - poolStats.primary.idleCount) / poolStats.primary.totalCount * 100).toFixed(2) + '%'
-                            : '0%',
-                    },
-                    replica: {
-                        ...poolStats.replica,
-                        utilization: poolStats.replica.totalCount > 0
-                            ? ((poolStats.replica.totalCount - poolStats.replica.idleCount) / poolStats.replica.totalCount * 100).toFixed(2) + '%'
-                            : '0%',
-                    },
-                },
-                memory: {
-                    heapUsed: `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB`,
-                    heapTotal: `${(process.memoryUsage().heapTotal / 1024 / 1024).toFixed(2)} MB`,
-                    rss: `${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)} MB`,
-                },
-                process: {
-                    uptime: process.uptime(),
-                    pid: process.pid,
-                },
+                uptime: process.uptime(),
             });
         }
         catch (error) {
