@@ -3,7 +3,7 @@ import { AuthController } from '../controllers/auth.controller';
 import { AuthService } from '../services/auth.service';
 import { UserRepository } from '../repositories/user.repository';
 import { SessionService } from '../services/session.service';
-import { AuthMiddleware } from '../middleware/auth.middleware';
+import { authMiddleware } from '../middleware/auth.middleware';
 import { validate, registerSchema, loginSchema } from '../middleware/validation.middleware';
 import { authRateLimit } from '../middleware/rate-limit.middleware';
 
@@ -14,7 +14,6 @@ const userRepo = new UserRepository();
 const sessionService = new SessionService();
 const authService = new AuthService(userRepo, sessionService);
 const authController = new AuthController(authService);
-const authMiddleware = new AuthMiddleware(authService);
 
 // Public routes
 router.post('/register', authRateLimit, validate(registerSchema), authController.register);

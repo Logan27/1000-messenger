@@ -4,9 +4,7 @@ import { MessageService } from '../services/message.service';
 import { MessageRepository } from '../repositories/message.repository';
 import { ChatRepository } from '../repositories/chat.repository';
 import { UserRepository } from '../repositories/user.repository';
-import { AuthMiddleware } from '../middleware/auth.middleware';
-import { AuthService } from '../services/auth.service';
-import { SessionService } from '../services/session.service';
+import { authMiddleware } from '../middleware/auth.middleware';
 import { MessageDeliveryQueue } from '../queues/message-delivery.queue';
 import { SocketManager } from '../websocket/socket.manager';
 import { validate, messageSchema } from '../middleware/validation.middleware';
@@ -18,8 +16,6 @@ const router = Router();
 const userRepo = new UserRepository();
 const chatRepo = new ChatRepository();
 const messageRepo = new MessageRepository();
-const sessionService = new SessionService();
-const authService = new AuthService(userRepo, sessionService);
 
 // Note: These would be injected in a real app
 const messageDeliveryQueue = {} as MessageDeliveryQueue;
@@ -32,7 +28,6 @@ const messageService = new MessageService(
   socketManager
 );
 const messageController = new MessageController(messageService);
-const authMiddleware = new AuthMiddleware(authService);
 
 // All routes require authentication
 router.use(authMiddleware.authenticate);

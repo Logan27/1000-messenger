@@ -3,9 +3,7 @@ import { ChatController } from '../controllers/chat.controller';
 import { ChatService } from '../services/chat.service';
 import { ChatRepository } from '../repositories/chat.repository';
 import { UserRepository } from '../repositories/user.repository';
-import { AuthMiddleware } from '../middleware/auth.middleware';
-import { AuthService } from '../services/auth.service';
-import { SessionService } from '../services/session.service';
+import { authMiddleware } from '../middleware/auth.middleware';
 import { validate, chatSchema } from '../middleware/validation.middleware';
 import { messageRateLimit } from '../middleware/rate-limit.middleware';
 
@@ -14,11 +12,8 @@ const router = Router();
 // Initialize services
 const userRepo = new UserRepository();
 const chatRepo = new ChatRepository();
-const sessionService = new SessionService();
-const authService = new AuthService(userRepo, sessionService);
 const chatService = new ChatService(chatRepo, userRepo);
 const chatController = new ChatController(chatService);
-const authMiddleware = new AuthMiddleware(authService);
 
 // All routes require authentication
 router.use(authMiddleware.authenticate);
