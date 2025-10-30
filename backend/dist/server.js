@@ -8,6 +8,7 @@ const app_1 = require("./app");
 const env_1 = require("./config/env");
 const database_1 = require("./config/database");
 const redis_1 = require("./config/redis");
+const storage_1 = require("./config/storage");
 const socket_manager_1 = require("./websocket/socket.manager");
 const message_delivery_queue_1 = require("./queues/message-delivery.queue");
 const logger_util_1 = require("./utils/logger.util");
@@ -27,6 +28,7 @@ async function startServer() {
             throw new Error('Database connection failed');
         }
         await (0, redis_1.connectRedis)();
+        await (0, storage_1.initializeStorage)();
         const userRepo = new user_repository_1.UserRepository();
         const chatRepo = new chat_repository_1.ChatRepository();
         const messageRepo = new message_repository_1.MessageRepository();

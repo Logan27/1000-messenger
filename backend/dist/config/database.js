@@ -146,10 +146,7 @@ async function checkReplicaHealth() {
 async function closeConnections() {
     logger_util_1.logger.info('Closing database connections...');
     try {
-        await Promise.all([
-            exports.pool.end(),
-            exports.readPool.end(),
-        ]);
+        await Promise.all([exports.pool.end(), exports.readPool.end()]);
         logger_util_1.logger.info('Database connections closed successfully');
     }
     catch (error) {

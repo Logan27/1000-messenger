@@ -191,12 +191,18 @@ AWS_REGION=us-west-2
 Application-wide constants for limits, statuses, and enums.
 
 **Categories:**
-- `LIMITS`: Size and rate limits
-- `MESSAGE_STATUS`: Message delivery states
+- `LIMITS`: Size and rate limits (messages, images, groups, users, sessions, real-time features)
+- `IMAGE_SIZES`: Image processing configurations (original, medium, thumbnail)
+- `ALLOWED_IMAGE_TYPES`: Supported image MIME types
+- `MESSAGE_STATUS`: Message delivery states (sent, delivered, read)
+- `CONTENT_TYPE`: Message content types (text, image, system)
 - `CHAT_TYPE`: Direct vs group chats
-- `CONTACT_STATUS`: Contact relationship states
+- `CONTACT_STATUS`: Contact relationship states (pending, accepted, blocked)
 - `USER_STATUS`: Online/offline/away states
-- `PARTICIPANT_ROLE`: Chat membership roles
+- `PARTICIPANT_ROLE`: Chat membership roles (owner, admin, member)
+- `VALIDATION_PATTERNS`: Regular expressions for input validation
+- `TEXT_CONSTANTS`: Special text strings (deleted messages, etc.)
+- `PERFORMANCE_TARGETS`: Performance thresholds and requirements
 
 ## Initialization Order
 
