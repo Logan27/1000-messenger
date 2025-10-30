@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { testConnection } from '../config/database';
-import { checkRedisHealth } from '../config/redis';
+import { redisClient } from '../config/redis';
+import { healthCheck as storageHealthCheck, getStorageInfo } from '../config/storage';
 import { logger } from '../utils/logger.util';
 
 export class HealthController {
@@ -21,7 +22,7 @@ export class HealthController {
       const checks = {
         database: false,
         redis: false,
-        replica: false,
+        storage: false,
       };
 
       // Check database
@@ -38,14 +39,18 @@ export class HealthController {
         logger.error('Redis health check failed', error);
       }
 
-      // Check read replica health
+      // Check storage
       try {
-        checks.replica = await checkReplicaHealth();
+        const storageHealth = await storageHealthCheck();
+        checks.storage = storageHealth.healthy;
+        if (!storageHealth.healthy) {
+          logger.warn(`Storage health check failed: ${storageHealth.message}`);
+        }
       } catch (error) {
-        logger.error('Replica health check failed', error);
+        logger.error('Storage health check failed', error);
       }
 
-      const isReady = checks.database && checks.redis;
+      const isReady = checks.database && checks.redis && checks.storage;
 
       if (isReady) {
         res.json({
@@ -65,46 +70,53 @@ export class HealthController {
     }
   };
 
-  metrics = async (_req: Request, res: Response, next: NextFunction) => {
+  detailed = async (_req: Request, res: Response, next: NextFunction) => {
     try {
-      const poolStats = getPoolStats();
+      const checks = {
+        database: { healthy: false, message: '' },
+        redis: { healthy: false, message: '' },
+        storage: { healthy: false, message: '', info: {} },
+      };
 
-      res.json({
-        status: 'ok',
+      // Check database
+      try {
+        checks.database.healthy = await testConnection();
+        checks.database.message = checks.database.healthy
+          ? 'Database connection successful'
+          : 'Database connection failed';
+      } catch (error: any) {
+        checks.database.message = error.message || 'Database check failed';
+        logger.error('Database health check failed', error);
+      }
+
+      // Check Redis
+      try {
+        await redisClient.ping();
+        checks.redis.healthy = true;
+        checks.redis.message = 'Redis connection successful';
+      } catch (error: any) {
+        checks.redis.message = error.message || 'Redis check failed';
+        logger.error('Redis health check failed', error);
+      }
+
+      // Check storage
+      try {
+        const storageHealth = await storageHealthCheck();
+        checks.storage.healthy = storageHealth.healthy;
+        checks.storage.message = storageHealth.message;
+        checks.storage.info = getStorageInfo();
+      } catch (error: any) {
+        checks.storage.message = error.message || 'Storage check failed';
+        logger.error('Storage health check failed', error);
+      }
+
+      const allHealthy = checks.database.healthy && checks.redis.healthy && checks.storage.healthy;
+
+      res.status(allHealthy ? 200 : 503).json({
+        status: allHealthy ? 'healthy' : 'unhealthy',
+        checks,
         timestamp: new Date().toISOString(),
-        database: {
-          primary: {
-            ...poolStats.primary,
-            utilization:
-              poolStats.primary.totalCount > 0
-                ? (
-                    ((poolStats.primary.totalCount - poolStats.primary.idleCount) /
-                      poolStats.primary.totalCount) *
-                    100
-                  ).toFixed(2) + '%'
-                : '0%',
-          },
-          replica: {
-            ...poolStats.replica,
-            utilization:
-              poolStats.replica.totalCount > 0
-                ? (
-                    ((poolStats.replica.totalCount - poolStats.replica.idleCount) /
-                      poolStats.replica.totalCount) *
-                    100
-                  ).toFixed(2) + '%'
-                : '0%',
-          },
-        },
-        memory: {
-          heapUsed: `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB`,
-          heapTotal: `${(process.memoryUsage().heapTotal / 1024 / 1024).toFixed(2)} MB`,
-          rss: `${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)} MB`,
-        },
-        process: {
-          uptime: process.uptime(),
-          pid: process.pid,
-        },
+        uptime: process.uptime(),
       });
     } catch (error) {
       next(error);

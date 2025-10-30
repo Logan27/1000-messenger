@@ -3,6 +3,7 @@ import { createApp } from './app';
 import { config } from './config/env';
 import { testConnection, closeConnections } from './config/database';
 import { connectRedis, closeRedis } from './config/redis';
+import { initializeStorage } from './config/storage';
 import { SocketManager } from './websocket/socket.manager';
 import { MessageDeliveryQueue } from './queues/message-delivery.queue';
 import { logger } from './utils/logger.util';
@@ -30,6 +31,9 @@ async function startServer() {
 
     // Connect to Redis
     await connectRedis();
+
+    // Initialize storage (MinIO/S3)
+    await initializeStorage();
 
     // Initialize repositories
     const userRepo = new UserRepository();

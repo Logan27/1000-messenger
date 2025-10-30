@@ -1,437 +1,384 @@
-# Configuration Guide
+# Backend Configuration
 
 This directory contains all configuration modules for the backend application.
 
-## Redis Configuration (`redis.ts`)
+## Configuration Modules
 
-The Redis configuration provides a comprehensive setup for pub/sub messaging and caching operations, essential for the real-time messaging application.
+### env.ts
+Environment variable configuration using Zod schema validation.
 
-### Overview
+**Environment Variables:**
+- `NODE_ENV`: Application environment (development, production, test)
+- `PORT`: Server port (default: 3000)
+- `DATABASE_URL`: PostgreSQL connection string
+- `DATABASE_REPLICA_URL`: Optional read replica connection string
+- `REDIS_URL`: Redis connection string
+- `S3_ENDPOINT`: MinIO/S3 endpoint URL
+- `S3_ACCESS_KEY`: Storage access key
+- `S3_SECRET_KEY`: Storage secret key
+- `S3_BUCKET`: Storage bucket name
+- `S3_PUBLIC_URL`: Public URL for accessing stored files
+- `AWS_REGION`: AWS region (default: us-east-1)
+- `JWT_SECRET`: JWT secret for access tokens (min 32 chars)
+- `JWT_REFRESH_SECRET`: JWT secret for refresh tokens (min 32 chars)
+- `FRONTEND_URL`: Frontend URL for CORS (default: http://localhost:5173)
+- `ENABLE_METRICS`: Enable Prometheus metrics (default: true)
+- `LOG_LEVEL`: Logging level (default: info)
 
-Redis is used for multiple purposes in this application:
+### database.ts
+PostgreSQL connection pool configuration.
 
-1. **Pub/Sub Messaging**: Real-time communication between server instances for WebSocket synchronization
-2. **Session Caching**: Fast session lookup and management
-3. **User Status Tracking**: Online/offline status and presence information
-4. **Message Delivery Queue**: Reliable message delivery using Redis Streams
-5. **General Caching**: Reducing database load for frequently accessed data
+**Features:**
+- Primary database pool (100 max connections)
+- Read replica pool (50 max connections)
+- Connection health checking
+- Graceful shutdown support
+- Error logging
 
-### Architecture
-
-The Redis configuration creates three separate client instances:
-
-- **`redisClient`**: Main client for caching, data storage, and Redis Streams
-- **`redisPubClient`**: Dedicated client for publishing messages (required by Socket.IO adapter)
-- **`redisSubClient`**: Dedicated client for subscribing to channels (required by Socket.IO adapter)
-
-### Configuration Constants
-
-#### Connection Settings
-
+**Usage:**
 ```typescript
-REDIS_CONFIG.MAX_RECONNECT_ATTEMPTS: 10
-REDIS_CONFIG.RECONNECT_DELAY_BASE: 100ms
-REDIS_CONFIG.SOCKET_TIMEOUT: 5000ms
-REDIS_CONFIG.COMMAND_TIMEOUT: 5000ms
+import { pool, readPool, testConnection, closeConnections } from './config/database';
+
+// Write operations
+await pool.query('INSERT INTO users...');
+
+// Read operations (uses replica if configured)
+await readPool.query('SELECT * FROM users...');
+
+// Health check
+const isHealthy = await testConnection();
+
+// Graceful shutdown
+await closeConnections();
 ```
 
-#### Cache TTL (Time To Live)
+### redis.ts
+Redis client configuration for caching, pub/sub, and session storage.
 
+**Features:**
+- Main Redis client for general operations
+- Pub/Sub clients for WebSocket broadcasting
+- Automatic reconnection with exponential backoff
+- Connection health checking
+- Graceful shutdown support
+
+**Usage:**
 ```typescript
-REDIS_CONFIG.TTL.SESSION: 3600s (1 hour)
-REDIS_CONFIG.TTL.USER_STATUS: 300s (5 minutes)
-REDIS_CONFIG.TTL.CHAT_LIST: 600s (10 minutes)
-REDIS_CONFIG.TTL.MESSAGE_CACHE: 1800s (30 minutes)
-REDIS_CONFIG.TTL.CONTACT_LIST: 600s (10 minutes)
-REDIS_CONFIG.TTL.TYPING_INDICATOR: 5s
-REDIS_CONFIG.TTL.PRESENCE: 300s (5 minutes)
-```
+import { redisClient, redisPubClient, redisSubClient, connectRedis, closeRedis } from './config/redis';
 
-#### Cache Key Prefixes
-
-```typescript
-REDIS_CONFIG.KEYS.SESSION: 'session:'
-REDIS_CONFIG.KEYS.USER_STATUS: 'user:status:'
-REDIS_CONFIG.KEYS.USER_ONLINE: 'user:online:'
-REDIS_CONFIG.KEYS.CHAT_LIST: 'chat:list:'
-REDIS_CONFIG.KEYS.CHAT_UNREAD: 'chat:unread:'
-REDIS_CONFIG.KEYS.MESSAGE: 'message:'
-REDIS_CONFIG.KEYS.CONTACT_LIST: 'contact:list:'
-REDIS_CONFIG.KEYS.TYPING: 'typing:'
-REDIS_CONFIG.KEYS.PRESENCE: 'presence:'
-REDIS_CONFIG.KEYS.RATE_LIMIT: 'ratelimit:'
-```
-
-#### Pub/Sub Channels
-
-```typescript
-REDIS_CONFIG.CHANNELS.MESSAGE_NEW: 'message:new'
-REDIS_CONFIG.CHANNELS.MESSAGE_EDIT: 'message:edit'
-REDIS_CONFIG.CHANNELS.MESSAGE_DELETE: 'message:delete'
-REDIS_CONFIG.CHANNELS.MESSAGE_REACTION: 'message:reaction'
-REDIS_CONFIG.CHANNELS.USER_STATUS: 'user:status'
-REDIS_CONFIG.CHANNELS.TYPING_START: 'typing:start'
-REDIS_CONFIG.CHANNELS.TYPING_STOP: 'typing:stop'
-REDIS_CONFIG.CHANNELS.READ_RECEIPT: 'read:receipt'
-REDIS_CONFIG.CHANNELS.CHAT_UPDATE: 'chat:update'
-```
-
-#### Redis Streams
-
-```typescript
-REDIS_CONFIG.STREAMS.MESSAGE_DELIVERY: 'message-delivery-stream'
-```
-
-### Connection Management
-
-#### Connect to Redis
-
-```typescript
-import { connectRedis } from './config/redis';
-
+// Initialize
 await connectRedis();
-```
 
-#### Close Redis Connections
+// Cache operations
+await redisClient.set('key', 'value');
+const value = await redisClient.get('key');
 
-```typescript
-import { closeRedis } from './config/redis';
+// Pub/Sub
+await redisPubClient.publish('channel', 'message');
+await redisSubClient.subscribe('channel', (message) => {
+  console.log(message);
+});
 
+// Graceful shutdown
 await closeRedis();
 ```
 
-#### Health Check
+### storage.ts
+MinIO/S3 object storage configuration for image and file uploads.
 
+**Features:**
+- S3-compatible client (works with MinIO and AWS S3)
+- Automatic bucket creation and verification
+- CORS configuration for browser uploads
+- Health checking
+- Path and size configuration presets
+- Storage information reporting
+
+**Configuration:**
 ```typescript
-import { checkRedisHealth } from './config/redis';
-
-const isHealthy = await checkRedisHealth();
+export const S3_CONFIG = {
+  bucket: string,                    // Bucket name
+  region: string,                    // AWS region
+  publicUrl: string | undefined,     // Public URL for file access
+  endpoint: string,                  // S3/MinIO endpoint
+  
+  // Image storage paths
+  paths: {
+    images: 'images',                // User-uploaded images
+    avatars: 'avatars',              // Profile avatars
+    attachments: 'attachments',      // Message attachments
+  },
+  
+  // Image size configurations
+  imageSizes: {
+    original: { quality: 85, progressive: true },
+    medium: { maxWidth: 800, maxHeight: 800, quality: 80 },
+    thumbnail: { width: 300, height: 300, quality: 75 },
+  },
+  
+  // URL expiration for signed URLs (seconds)
+  signedUrlExpiry: 3600,             // 1 hour
+  
+  // CORS configuration
+  cors: [...],
+};
 ```
 
-### Cache Helpers
-
-The configuration provides a comprehensive set of cache helper functions:
-
-#### Cache-Aside Pattern
-
+**Usage:**
 ```typescript
-import { cacheHelpers, REDIS_CONFIG } from './config/redis';
+import { s3Client, S3_CONFIG, initializeStorage, healthCheck, getStorageInfo } from './config/storage';
+import { PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 
-// Get from cache or fetch from database
-const user = await cacheHelpers.getOrSet(
-  `${REDIS_CONFIG.KEYS.USER_STATUS}${userId}`,
-  REDIS_CONFIG.TTL.USER_STATUS,
-  async () => {
-    // Fallback function if cache miss
-    return await userRepository.findById(userId);
-  }
-);
-```
+// Initialize storage (call on server startup)
+await initializeStorage();
+// - Tests connection
+// - Creates bucket if it doesn't exist
+// - Configures CORS
 
-#### Set with TTL
-
-```typescript
-await cacheHelpers.set(
-  `${REDIS_CONFIG.KEYS.SESSION}${sessionToken}`,
-  sessionData,
-  REDIS_CONFIG.TTL.SESSION
-);
-```
-
-#### Get from Cache
-
-```typescript
-const session = await cacheHelpers.get<Session>(
-  `${REDIS_CONFIG.KEYS.SESSION}${sessionToken}`
-);
-```
-
-#### Delete from Cache
-
-```typescript
-await cacheHelpers.del(`${REDIS_CONFIG.KEYS.SESSION}${sessionToken}`);
-```
-
-#### Delete Pattern
-
-```typescript
-// Delete all sessions for a user
-await cacheHelpers.delPattern(`${REDIS_CONFIG.KEYS.SESSION}${userId}:*`);
-```
-
-#### Set Permanent (No Expiration)
-
-```typescript
-await cacheHelpers.setPermanent(
-  `${REDIS_CONFIG.KEYS.USER_STATUS}${userId}`,
-  status
-);
-```
-
-#### Counter Operations
-
-```typescript
-// Simple increment
-const count = await cacheHelpers.incr(`message:count:${chatId}`);
-
-// Increment with expiry (for rate limiting)
-const attempts = await cacheHelpers.incrWithExpiry(
-  `${REDIS_CONFIG.KEYS.RATE_LIMIT}${userId}`,
-  900 // 15 minutes
-);
-```
-
-#### Set Operations
-
-```typescript
-// Add to set
-await cacheHelpers.sadd(
-  `${REDIS_CONFIG.KEYS.USER_ONLINE}`,
-  userId1,
-  userId2
-);
-
-// Remove from set
-await cacheHelpers.srem(`${REDIS_CONFIG.KEYS.USER_ONLINE}`, userId);
-
-// Get all members
-const onlineUsers = await cacheHelpers.smembers(`${REDIS_CONFIG.KEYS.USER_ONLINE}`);
-
-// Check membership
-const isOnline = await cacheHelpers.sismember(
-  `${REDIS_CONFIG.KEYS.USER_ONLINE}`,
-  userId
-);
-```
-
-### Pub/Sub Helpers
-
-#### Publish a Message
-
-```typescript
-import { pubSubHelpers, REDIS_CONFIG } from './config/redis';
-
-await pubSubHelpers.publish(REDIS_CONFIG.CHANNELS.MESSAGE_NEW, {
-  messageId: 'msg-123',
-  chatId: 'chat-456',
-  senderId: 'user-789',
-  content: 'Hello!',
-  timestamp: new Date(),
+// Upload a file
+const command = new PutObjectCommand({
+  Bucket: S3_CONFIG.bucket,
+  Key: 'path/to/file.jpg',
+  Body: buffer,
+  ContentType: 'image/jpeg',
 });
+await s3Client.send(command);
+
+// Health check
+const health = await healthCheck();
+// Returns: { healthy: boolean, message: string }
+
+// Get storage information
+const info = getStorageInfo();
+// Returns: { type: 'MinIO' | 'S3', bucket, region, endpoint }
 ```
 
-#### Subscribe to a Channel
+**MinIO vs AWS S3:**
 
-```typescript
-await pubSubHelpers.subscribe(
-  REDIS_CONFIG.CHANNELS.MESSAGE_NEW,
-  (data) => {
-    console.log('New message received:', data);
-    // Handle the message
-  }
-);
+The configuration automatically detects MinIO vs AWS S3 based on the endpoint:
+- MinIO: Endpoint contains 'minio' (e.g., http://localhost:9000)
+- AWS S3: Endpoint is AWS S3 URL or doesn't contain 'minio'
+
+Key differences handled automatically:
+- `forcePathStyle: true` for MinIO compatibility
+- Bucket location constraint only for AWS S3 (not us-east-1)
+- CORS configuration may not be supported by all MinIO configurations
+
+**Local Development with MinIO:**
+```bash
+# Using Docker Compose (see docker-compose.yml)
+docker-compose up -d minio
+
+# Access MinIO Console
+open http://localhost:9001
+
+# Default credentials (change in production!)
+# Username: minioadmin
+# Password: minioadmin
 ```
 
-#### Unsubscribe from a Channel
-
-```typescript
-await pubSubHelpers.unsubscribe(REDIS_CONFIG.CHANNELS.MESSAGE_NEW);
+**Production AWS S3:**
+```env
+S3_ENDPOINT=https://s3.us-west-2.amazonaws.com
+S3_ACCESS_KEY=your-aws-access-key
+S3_SECRET_KEY=your-aws-secret-key
+S3_BUCKET=your-production-bucket
+S3_PUBLIC_URL=https://your-cdn-domain.com  # Optional CDN
+AWS_REGION=us-west-2
 ```
 
-### Usage Examples
+### constants.ts
+Application-wide constants for limits, statuses, and enums.
 
-#### Session Caching
+**Categories:**
+- `LIMITS`: Size and rate limits
+- `MESSAGE_STATUS`: Message delivery states
+- `CHAT_TYPE`: Direct vs group chats
+- `CONTACT_STATUS`: Contact relationship states
+- `USER_STATUS`: Online/offline/away states
+- `PARTICIPANT_ROLE`: Chat membership roles
+
+## Initialization Order
+
+The configuration modules must be initialized in the correct order during server startup:
+
+1. **Environment Variables** (`env.ts`) - Loaded automatically via dotenv
+2. **Database** (`database.ts`) - Test connection with `testConnection()`
+3. **Redis** (`redis.ts`) - Connect with `connectRedis()`
+4. **Storage** (`storage.ts`) - Initialize with `initializeStorage()`
+5. **Application** - Create Express app and start server
+
+See `src/server.ts` for the complete initialization sequence.
+
+## Health Checks
+
+All infrastructure components provide health check capabilities:
 
 ```typescript
-import { cacheHelpers, REDIS_CONFIG } from '../config/redis';
+// Database
+const dbHealthy = await testConnection();
 
-// Store session
-await cacheHelpers.set(
-  `${REDIS_CONFIG.KEYS.SESSION}${token}`,
-  sessionData,
-  REDIS_CONFIG.TTL.SESSION
-);
+// Redis
+await redisClient.ping();
 
-// Retrieve session
-const session = await cacheHelpers.get<Session>(
-  `${REDIS_CONFIG.KEYS.SESSION}${token}`
-);
+// Storage
+const storageHealth = await healthCheck();
+console.log(storageHealth); // { healthy: boolean, message: string }
 ```
 
-#### User Status Tracking
-
-```typescript
-// Mark user online
-await cacheHelpers.sadd(
-  `${REDIS_CONFIG.KEYS.USER_ONLINE}`,
-  userId
-);
-
-// Check if user is online
-const isOnline = await cacheHelpers.sismember(
-  `${REDIS_CONFIG.KEYS.USER_ONLINE}`,
-  userId
-);
-
-// Mark user offline
-await cacheHelpers.srem(
-  `${REDIS_CONFIG.KEYS.USER_ONLINE}`,
-  userId
-);
-
-// Get all online users
-const onlineUsers = await cacheHelpers.smembers(
-  `${REDIS_CONFIG.KEYS.USER_ONLINE}`
-);
-```
-
-#### Message Broadcasting
-
-```typescript
-// Publish new message notification
-await pubSubHelpers.publish(REDIS_CONFIG.CHANNELS.MESSAGE_NEW, {
-  messageId,
-  chatId,
-  senderId,
-  content,
-});
-
-// All server instances subscribed to this channel will receive it
-```
-
-#### Typing Indicators
-
-```typescript
-// Publish typing start
-await pubSubHelpers.publish(REDIS_CONFIG.CHANNELS.TYPING_START, {
-  chatId,
-  userId,
-});
-
-// Store typing indicator with short TTL
-await cacheHelpers.set(
-  `${REDIS_CONFIG.KEYS.TYPING}${chatId}:${userId}`,
-  true,
-  REDIS_CONFIG.TTL.TYPING_INDICATOR
-);
-```
-
-#### Rate Limiting
-
-```typescript
-// Increment attempt counter with 15-minute expiry
-const attempts = await cacheHelpers.incrWithExpiry(
-  `${REDIS_CONFIG.KEYS.RATE_LIMIT}login:${username}`,
-  900
-);
-
-if (attempts > 5) {
-  throw new Error('Rate limit exceeded');
+Health checks are exposed via the `/health/ready` endpoint:
+```json
+{
+  "status": "ready",
+  "checks": {
+    "database": true,
+    "redis": true,
+    "storage": true
+  },
+  "timestamp": "2025-10-28T10:30:00.000Z"
 }
 ```
 
-### Best Practices
+Detailed health information is available at `/health/detailed`:
+```json
+{
+  "status": "healthy",
+  "checks": {
+    "database": {
+      "healthy": true,
+      "message": "Database connection successful"
+    },
+    "redis": {
+      "healthy": true,
+      "message": "Redis connection successful"
+    },
+    "storage": {
+      "healthy": true,
+      "message": "Storage service is healthy",
+      "info": {
+        "type": "MinIO",
+        "bucket": "chat-images",
+        "region": "us-east-1",
+        "endpoint": "http://localhost:9000"
+      }
+    }
+  },
+  "timestamp": "2025-10-28T10:30:00.000Z",
+  "uptime": 3600.5
+}
+```
 
-1. **Always use configuration constants**: Use `REDIS_CONFIG.KEYS.*` and `REDIS_CONFIG.TTL.*` instead of hardcoded strings
-2. **Handle cache failures gracefully**: Cache helpers are designed to fail gracefully and log errors
-3. **Use appropriate TTLs**: Set shorter TTLs for frequently changing data, longer for stable data
-4. **Use cache-aside pattern**: For data that needs to be fetched from database if not in cache
-5. **Clean up on logout**: Always invalidate sessions and remove user status on logout
-6. **Monitor Redis health**: Use `checkRedisHealth()` in health check endpoints
-7. **Use pub/sub for cross-server communication**: Essential for multi-instance WebSocket coordination
-
-### Error Handling
-
-All cache and pub/sub helpers include built-in error handling:
-
-- Errors are logged with context
-- Operations fail gracefully without throwing
-- Cache misses return `null`
-- Failed operations return safe defaults (empty arrays, `false`, `0`)
-
-This ensures that Redis failures don't crash the application, and it can fall back to database operations when needed.
-
-### Connection Events
-
-The Redis clients emit various events that are logged:
-
-- `connect`: Connection attempt started
-- `ready`: Client is ready to accept commands
-- `reconnecting`: Client is attempting to reconnect
-- `error`: Connection or command error
-- `end`: Connection closed
-
-All events are logged automatically for monitoring and debugging.
+## Security Considerations
 
 ### Environment Variables
+- Never commit `.env` files to version control
+- Use strong, randomly generated secrets for JWT tokens
+- Rotate credentials periodically
+- Use different credentials for each environment
 
-Required environment variable:
+### Storage Security
+- Use IAM roles in production (AWS)
+- Enable bucket encryption at rest
+- Use signed URLs for private content
+- Configure bucket policies to restrict access
+- Enable versioning for important data
+- Set up lifecycle policies for cleanup
 
-```env
-REDIS_URL=redis://localhost:6379
+### Database Security
+- Use SSL/TLS connections in production
+- Implement connection pooling limits
+- Use read replicas for read-heavy operations
+- Enable query logging for auditing
+- Regular backup and recovery testing
+
+### Redis Security
+- Enable AUTH with strong passwords
+- Use SSL/TLS in production
+- Restrict network access
+- Monitor for suspicious activity
+- Set appropriate memory limits
+
+## Troubleshooting
+
+### Storage Issues
+
+**Bucket does not exist:**
 ```
-
-For Redis Cluster:
-
-```env
-REDIS_URL=redis://localhost:6379,redis://localhost:6380,redis://localhost:6381
+Error: Bucket chat-images does not exist
 ```
+Solution: The bucket is created automatically during initialization. Check logs for errors during startup.
 
-For Redis with authentication:
-
-```env
-REDIS_URL=redis://:password@localhost:6379
+**Access denied:**
 ```
-
-### Testing
-
-To test Redis connectivity:
-
-```typescript
-import { connectRedis, checkRedisHealth } from './config/redis';
-
-// Connect
-await connectRedis();
-
-// Health check
-const isHealthy = await checkRedisHealth();
-console.log('Redis healthy:', isHealthy);
+Error: Access Denied
 ```
+Solution: Verify S3_ACCESS_KEY and S3_SECRET_KEY are correct. For MinIO, ensure credentials match MINIO_ROOT_USER and MINIO_ROOT_PASSWORD.
 
-### Production Considerations
+**Connection refused:**
+```
+Error: connect ECONNREFUSED
+```
+Solution: Ensure MinIO/S3 service is running. For Docker, check `docker-compose logs minio`.
 
-1. **Redis Cluster**: For production, use Redis Cluster for high availability
-2. **Connection Pooling**: The redis client handles connection pooling automatically
-3. **Monitoring**: Monitor Redis memory usage, hit rate, and command latency
-4. **Persistence**: Configure Redis AOF (Append Only File) for data persistence
-5. **Backups**: Regular Redis snapshots (RDB files)
-6. **Memory Limits**: Set `maxmemory` and `maxmemory-policy` (e.g., `allkeys-lru`)
+**CORS errors:**
+```
+CORS policy: No 'Access-Control-Allow-Origin' header
+```
+Solution: CORS is configured automatically. Some MinIO configurations may not support CORS. Check logs for warnings.
 
-### Troubleshooting
+### Database Issues
 
-#### Connection Issues
+**Connection timeout:**
+```
+Error: Connection timeout
+```
+Solution: Check DATABASE_URL is correct. Verify PostgreSQL is running. Check network connectivity.
 
-Check logs for connection errors. Common causes:
-- Redis server not running
-- Incorrect REDIS_URL
-- Network firewall blocking connection
-- Redis max connections reached
+**Too many connections:**
+```
+Error: too many clients already
+```
+Solution: Increase PostgreSQL max_connections or reduce pool size in database.ts.
 
-#### Performance Issues
+### Redis Issues
 
-- Monitor slow commands with `SLOWLOG GET`
-- Check memory usage with `INFO memory`
-- Review key patterns and TTLs
-- Consider using Redis Cluster for scaling
+**Connection refused:**
+```
+Error: connect ECONNREFUSED
+```
+Solution: Verify Redis is running. Check REDIS_URL format: `redis://:password@host:port`.
 
-#### Cache Inconsistency
+**Authentication failed:**
+```
+Error: NOAUTH Authentication required
+```
+Solution: Include password in REDIS_URL: `redis://:yourpassword@host:port`.
 
-- Ensure proper cache invalidation on updates
-- Use appropriate TTLs
-- Consider using cache versioning for schema changes
+## Performance Tuning
 
-## See Also
+### Database
+- Adjust pool sizes based on load (see database.ts)
+- Use read replicas for heavy read workloads
+- Enable connection pooling
+- Monitor query performance
 
-- [Environment Configuration](./env.ts)
-- [Database Configuration](./database.ts)
-- [Storage Configuration](./storage.ts)
+### Redis
+- Use Redis cluster for high availability
+- Implement caching strategies
+- Monitor memory usage
+- Set appropriate TTLs
+
+### Storage
+- Use CDN for public assets (S3_PUBLIC_URL)
+- Implement signed URLs with reasonable expiry
+- Compress images before upload
+- Use appropriate bucket policies
+- Enable transfer acceleration (AWS S3)
+
+## References
+
+- [AWS SDK for JavaScript v3](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/)
+- [MinIO Documentation](https://min.io/docs/minio/linux/index.html)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [Redis Documentation](https://redis.io/documentation)
+- [Node-Redis Client](https://github.com/redis/node-redis)
