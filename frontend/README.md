@@ -68,6 +68,52 @@ Preview the production build locally:
 npm run preview
 ```
 
+## Docker Deployment
+
+The frontend is containerized with nginx for production deployment.
+
+### Building the Docker Image
+
+```bash
+docker build -t chat-frontend:latest .
+```
+
+### Running the Container
+
+```bash
+docker run -d \
+  -p 80:80 \
+  -e VITE_API_URL=http://your-backend:3000/api \
+  -e VITE_WS_URL=http://your-backend:3000 \
+  --name chat-frontend \
+  chat-frontend:latest
+```
+
+### Environment Variables (Runtime)
+
+The Docker image supports runtime configuration through environment variables:
+
+- `VITE_API_URL` - Backend API URL (injected at container start)
+- `VITE_WS_URL` - WebSocket server URL (injected at container start)
+- `APP_NAME` - Application name (optional)
+- `VERSION` - Application version (optional)
+
+### Health Check
+
+The nginx server exposes a health check endpoint at `/health`:
+
+```bash
+curl http://localhost:80/health
+```
+
+### Docker Compose
+
+The frontend is integrated with the full stack via docker-compose.yml:
+
+```bash
+docker-compose up frontend
+```
+
 ## Scripts
 
 - `npm run dev` - Start development server
