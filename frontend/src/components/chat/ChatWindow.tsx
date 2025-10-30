@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import { ChatHeader } from './ChatHeader';
@@ -13,14 +13,11 @@ export const ChatWindow: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
-  const currentMessages = useMemo(
-    () => (activeChat ? messages[activeChat] || [] : []),
+  const currentMessages = useMemo(() => 
+    activeChat ? messages[activeChat] || [] : [], 
     [activeChat, messages]
   );
-  const currentTypingUsers = useMemo(
-    () => (activeChat ? typingUsers[activeChat] || [] : []),
-    [activeChat, typingUsers]
-  );
+  const currentTypingUsers = activeChat ? typingUsers[activeChat] || [] : [];
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

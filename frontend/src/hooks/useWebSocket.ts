@@ -3,15 +3,6 @@ import { wsService } from '../services/websocket.service';
 import { useAuthStore } from '../store/authStore';
 import { useChatStore } from '../store/chatStore';
 
-interface MessageMetadata {
-  images?: Array<{
-    url: string;
-    thumbnailUrl: string;
-    originalUrl: string;
-  }>;
-  [key: string]: unknown;
-}
-
 interface Reaction {
   id: string;
   messageId: string;
@@ -25,13 +16,13 @@ interface Message {
   senderId: string;
   content: string;
   contentType: 'text' | 'image' | 'system';
-  metadata?: MessageMetadata;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   isEdited: boolean;
   reactions?: Reaction[];
 }
 
-interface ReadReceiptData {
+interface MessageReadData {
   messageId: string;
   readBy: string;
 }
@@ -53,23 +44,24 @@ export const useWebSocket = () => {
     wsService.connect(token);
 
     // Listen for new messages
-    wsService.on('message:new', (message) => {
-      addMessage(message as Message);
+    wsService.on('message:new', (data) => {
+      const message = data as Message;
+      addMessage(message);
     });
 
     // Listen for message read receipts
     wsService.on('message:read', (data) => {
-      const readData = data as ReadReceiptData;
+      const readData = data as MessageReadData;
       updateMessageStatus(readData.messageId, 'read', readData.readBy);
     });
 
     // Listen for message edits
-    wsService.on('message:edited', (_data) => {
+    wsService.on('message:edited', () => {
       // Update message in store
     });
 
     // Listen for message deletions
-    wsService.on('message:deleted', (_data) => {
+    wsService.on('message:deleted', () => {
       // Remove message from store
     });
 
@@ -80,16 +72,16 @@ export const useWebSocket = () => {
     });
 
     // Listen for typing indicators
-    wsService.on('typing:start', (_data) => {
+    wsService.on('typing:start', () => {
       // Show typing indicator
     });
 
-    wsService.on('typing:stop', (_data) => {
+    wsService.on('typing:stop', () => {
       // Hide typing indicator
     });
 
     // Listen for user status changes
-    wsService.on('user:status', (_data) => {
+    wsService.on('user:status', () => {
       // Update user status in store
     });
 

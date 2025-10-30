@@ -3,13 +3,13 @@ import { format } from 'date-fns';
 import { useAuthStore } from '../../store/authStore';
 import { apiService } from '../../services/api.service';
 
+interface ImageMetadata {
+  url: string;
+  originalUrl: string;
+}
+
 interface MessageMetadata {
-  images?: Array<{
-    url: string;
-    thumbnailUrl: string;
-    originalUrl: string;
-  }>;
-  [key: string]: unknown;
+  images?: ImageMetadata[];
 }
 
 interface MessageProps {

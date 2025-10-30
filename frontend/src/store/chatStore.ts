@@ -23,7 +23,7 @@ interface Message {
   senderId: string;
   content: string;
   contentType: 'text' | 'image' | 'system';
-  metadata?: MessageMetadata;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   isEdited: boolean;
   reactions?: Reaction[];
@@ -34,6 +34,13 @@ interface Reaction {
   messageId: string;
   userId: string;
   emoji: string;
+}
+
+interface Participant {
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl?: string;
 }
 
 interface Chat {
@@ -195,7 +202,7 @@ export const useChatStore = create<ChatState>()(
             return { messages: newMessages };
           }),
 
-        updateMessageStatus: (_messageId, _status, _userId) =>
+        updateMessageStatus: () =>
           set((state) => {
             // Update delivery status metadata
             return state;

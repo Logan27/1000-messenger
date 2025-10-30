@@ -16,7 +16,7 @@ interface MessageListProps {
     senderId: string;
     content: string;
     contentType: string;
-    metadata?: MessageMetadata;
+    metadata?: Record<string, unknown>;
     createdAt: string;
     isEdited: boolean;
     reactions?: Array<{ id: string; emoji: string; userId: string }>;
