@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { testConnection, getPoolStats, checkReplicaHealth } from '../config/database';
-import { redisClient } from '../config/redis';
+import { testConnection } from '../config/database';
+import { checkRedisHealth } from '../config/redis';
 import { logger } from '../utils/logger.util';
 
 export class HealthController {
@@ -33,8 +33,7 @@ export class HealthController {
 
       // Check Redis
       try {
-        await redisClient.ping();
-        checks.redis = true;
+        checks.redis = await checkRedisHealth();
       } catch (error) {
         logger.error('Redis health check failed', error);
       }

@@ -6,7 +6,7 @@ const logger_util_1 = require("../utils/logger.util");
 class MessageDeliveryQueue {
     messageRepo;
     socketManager;
-    STREAM_KEY = 'message-delivery-stream';
+    STREAM_KEY = redis_1.REDIS_CONFIG.STREAMS.MESSAGE_DELIVERY;
     CONSUMER_GROUP = 'message-delivery-workers';
     CONSUMER_NAME = `worker-${process.pid}`;
     isProcessing = false;

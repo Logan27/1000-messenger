@@ -1,8 +1,40 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SessionService = void 0;
 const database_1 = require("../config/database");
-const redis_1 = require("../config/redis");
 const uuid_1 = require("uuid");
 class SessionService {
     async createSession(data) {
@@ -71,7 +103,8 @@ class SessionService {
       WHERE session_token = $1
     `;
         await database_1.pool.query(query, [sessionToken]);
-        await redis_1.redisClient.del(`session:${sessionToken}`);
+        const { REDIS_CONFIG, cacheHelpers } = await Promise.resolve().then(() => __importStar(require('../config/redis')));
+        await cacheHelpers.del(`${REDIS_CONFIG.KEYS.SESSION}${sessionToken}`);
     }
     async invalidateAllUserSessions(userId) {
         const query = `
@@ -80,11 +113,9 @@ class SessionService {
       WHERE user_id = $1
     `;
         await database_1.pool.query(query, [userId]);
-        const pattern = `session:${userId}:*`;
-        const keys = await redis_1.redisClient.keys(pattern);
-        if (keys.length > 0) {
-            await redis_1.redisClient.del(keys);
-        }
+        const { REDIS_CONFIG, cacheHelpers } = await Promise.resolve().then(() => __importStar(require('../config/redis')));
+        const pattern = `${REDIS_CONFIG.KEYS.SESSION}${userId}:*`;
+        await cacheHelpers.delPattern(pattern);
     }
     async updateLastActivity(sessionToken) {
         const query = `
@@ -95,13 +126,14 @@ class SessionService {
         await database_1.pool.query(query, [sessionToken]);
     }
     async cacheSession(session) {
-        const key = `session:${session.sessionToken}`;
-        await redis_1.redisClient.setEx(key, 3600, JSON.stringify(session));
+        const { REDIS_CONFIG, cacheHelpers } = await Promise.resolve().then(() => __importStar(require('../config/redis')));
+        const key = `${REDIS_CONFIG.KEYS.SESSION}${session.sessionToken}`;
+        await cacheHelpers.set(key, session, REDIS_CONFIG.TTL.SESSION);
     }
     async getCachedSession(token) {
-        const key = `session:${token}`;
-        const cached = await redis_1.redisClient.get(key);
-        return cached ? JSON.parse(cached) : null;
+        const { REDIS_CONFIG, cacheHelpers } = await Promise.resolve().then(() => __importStar(require('../config/redis')));
+        const key = `${REDIS_CONFIG.KEYS.SESSION}${token}`;
+        return await cacheHelpers.get(key);
     }
     mapRow(row) {
         return {
