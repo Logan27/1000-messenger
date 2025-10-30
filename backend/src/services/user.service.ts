@@ -1,8 +1,10 @@
+import { UserRepository } from '../repositories/user.repository';
 import { ContactRepository } from '../repositories/contact.repository';
 import { ChatRepository } from '../repositories/chat.repository';
 
 export class UserService {
   constructor(
+    private _userRepo: UserRepository,
     private contactRepo: ContactRepository,
     private chatRepo: ChatRepository
   ) {}

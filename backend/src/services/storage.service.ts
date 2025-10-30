@@ -66,7 +66,7 @@ export class StorageService {
 
     logger.info(`Image uploaded: ${imageId} by user ${userId}`);
 
-    return {
+    const result: UploadResult = {
       id: imageId,
       fileName: file.originalname,
       fileType: file.mimetype,
@@ -74,12 +74,19 @@ export class StorageService {
       originalUrl,
       thumbnailUrl,
       mediumUrl,
-      width: imageMetadata.width,
-      height: imageMetadata.height,
       storageKey: originalKey,
       thumbnailKey,
       mediumKey,
     };
+    
+    if (imageMetadata.width !== undefined) {
+      result.width = imageMetadata.width;
+    }
+    if (imageMetadata.height !== undefined) {
+      result.height = imageMetadata.height;
+    }
+    
+    return result;
   }
 
   async deleteImage(storageKey: string, thumbnailKey?: string, mediumKey?: string) {

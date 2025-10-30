@@ -8,24 +8,31 @@ export class MessageHandler {
   setupHandlers(socket: Socket) {
     const { userId } = socket.data;
 
-    socket.on(
-      'message:send',
-      async (data: {
-        chatId: string;
-        content: string;
-        contentType?: 'text' | 'image' | 'system';
-        metadata?: Record<string, any>;
-        replyToId?: string;
-      }) => {
-        try {
-          const message = await this.messageService.sendMessage({
-            chatId: data.chatId,
-            senderId: userId,
-            content: data.content,
-            contentType: data.contentType,
-            metadata: data.metadata,
-            replyToId: data.replyToId,
-          });
+    socket.on('message:send', async (data: {
+      chatId: string;
+      content: string;
+      contentType?: 'text' | 'image' | 'system';
+      metadata?: Record<string, any>;
+      replyToId?: string;
+    }) => {
+      try {
+        const messageDto: any = {
+          chatId: data.chatId,
+          senderId: userId,
+          content: data.content,
+        };
+        
+        if (data.contentType !== undefined) {
+          messageDto.contentType = data.contentType;
+        }
+        if (data.metadata !== undefined) {
+          messageDto.metadata = data.metadata;
+        }
+        if (data.replyToId !== undefined) {
+          messageDto.replyToId = data.replyToId;
+        }
+        
+        const message = await this.messageService.sendMessage(messageDto);
 
           // Send confirmation back to sender
           socket.emit('message:sent', {

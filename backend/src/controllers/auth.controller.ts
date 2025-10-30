@@ -13,10 +13,10 @@ export class AuthController {
       }
 
       const user = await this.authService.register(username, password);
-
-      res.status(201).json({ user });
+      
+      return res.status(201).json({ user });
     } catch (error) {
-      next(error);
+      return next(error);
     }
   };
 
@@ -28,19 +28,32 @@ export class AuthController {
         return res.status(400).json({ error: 'Username and password are required' });
       }
 
-      const deviceInfo = {
+      const deviceInfoRaw = {
         deviceId: req.headers['x-device-id'] as string,
         deviceType: req.headers['x-device-type'] as string,
         deviceName: req.headers['x-device-name'] as string,
         ipAddress: req.ip,
         userAgent: req.headers['user-agent'],
       };
+      
+      const deviceInfo: any = {
+        deviceId: deviceInfoRaw.deviceId,
+        deviceType: deviceInfoRaw.deviceType,
+        deviceName: deviceInfoRaw.deviceName,
+      };
+      
+      if (deviceInfoRaw.ipAddress !== undefined) {
+        deviceInfo.ipAddress = deviceInfoRaw.ipAddress;
+      }
+      if (deviceInfoRaw.userAgent !== undefined) {
+        deviceInfo.userAgent = deviceInfoRaw.userAgent;
+      }
 
       const result = await this.authService.login(username, password, deviceInfo);
-
-      res.json(result);
+      
+      return res.json(result);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   };
 
@@ -53,10 +66,10 @@ export class AuthController {
       }
 
       const result = await this.authService.refreshAccessToken(refreshToken);
-
-      res.json(result);
+      
+      return res.json(result);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   };
 
@@ -66,10 +79,10 @@ export class AuthController {
       const { refreshToken } = req.body;
 
       await this.authService.logout(userId, refreshToken);
-
-      res.json({ message: 'Logged out successfully' });
+      
+      return res.json({ message: 'Logged out successfully' });
     } catch (error) {
-      next(error);
+      return next(error);
     }
   };
 }

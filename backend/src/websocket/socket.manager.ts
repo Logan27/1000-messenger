@@ -45,8 +45,8 @@ export class SocketManager {
   private setupMiddleware() {
     this.io.use(async (socket, next) => {
       try {
-        const token = socket.handshake.auth.token;
-
+        const token = socket.handshake.auth['token'];
+        
         if (!token) {
           return next(new Error('Authentication token required'));
         }

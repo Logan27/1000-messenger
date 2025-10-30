@@ -71,16 +71,29 @@ export class AuthService {
     const refreshToken = this.generateRefreshToken(user.id);
 
     // Create session
-    await this.sessionService.createSession({
+    const sessionData: any = {
       userId: user.id,
       sessionToken: refreshToken,
-      deviceId: deviceInfo?.deviceId,
-      deviceType: deviceInfo?.deviceType,
-      deviceName: deviceInfo?.deviceName,
-      ipAddress: deviceInfo?.ipAddress,
-      userAgent: deviceInfo?.userAgent,
       expiresAt: new Date(Date.now() + LIMITS.SESSION_DURATION_DAYS * 24 * 60 * 60 * 1000),
-    });
+    };
+    
+    if (deviceInfo?.deviceId !== undefined) {
+      sessionData.deviceId = deviceInfo.deviceId;
+    }
+    if (deviceInfo?.deviceType !== undefined) {
+      sessionData.deviceType = deviceInfo.deviceType;
+    }
+    if (deviceInfo?.deviceName !== undefined) {
+      sessionData.deviceName = deviceInfo.deviceName;
+    }
+    if (deviceInfo?.ipAddress !== undefined) {
+      sessionData.ipAddress = deviceInfo.ipAddress;
+    }
+    if (deviceInfo?.userAgent !== undefined) {
+      sessionData.userAgent = deviceInfo.userAgent;
+    }
+    
+    await this.sessionService.createSession(sessionData);
 
     // Update last seen
     await this.userRepo.updateLastSeen(user.id);
@@ -130,15 +143,19 @@ export class AuthService {
   }
 
   private generateAccessToken(userId: string): string {
-    return jwt.sign({ userId, type: 'access' }, config.JWT_SECRET, {
-      expiresIn: LIMITS.ACCESS_TOKEN_DURATION,
-    });
+    return jwt.sign(
+      { userId, type: 'access' },
+      config.JWT_SECRET,
+      { expiresIn: LIMITS.ACCESS_TOKEN_DURATION as string | number }
+    );
   }
 
   private generateRefreshToken(userId: string): string {
-    return jwt.sign({ userId, type: 'refresh' }, config.JWT_REFRESH_SECRET, {
-      expiresIn: LIMITS.REFRESH_TOKEN_DURATION,
-    });
+    return jwt.sign(
+      { userId, type: 'refresh' },
+      config.JWT_REFRESH_SECRET,
+      { expiresIn: LIMITS.REFRESH_TOKEN_DURATION as string | number }
+    );
   }
 
   async verifyAccessToken(token: string): Promise<{ userId: string }> {

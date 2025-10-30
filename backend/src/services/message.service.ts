@@ -36,15 +36,20 @@ export class MessageService {
     }
 
     // Create message
-    const message = await this.messageRepo.create({
+    const messageData: any = {
       id: uuidv4(),
       chatId: dto.chatId,
       senderId: dto.senderId,
       content: dto.content,
       contentType: dto.contentType || 'text',
       metadata: dto.metadata || {},
-      replyToId: dto.replyToId,
-    });
+    };
+    
+    if (dto.replyToId !== undefined) {
+      messageData.replyToId = dto.replyToId;
+    }
+    
+    const message = await this.messageRepo.create(messageData);
 
     // Get all participants except sender
     const participants = await this.chatRepo.getActiveParticipantIds(dto.chatId);
@@ -149,8 +154,9 @@ export class MessageService {
 
     return {
       data: messages,
-      nextCursor:
-        messages.length > 0 ? messages[messages.length - 1].createdAt.toISOString() : null,
+      nextCursor: messages.length > 0 
+        ? messages[messages.length - 1]!.createdAt.toISOString()
+        : null,
       hasMore: messages.length === limit,
     };
   }
@@ -210,9 +216,12 @@ export class MessageService {
     await this.messageRepo.deleteReaction(reactionId);
 
     const message = await this.messageRepo.findById(reaction.messageId);
-
+    if (!message) {
+      throw new Error('Message not found');
+    }
+    
     // Broadcast reaction removal
-    this.socketManager.broadcastToChat(message!.chatId, 'reaction:removed', {
+    this.socketManager.broadcastToChat(message.chatId, 'reaction:removed', {
       reactionId,
       messageId: reaction.messageId,
     });
