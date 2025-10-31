@@ -1,10 +1,50 @@
+/**
+ * Security Middleware
+ *
+ * This module provides comprehensive security middleware for the messenger application,
+ * implementing industry-standard security headers, CORS policies, rate limiting, and
+ * input sanitization to protect against common web vulnerabilities.
+ *
+ * Key Features:
+ * - Helmet security headers (CSP, XSS protection, clickjacking prevention)
+ * - CORS configuration for cross-origin requests
+ * - Rate limiting for API protection and DDoS mitigation
+ * - HTML content sanitization to prevent XSS attacks
+ * - File upload validation
+ *
+ * @module middleware/security
+ */
+
 import helmet from 'helmet';
+import cors, { CorsOptions } from 'cors';
 import rateLimit from 'express-rate-limit';
 import sanitizeHtml from 'sanitize-html';
+import { Request, Response, NextFunction } from 'express';
 import { LIMITS } from '../config/constants';
 import { config } from '../config/env';
 
-// Helmet security headers
+/**
+ * Helmet Security Headers Middleware
+ *
+ * Configures security-related HTTP response headers to protect against common attacks:
+ *
+ * - **Content Security Policy (CSP)**: Prevents XSS by controlling resource loading
+ * - **X-Frame-Options**: Prevents clickjacking attacks
+ * - **X-Content-Type-Options**: Prevents MIME sniffing
+ * - **Referrer-Policy**: Controls referrer information
+ * - **Permissions-Policy**: Controls browser features
+ *
+ * CSP Directives:
+ * - default-src 'self': Only allow resources from same origin
+ * - style-src 'self' 'unsafe-inline': Allow inline styles (required for Tailwind)
+ * - script-src 'self': Only allow scripts from same origin
+ * - img-src 'self' data: https:: Allow images from same origin, data URIs, and HTTPS
+ * - connect-src: Allow API calls to self and S3/CDN for file uploads
+ * - object-src 'none': Block plugins (Flash, Java, etc.)
+ * - frame-src 'none': Prevent embedding in frames
+ *
+ * @see https://helmetjs.github.io/
+ */
 export const securityHeaders = helmet({
   contentSecurityPolicy: {
     directives: {
@@ -22,7 +62,78 @@ export const securityHeaders = helmet({
   crossOriginEmbedderPolicy: false,
 });
 
-// Rate limiting
+/**
+ * CORS (Cross-Origin Resource Sharing) Configuration
+ *
+ * Configures CORS to allow the frontend application to make requests to the API
+ * while blocking unauthorized origins. Essential for browser-based applications.
+ *
+ * Configuration:
+ * - **origin**: Function-based validation allowing only configured frontend URL
+ * - **credentials**: true - Allows cookies and Authorization headers
+ * - **methods**: Whitelist of HTTP methods (GET, POST, PUT, PATCH, DELETE, OPTIONS)
+ * - **allowedHeaders**: Headers the client is allowed to send
+ * - **exposedHeaders**: Headers the client can read from responses
+ * - **maxAge**: 24 hours - Cache preflight requests to reduce overhead
+ *
+ * Security Considerations:
+ * - Only configured FRONTEND_URL is allowed (no wildcards)
+ * - Requests without origin (e.g., Postman, curl) are allowed for development/testing
+ * - credentials: true enables authentication cookies and JWT tokens
+ * - Preflight caching reduces performance impact of CORS checks
+ *
+ * Usage:
+ * ```typescript
+ * // Express
+ * app.use(corsMiddleware);
+ *
+ * // Socket.IO
+ * const io = new SocketServer(httpServer, { cors: corsOptions });
+ * ```
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+ */
+export const corsOptions: CorsOptions = {
+  origin: (origin, callback) => {
+    const allowedOrigins = [config.FRONTEND_URL];
+
+    // Allow requests with no origin (like mobile apps, Postman, or curl)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // Allow cookies and authentication headers
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['X-Total-Count', 'X-Page-Count'], // Headers that client can access
+  maxAge: 86400, // 24 hours - cache preflight requests
+  optionsSuccessStatus: 204, // Some legacy browsers choke on 204
+};
+
+export const corsMiddleware = cors(corsOptions);
+
+/**
+ * API Rate Limiting Middleware
+ *
+ * General rate limiter for all API endpoints to prevent abuse and DDoS attacks.
+ * Limits requests per IP address.
+ *
+ * Limits:
+ * - 100 requests per minute per IP address
+ *
+ * Responses:
+ * - Returns 429 Too Many Requests when limit is exceeded
+ * - Includes standard rate limit headers (RateLimit-*)
+ *
+ * @see FR-184: System MUST rate limit general operations (100 per minute)
+ */
 export const apiRateLimit = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 100, // 100 requests per minute
@@ -31,6 +142,28 @@ export const apiRateLimit = rateLimit({
   legacyHeaders: false,
 });
 
+/**
+ * Authentication Rate Limiting Middleware
+ *
+ * Stricter rate limiter specifically for login/authentication endpoints to prevent
+ * brute force attacks and credential stuffing.
+ *
+ * Limits:
+ * - 5 login attempts per 15 minutes per username
+ * - Successful requests don't count against the limit
+ *
+ * Responses:
+ * - Returns 429 Too Many Requests when limit is exceeded
+ * - 15-minute lockout after 5 failed attempts
+ *
+ * Usage:
+ * ```typescript
+ * router.post('/login', authRateLimit, loginController);
+ * ```
+ *
+ * @see FR-006: System MUST implement rate limiting for login attempts (5 per 15 minutes)
+ * @see FR-181: System MUST rate limit login attempts (5 per 15 minutes)
+ */
 export const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // 5 attempts
@@ -38,14 +171,58 @@ export const authRateLimit = rateLimit({
   skipSuccessfulRequests: true,
 });
 
+/**
+ * Message Rate Limiting Middleware
+ *
+ * Rate limiter for message sending to prevent spam and abuse.
+ * Uses user ID when authenticated, falls back to IP address.
+ *
+ * Limits:
+ * - 10 messages per second per user (configurable via LIMITS.MESSAGES_PER_SECOND_PER_USER)
+ *
+ * Responses:
+ * - Returns 429 Too Many Requests when limit is exceeded
+ *
+ * Usage:
+ * ```typescript
+ * router.post('/messages', authenticate, messageRateLimit, sendMessageController);
+ * ```
+ *
+ * @see FR-182: System MUST rate limit messages (10 per second per user)
+ */
 export const messageRateLimit = rateLimit({
   windowMs: 1000, // 1 second
   max: LIMITS.MESSAGES_PER_SECOND_PER_USER,
-  keyGenerator: req => req.user?.userId || req.ip,
+  keyGenerator: (req: Request) => (req as any).user?.userId || req.ip,
   message: 'Too many messages, slow down',
 });
 
-// Sanitize HTML content
+/**
+ * HTML Content Sanitization
+ *
+ * Sanitizes user-provided HTML content to prevent XSS attacks while allowing
+ * basic text formatting.
+ *
+ * Allowed Tags:
+ * - b, i, em, strong, u (text formatting)
+ *
+ * Security Features:
+ * - Strips all attributes
+ * - Blocks iframes
+ * - Removes script tags
+ * - Escapes dangerous content
+ *
+ * Usage:
+ * ```typescript
+ * const safeContent = sanitizeContent(userInput);
+ * ```
+ *
+ * @param content - Raw HTML content from user input
+ * @returns Sanitized HTML content safe for display
+ *
+ * @see FR-032: System MUST sanitize HTML tags in messages to prevent XSS attacks
+ * @see FR-188: System MUST prevent XSS attacks through input sanitization
+ */
 export const sanitizeContent = (content: string): string => {
   return sanitizeHtml(content, {
     allowedTags: ['b', 'i', 'em', 'strong', 'u'],
@@ -54,21 +231,49 @@ export const sanitizeContent = (content: string): string => {
   });
 };
 
-// File upload validation
-export const validateImageUpload = (req: any, res: any, next: any) => {
+/**
+ * Image Upload Validation Middleware
+ *
+ * Validates uploaded image files to ensure they meet security and size requirements.
+ * Should be used after multer middleware in the middleware chain.
+ *
+ * Validations:
+ * - File type: JPEG, PNG, GIF, WebP only
+ * - File size: Maximum 10MB (configurable via LIMITS.IMAGE_MAX_SIZE)
+ * - File presence: Ensures file was uploaded
+ *
+ * Responses:
+ * - 400 Bad Request if validation fails with descriptive error
+ *
+ * Usage:
+ * ```typescript
+ * router.post('/upload',
+ *   authenticate,
+ *   upload.single('image'),
+ *   validateImageUpload,
+ *   uploadController
+ * );
+ * ```
+ *
+ * @see FR-033: Users MUST be able to upload images in JPEG, PNG, GIF, or WebP format
+ * @see FR-034: System MUST enforce maximum image size of 10MB per image
+ * @see FR-191: System MUST validate file types for uploads
+ */
+export const validateImageUpload = (req: Request, res: Response, next: NextFunction) => {
   const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+  const file = (req as any).file;
 
-  if (!req.file) {
+  if (!file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
-  if (!allowedTypes.includes(req.file.mimetype)) {
+  if (!allowedTypes.includes(file.mimetype)) {
     return res.status(400).json({
       error: 'Invalid file type. Allowed: JPEG, PNG, GIF, WebP',
     });
   }
 
-  if (req.file.size > LIMITS.IMAGE_MAX_SIZE) {
+  if (file.size > LIMITS.IMAGE_MAX_SIZE) {
     return res.status(400).json({
       error: `File too large. Maximum size: ${LIMITS.IMAGE_MAX_SIZE / (1024 * 1024)}MB`,
     });

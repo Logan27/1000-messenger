@@ -6,6 +6,7 @@ import { AuthService } from '../services/auth.service';
 import { SessionService } from '../services/session.service';
 import { UserRepository } from '../repositories/user.repository';
 import { logger } from '../utils/logger.util';
+import { corsOptions } from '../middleware/security.middleware';
 
 interface SocketData {
   userId: string;
@@ -22,10 +23,7 @@ export class SocketManager {
     private userRepo: UserRepository
   ) {
     this.io = new SocketServer(httpServer, {
-      cors: {
-        origin: process.env['FRONTEND_URL'],
-        credentials: true,
-      },
+      cors: corsOptions,
       transports: ['websocket', 'polling'], // WebSocket with polling fallback
       pingTimeout: 60000,
       pingInterval: 25000,
@@ -46,7 +44,7 @@ export class SocketManager {
     this.io.use(async (socket, next) => {
       try {
         const token = socket.handshake.auth['token'];
-        
+
         if (!token) {
           return next(new Error('Authentication token required'));
         }
