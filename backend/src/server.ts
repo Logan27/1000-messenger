@@ -11,12 +11,15 @@ import { logger } from './utils/logger.util';
 // Import services and repositories
 import { UserRepository } from './repositories/user.repository';
 import { MessageRepository } from './repositories/message.repository';
+import { ChatRepository } from './repositories/chat.repository';
 import { AuthService } from './services/auth.service';
 import { SessionService } from './services/session.service';
+import { MessageService } from './services/message.service';
 
 let server: http.Server;
 let socketManager: SocketManager;
 let messageQueue: MessageDeliveryQueue;
+let messageService: MessageService;
 let isShuttingDown = false;
 
 const SHUTDOWN_TIMEOUT = 30000; // 30 seconds max shutdown time
@@ -39,6 +42,7 @@ async function startServer() {
     // Initialize repositories
     const userRepo = new UserRepository();
     const messageRepo = new MessageRepository();
+    const chatRepo = new ChatRepository();
 
     // Initialize services
     const sessionService = new SessionService();
@@ -50,12 +54,20 @@ async function startServer() {
     // Create HTTP server
     server = http.createServer(app);
 
-    // Initialize WebSocket manager
-    socketManager = new SocketManager(server, authService, sessionService, userRepo);
+    // Initialize WebSocket manager (without MessageService to avoid circular dependency)
+    socketManager = new SocketManager(server, authService, sessionService, userRepo, chatRepo);
 
     // Initialize message delivery queue
     messageQueue = new MessageDeliveryQueue(messageRepo, socketManager);
     await messageQueue.initialize();
+
+    // Initialize MessageService with all dependencies
+    messageService = new MessageService(messageRepo, chatRepo, messageQueue, socketManager);
+
+    // Complete SocketManager initialization with MessageService
+    socketManager.initializeMessageHandlers(messageService);
+
+    // Start message queue processing
     void messageQueue.startProcessing();
 
     // Start server
