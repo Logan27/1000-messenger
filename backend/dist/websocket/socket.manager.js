@@ -8,6 +8,7 @@ const message_handler_1 = require("./handlers/message.handler");
 const presence_handler_1 = require("./handlers/presence.handler");
 const typing_handler_1 = require("./handlers/typing.handler");
 const read_receipt_handler_1 = require("./handlers/read-receipt.handler");
+const socket_auth_middleware_1 = require("./middleware/socket-auth.middleware");
 const logger_util_1 = require("../utils/logger.util");
 const env_1 = require("../config/env");
 class SocketManager {
@@ -20,6 +21,7 @@ class SocketManager {
     presenceHandler;
     typingHandler;
     readReceiptHandler;
+    socketAuthMiddleware;
     initialized = false;
     constructor(httpServer, authService, sessionService, userRepo, chatRepo) {
         this.authService = authService;
@@ -37,6 +39,7 @@ class SocketManager {
             maxHttpBufferSize: 1e6,
             connectTimeout: 45000,
         });
+        this.socketAuthMiddleware = new socket_auth_middleware_1.SocketAuthMiddleware(authService, sessionService);
         this.presenceHandler = new presence_handler_1.PresenceHandler(userRepo);
         this.typingHandler = new typing_handler_1.TypingHandler();
         this.setupRedisAdapter();
@@ -64,24 +67,7 @@ class SocketManager {
         }
     }
     setupMiddleware() {
-        this.io.use(async (socket, next) => {
-            try {
-                const token = socket.handshake.auth['token'];
-                if (!token) {
-                    return next(new Error('Authentication token required'));
-                }
-                const { userId } = await this.authService.verifyAccessToken(token);
-                socket.data = {
-                    userId,
-                    sessionId: socket.id,
-                };
-                next();
-            }
-            catch (error) {
-                logger_util_1.logger.error('Socket authentication failed', error);
-                next(new Error('Authentication failed'));
-            }
-        });
+        this.io.use(this.socketAuthMiddleware.authenticate);
     }
     setupConnectionHandler() {
         this.io.on('connection', async (socket) => {

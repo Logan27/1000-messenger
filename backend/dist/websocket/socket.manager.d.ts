@@ -15,6 +15,7 @@ export declare class SocketManager {
     private presenceHandler;
     private typingHandler;
     private readReceiptHandler?;
+    private socketAuthMiddleware;
     private initialized;
     constructor(httpServer: HttpServer, authService: AuthService, sessionService: SessionService, userRepo: UserRepository, chatRepo: ChatRepository);
     initializeMessageHandlers(messageService: MessageService): void;
