@@ -11,13 +11,9 @@ import { MessageHandler } from './handlers/message.handler';
 import { PresenceHandler } from './handlers/presence.handler';
 import { TypingHandler } from './handlers/typing.handler';
 import { ReadReceiptHandler } from './handlers/read-receipt.handler';
+import { SocketAuthMiddleware, SocketData } from './middleware/socket-auth.middleware';
 import { logger } from '../utils/logger.util';
 import { config } from '../config/env';
-
-interface SocketData {
-  userId: string;
-  sessionId: string;
-}
 
 export class SocketManager {
   private io: SocketServer;
@@ -25,6 +21,7 @@ export class SocketManager {
   private presenceHandler: PresenceHandler;
   private typingHandler: TypingHandler;
   private readReceiptHandler?: ReadReceiptHandler;
+  private socketAuthMiddleware: SocketAuthMiddleware;
   private initialized = false;
 
   constructor(
@@ -45,6 +42,9 @@ export class SocketManager {
       maxHttpBufferSize: 1e6, // 1MB
       connectTimeout: 45000,
     });
+
+    // Initialize authentication middleware
+    this.socketAuthMiddleware = new SocketAuthMiddleware(authService, sessionService);
 
     // Initialize handlers that don't depend on MessageService
     this.presenceHandler = new PresenceHandler(userRepo);
@@ -83,29 +83,8 @@ export class SocketManager {
   }
 
   private setupMiddleware() {
-    this.io.use(async (socket, next) => {
-      try {
-        const token = socket.handshake.auth['token'];
-
-        if (!token) {
-          return next(new Error('Authentication token required'));
-        }
-
-        // Verify token
-        const { userId } = await this.authService.verifyAccessToken(token);
-
-        // Store user data in socket
-        socket.data = {
-          userId,
-          sessionId: socket.id,
-        } as SocketData;
-
-        next();
-      } catch (error) {
-        logger.error('Socket authentication failed', error);
-        next(new Error('Authentication failed'));
-      }
-    });
+    // Use the authentication middleware
+    this.io.use(this.socketAuthMiddleware.authenticate);
   }
 
   private setupConnectionHandler() {

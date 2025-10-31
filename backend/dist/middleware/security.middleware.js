@@ -3,9 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateImageUpload = exports.sanitizeContent = exports.messageRateLimit = exports.authRateLimit = exports.apiRateLimit = exports.corsMiddleware = exports.corsOptions = exports.securityHeaders = void 0;
+exports.validateImageUpload = exports.sanitizeContent = exports.messageRateLimit = exports.authRateLimit = exports.apiRateLimit = exports.securityHeaders = void 0;
 const helmet_1 = __importDefault(require("helmet"));
-const cors_1 = __importDefault(require("cors"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const sanitize_html_1 = __importDefault(require("sanitize-html"));
 const constants_1 = require("../config/constants");
@@ -26,27 +25,6 @@ exports.securityHeaders = (0, helmet_1.default)({
     },
     crossOriginEmbedderPolicy: false,
 });
-exports.corsOptions = {
-    origin: (origin, callback) => {
-        const allowedOrigins = [env_1.config.FRONTEND_URL];
-        if (!origin) {
-            return callback(null, true);
-        }
-        if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-        }
-        else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-    exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
-    maxAge: 86400,
-    optionsSuccessStatus: 204,
-};
-exports.corsMiddleware = (0, cors_1.default)(exports.corsOptions);
 exports.apiRateLimit = (0, express_rate_limit_1.default)({
     windowMs: 60 * 1000,
     max: 100,
