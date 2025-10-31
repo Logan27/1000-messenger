@@ -416,213 +416,273 @@ const authMiddleware = new AuthMiddleware(authService);
 import { authMiddleware } from '../middleware/auth.middleware';
 ```
 
-## Rate Limiting Middleware (`rate-limit.middleware.ts`)
+---
 
-Redis-based rate limiting middleware for protecting routes from abuse and ensuring fair resource usage across all server instances.
+## Validation Middleware (`validation.middleware.ts`)
+
+Zod-based request validation middleware for validating request body, query parameters, and route parameters.
 
 ### Features
 
-- ✅ Redis-backed distributed rate limiting
-- ✅ Per-user and per-IP rate limits
-- ✅ Multiple rate limiters for different use cases
-- ✅ Standard rate limit headers (RateLimit-*)
-- ✅ Automatic key expiration
-- ✅ Security logging for violations
-- ✅ Graceful degradation on Redis errors
+- ✅ Validate request body, query, and params separately or together
+- ✅ Comprehensive Zod integration with all schemas from validators.util.ts
+- ✅ User-friendly error formatting with field-level details
+- ✅ Support for multiple validation targets (body, query, params)
+- ✅ Flexible validation options (strip unknown, abort early, logging)
+- ✅ Async validation support for complex business rules
+- ✅ Convenience helpers for common patterns (UUID params, pagination)
+- ✅ Type-safe validation with TypeScript
+- ✅ Backward compatible with existing route implementations
 
-### Available Rate Limiters
+### Basic Usage
 
-#### API Rate Limiter
-
-General rate limiting for all API endpoints:
-
-```typescript
-import { apiRateLimit } from '../middleware/rate-limit.middleware';
-
-router.use('/api', apiRateLimit);
-```
-
-- **Limit**: 100 requests per minute per IP
-- **Window**: 1 minute
-- **Key**: IP address
-
-#### Authentication Rate Limiter
-
-Stricter rate limiting for login endpoints:
+#### Validate Request Body
 
 ```typescript
-import { authRateLimit } from '../middleware/rate-limit.middleware';
+import { validate, registerSchema } from '../middleware/validation.middleware';
 
-router.post('/auth/login', authRateLimit, loginHandler);
+// Basic body validation (default behavior)
+router.post('/register', validate(registerSchema), authController.register);
 ```
 
-- **Limit**: 5 attempts per 15 minutes per IP
-- **Window**: 15 minutes
-- **Key**: IP address
-- **Special**: Skips successful requests (only counts failures)
-
-#### Message Rate Limiter
-
-Rate limiting for message sending:
+#### Validate Query Parameters
 
 ```typescript
-import { messageRateLimit } from '../middleware/rate-limit.middleware';
+import { validate, validateQuery } from '../middleware/validation.middleware';
+import { userSearchSchema } from '../utils/validators.util';
 
-router.post('/messages', authMiddleware.authenticate, messageRateLimit, sendMessageHandler);
+// Validate query params
+router.get('/search', validate(userSearchSchema, 'query'), userController.search);
+
+// Or use convenience wrapper
+router.get('/search', validateQuery(userSearchSchema), userController.search);
 ```
 
-- **Limit**: 10 messages per second per user
-- **Window**: 1 second
-- **Key**: User ID (falls back to IP for unauthenticated requests)
-
-#### Upload Rate Limiter
-
-Rate limiting for file uploads:
+#### Validate Route Parameters
 
 ```typescript
-import { uploadRateLimit } from '../middleware/rate-limit.middleware';
+import { validateParams, createUuidParamsSchema } from '../middleware/validation.middleware';
 
-router.post('/upload', authMiddleware.authenticate, uploadRateLimit, uploadHandler);
+// Validate UUID route params
+router.get('/users/:userId', 
+  validateParams(createUuidParamsSchema('userId')), 
+  userController.getById
+);
+
+// Multiple params
+router.get('/chats/:chatId/messages/:messageId',
+  validateParams(createUuidParamsSchema('chatId', 'messageId')),
+  messageController.getMessage
+);
 ```
 
-- **Limit**: 10 uploads per minute per user
-- **Window**: 1 minute
-- **Key**: User ID (falls back to IP for unauthenticated requests)
+### Advanced Usage
 
-#### Search Rate Limiter
-
-Rate limiting for search endpoints:
+#### Validate Multiple Parts
 
 ```typescript
-import { searchRateLimit } from '../middleware/rate-limit.middleware';
+import { validateMultiple, createUuidParamsSchema } from '../middleware/validation.middleware';
+import { updateMessageSchema, paginationSchema } from '../utils/validators.util';
 
-router.get('/search', authMiddleware.authenticate, searchRateLimit, searchHandler);
+// Validate params, body, and query together
+router.put('/chats/:chatId/messages/:messageId',
+  validateMultiple({
+    params: createUuidParamsSchema('chatId', 'messageId'),
+    body: updateMessageSchema,
+    query: paginationSchema
+  }),
+  messageController.update
+);
 ```
 
-- **Limit**: 30 searches per minute per user
-- **Window**: 1 minute
-- **Key**: User ID (falls back to IP for unauthenticated requests)
-
-#### Contact Request Rate Limiter
-
-Daily rate limiting for contact requests:
+#### Custom Validation Options
 
 ```typescript
-import { contactRequestRateLimit } from '../middleware/rate-limit.middleware';
+import { validate } from '../middleware/validation.middleware';
 
-router.post('/contacts/request', authMiddleware.authenticate, contactRequestRateLimit, sendContactRequestHandler);
+// Strict mode - reject unknown fields
+router.post('/users', 
+  validate(userSchema, 'body', { 
+    stripUnknown: false,
+    logErrors: true,
+    errorPrefix: 'User validation failed'
+  }), 
+  userController.create
+);
+
+// Abort on first error
+router.post('/data', 
+  validate(dataSchema, 'body', { 
+    abortEarly: true 
+  }), 
+  dataController.process
+);
 ```
 
-- **Limit**: 50 requests per day per user
-- **Window**: 24 hours
-- **Key**: User ID (falls back to IP for unauthenticated requests)
+#### Async Validation
 
-### Rate Limit Response
+For validation requiring database lookups or external API calls:
 
-When a rate limit is exceeded, the middleware returns a 429 Too Many Requests response:
+```typescript
+import { validateAsync } from '../middleware/validation.middleware';
+import { userRegistrationSchema } from '../utils/validators.util';
+import { UserRepository } from '../repositories/user.repository';
+
+const userRepo = new UserRepository();
+
+router.post('/register',
+  validateAsync(async (req) => {
+    // First validate the schema
+    const data = userRegistrationSchema.parse(req.body);
+    
+    // Then perform async validation
+    const exists = await userRepo.findByUsername(data.username);
+    if (exists) {
+      throw new Error('Username already taken');
+    }
+    
+    return data;
+  }),
+  authController.register
+);
+```
+
+#### Create Reusable Validator
+
+```typescript
+import { createValidator } from '../middleware/validation.middleware';
+
+// Create validator with preset options
+const strictValidator = createValidator({ 
+  stripUnknown: false, 
+  logErrors: true 
+});
+
+// Use in multiple routes
+router.post('/api/data1', strictValidator(schema1), handler1);
+router.post('/api/data2', strictValidator(schema2), handler2);
+```
+
+#### Custom Pagination Schema
+
+```typescript
+import { createPaginationSchema, validateQuery } from '../middleware/validation.middleware';
+
+// Create pagination with custom limits
+const largePaginationSchema = createPaginationSchema(200, 100);
+
+router.get('/items', 
+  validateQuery(largePaginationSchema), 
+  itemController.list
+);
+```
+
+### Error Response Format
+
+The middleware returns structured error responses for validation failures:
 
 ```json
 {
-  "error": "Too Many Requests",
-  "message": "Too many login attempts, please try again later",
-  "retryAfter": "900"
+  "error": "Validation failed",
+  "details": [
+    {
+      "field": "username",
+      "message": "Username must be at least 3 characters",
+      "code": "too_small"
+    },
+    {
+      "field": "password",
+      "message": "Password must contain at least one uppercase letter",
+      "code": "custom"
+    }
+  ]
 }
 ```
 
-### Rate Limit Headers
+### Available Schemas
 
-Standard rate limit headers are included in all responses:
-
-```
-RateLimit-Limit: 100
-RateLimit-Remaining: 99
-RateLimit-Reset: 1635768000
-```
-
-### Redis Key Structure
-
-All rate limit keys are prefixed with `ratelimit:` followed by the limiter type:
-
-- `ratelimit:api:{ip}` - API rate limits
-- `ratelimit:auth:{ip}` - Authentication rate limits
-- `ratelimit:message:{userId}` - Message rate limits
-- `ratelimit:upload:{userId}` - Upload rate limits
-- `ratelimit:search:{userId}` - Search rate limits
-- `ratelimit:contact:{userId}` - Contact request rate limits
-
-### Distributed Rate Limiting
-
-The rate limiters use Redis as a shared store, ensuring that rate limits are enforced consistently across all server instances in a horizontally scaled deployment. This means:
-
-- Rate limits are shared across all servers
-- Server restarts don't reset rate limit counters
-- Load balancing doesn't affect rate limit accuracy
-
-### Security Logging
-
-All rate limit violations are logged with security metadata:
+The middleware re-exports commonly used schemas for convenience:
 
 ```typescript
-logger.warn('Rate limit exceeded', {
-  type: 'security',
-  ip: '192.168.1.1',
-  user: 'user123',
-  path: '/api/messages',
-  method: 'POST',
-});
+import { 
+  registerSchema,    // User registration
+  loginSchema,       // User login
+  messageSchema,     // Create message
+  chatSchema         // Create group chat
+} from '../middleware/validation.middleware';
 ```
 
-### Configuration
+For all available schemas, see `backend/src/utils/validators.util.ts`.
 
-Rate limits are configured in `backend/src/config/constants.ts`:
+### Validation Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `stripUnknown` | boolean | `true` | Remove unknown keys from validated data |
+| `abortEarly` | boolean | `false` | Stop validation on first error |
+| `errorPrefix` | string | `'Validation failed'` | Custom error message prefix |
+| `logErrors` | boolean | `false` | Log validation errors with Winston |
+
+### Helper Functions
+
+#### `createUuidParamsSchema(...paramNames)`
+
+Create a schema for validating UUID route parameters:
 
 ```typescript
-export const LIMITS = {
-  LOGIN_MAX_ATTEMPTS: 5,
-  LOGIN_ATTEMPTS_WINDOW_MS: 15 * 60 * 1000,
-  API_RATE_MAX_REQUESTS: 100,
-  API_RATE_WINDOW_MS: 60 * 1000,
-  MESSAGES_PER_SECOND_PER_USER: 10,
-  UPLOAD_MAX_REQUESTS: 10,
-  UPLOAD_RATE_WINDOW_MS: 60 * 1000,
-  SEARCH_MAX_REQUESTS: 30,
-  SEARCH_RATE_WINDOW_MS: 60 * 1000,
-  CONTACT_REQUESTS_PER_DAY: 50,
-};
+const schema = createUuidParamsSchema('chatId', 'messageId');
+// Equivalent to:
+// z.object({
+//   chatId: z.string().uuid(),
+//   messageId: z.string().uuid()
+// })
+```
+
+#### `createPaginationSchema(maxLimit?, defaultLimit?)`
+
+Create a pagination schema with custom limits:
+
+```typescript
+const schema = createPaginationSchema(100, 50);
+// Validates limit (max 100, default 50) and offset (default 0)
 ```
 
 ### Best Practices
 
-1. **Apply rate limits early**: Add rate limiters before resource-intensive middleware
-2. **Use appropriate limiters**: Choose the right rate limiter for each endpoint type
-3. **Order matters**: Place authentication middleware before user-based rate limiters
-4. **Monitor violations**: Watch security logs for patterns of abuse
-5. **Adjust limits**: Tune limits based on actual usage patterns and abuse detection
-
-### Example Usage
-
-Full example with multiple rate limiters:
-
-```typescript
-import express from 'express';
-import { authMiddleware } from '../middleware/auth.middleware';
-import { apiRateLimit, authRateLimit, messageRateLimit } from '../middleware/rate-limit.middleware';
-
-const router = express.Router();
-
-// Apply general API rate limiting to all routes
-router.use(apiRateLimit);
-
-// Authentication routes with stricter limits
-router.post('/auth/login', authRateLimit, loginHandler);
-router.post('/auth/register', authRateLimit, registerHandler);
-
-// Protected routes with user-specific rate limits
-router.post('/messages', authMiddleware.authenticate, messageRateLimit, sendMessageHandler);
-```
+1. **Use appropriate validation target**: Body for POST/PUT, query for GET, params for route IDs
+2. **Validate early**: Apply validation middleware before business logic
+3. **Reuse schemas**: Import from `validators.util.ts` rather than defining inline
+4. **Enable logging in development**: Set `logErrors: true` to debug validation issues
+5. **Use strict mode for sensitive operations**: Set `stripUnknown: false` to reject unexpected fields
+6. **Validate all user input**: Never trust client data - validate everything
+7. **Combine with auth middleware**: Always authenticate before validating sensitive operations
 
 ### Related Files
 
-- **Redis Config**: `backend/src/config/redis.ts` - Redis client and configuration
-- **Constants**: `backend/src/config/constants.ts` - Rate limit values
-- **Logger**: `backend/src/utils/logger.util.ts` - Security logging utilities
+- **Validator Schemas**: `backend/src/utils/validators.util.ts` - All Zod schemas
+- **Error Handler**: `backend/src/middleware/error.middleware.ts` - Global error handling
+- **Rate Limiter**: `backend/src/middleware/rate-limit.middleware.ts` - Request rate limiting
+- **Auth Middleware**: `backend/src/middleware/auth.middleware.ts` - JWT authentication
+
+### Testing
+
+Example validation tests:
+
+```bash
+# Valid request
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","password":"Test123!","displayName":"Test User"}'
+
+# Invalid - username too short
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"ab","password":"Test123!"}'
+# Returns: 400 {"error":"Validation failed","details":[{"field":"username","message":"Username must be at least 3 characters"}]}
+
+# Invalid - multiple errors
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"ab","password":"short"}'
+# Returns: 400 with multiple validation errors
+```
