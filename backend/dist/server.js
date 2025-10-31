@@ -1,9 +1,39 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
-const http_1 = __importDefault(require("http"));
+const http = __importStar(require("http"));
 const app_1 = require("./app");
 const env_1 = require("./config/env");
 const database_1 = require("./config/database");
@@ -13,13 +43,15 @@ const socket_manager_1 = require("./websocket/socket.manager");
 const message_delivery_queue_1 = require("./queues/message-delivery.queue");
 const logger_util_1 = require("./utils/logger.util");
 const user_repository_1 = require("./repositories/user.repository");
-const chat_repository_1 = require("./repositories/chat.repository");
 const message_repository_1 = require("./repositories/message.repository");
+const chat_repository_1 = require("./repositories/chat.repository");
 const auth_service_1 = require("./services/auth.service");
 const session_service_1 = require("./services/session.service");
+const message_service_1 = require("./services/message.service");
 let server;
 let socketManager;
 let messageQueue;
+let messageService;
 let isShuttingDown = false;
 const SHUTDOWN_TIMEOUT = 30000;
 const GRACEFUL_WAIT_TIME = 5000;
@@ -32,30 +64,32 @@ async function startServer() {
         await (0, redis_1.connectRedis)();
         await (0, storage_1.initializeStorage)();
         const userRepo = new user_repository_1.UserRepository();
-        const chatRepo = new chat_repository_1.ChatRepository();
         const messageRepo = new message_repository_1.MessageRepository();
+        const chatRepo = new chat_repository_1.ChatRepository();
         const sessionService = new session_service_1.SessionService();
         const authService = new auth_service_1.AuthService(userRepo, sessionService);
         const app = (0, app_1.createApp)();
-        server = http_1.default.createServer(app);
-        socketManager = new socket_manager_1.SocketManager(server, authService, sessionService, userRepo);
+        server = http.createServer(app);
+        socketManager = new socket_manager_1.SocketManager(server, authService, sessionService, userRepo, chatRepo);
         messageQueue = new message_delivery_queue_1.MessageDeliveryQueue(messageRepo, socketManager);
         await messageQueue.initialize();
-        messageQueue.startProcessing();
+        messageService = new message_service_1.MessageService(messageRepo, chatRepo, messageQueue, socketManager);
+        socketManager.initializeMessageHandlers(messageService);
+        void messageQueue.startProcessing();
         server.listen(env_1.config.PORT, () => {
             logger_util_1.logger.info(`🚀 Server running on port ${env_1.config.PORT}`);
             logger_util_1.logger.info(`📡 WebSocket ready for connections`);
             logger_util_1.logger.info(`🌍 Environment: ${env_1.config.NODE_ENV}`);
         });
-        process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-        process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+        process.on('SIGTERM', () => void gracefulShutdown('SIGTERM'));
+        process.on('SIGINT', () => void gracefulShutdown('SIGINT'));
         process.on('uncaughtException', (error) => {
             logger_util_1.logger.error('Uncaught Exception:', error);
-            gracefulShutdown('UNCAUGHT_EXCEPTION');
+            void gracefulShutdown('UNCAUGHT_EXCEPTION');
         });
         process.on('unhandledRejection', (reason, promise) => {
             logger_util_1.logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
-            gracefulShutdown('UNHANDLED_REJECTION');
+            void gracefulShutdown('UNHANDLED_REJECTION');
         });
     }
     catch (error) {
@@ -81,7 +115,7 @@ async function gracefulShutdown(signal) {
                 resolve();
                 return;
             }
-            server.close((err) => {
+            server.close(err => {
                 if (err) {
                     logger_util_1.logger.error('Error closing HTTP server', err);
                     reject(err);
@@ -156,5 +190,5 @@ async function gracefulShutdown(signal) {
         process.exit(1);
     }
 }
-startServer();
+void startServer();
 //# sourceMappingURL=server.js.map
