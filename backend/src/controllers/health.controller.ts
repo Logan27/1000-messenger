@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { testConnection } from '../config/database';
-import { redisClient } from '../config/redis';
+import { redisClient, checkRedisHealth } from '../config/redis';
 import { healthCheck as storageHealthCheck, getStorageInfo } from '../config/storage';
 import { logger } from '../utils/logger.util';
 
