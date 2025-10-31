@@ -1,6 +1,5 @@
 import express from 'express';
-import cors from 'cors';
-import { securityHeaders, apiRateLimit } from './middleware/security.middleware';
+import { securityHeaders, corsMiddleware, apiRateLimit } from './middleware/security.middleware';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 import { authRoutes } from './routes/auth.routes';
 import { userRoutes } from './routes/user.routes';
@@ -8,7 +7,6 @@ import { chatRoutes } from './routes/chat.routes';
 import { messageRoutes } from './routes/message.routes';
 import { contactRoutes } from './routes/contact.routes';
 import { healthRoutes } from './routes/health.routes';
-import { config } from './config/env';
 import { logger } from './utils/logger.util';
 
 export function createApp() {
@@ -16,12 +14,7 @@ export function createApp() {
 
   // Security middleware
   app.use(securityHeaders);
-  app.use(
-    cors({
-      origin: config.FRONTEND_URL,
-      credentials: true,
-    })
-  );
+  app.use(corsMiddleware);
 
   // Body parsing
   app.use(express.json({ limit: '1mb' }));
