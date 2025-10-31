@@ -71,6 +71,7 @@ async function startServer() {
         const app = (0, app_1.createApp)();
         server = http.createServer(app);
         socketManager = new socket_manager_1.SocketManager(server, authService, sessionService, userRepo, chatRepo);
+        (0, socket_manager_1.setSocketManager)(socketManager);
         messageQueue = new message_delivery_queue_1.MessageDeliveryQueue(messageRepo, socketManager);
         await messageQueue.initialize();
         messageService = new message_service_1.MessageService(messageRepo, chatRepo, messageQueue, socketManager);

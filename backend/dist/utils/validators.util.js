@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.paginationSchema = exports.markChatReadSchema = exports.markMessagesReadSchema = exports.messageDeliverySchema = exports.deliveryStatusSchema = exports.reactionSchema = exports.addReactionSchema = exports.emojiSchema = exports.uploadImageSchema = exports.attachmentSchema = exports.imageFileTypeSchema = exports.messageSchema = exports.updateMessageSchema = exports.createMessageSchema = exports.messageMetadataSchema = exports.messageFormattingSchema = exports.messageContentSchema = exports.messageContentTypeSchema = exports.chatParticipantSchema = exports.chatSchema = exports.updateParticipantRoleSchema = exports.removeParticipantSchema = exports.addParticipantsSchema = exports.updateGroupChatSchema = exports.createGroupChatSchema = exports.createDirectChatSchema = exports.chatSlugSchema = exports.chatNameSchema = exports.participantRoleSchema = exports.chatTypeSchema = exports.contactSchema = exports.contactResponseSchema = exports.contactRequestSchema = exports.contactStatusSchema = exports.sessionSchema = exports.deviceInfoSchema = exports.refreshTokenSchema = exports.userProfileSchema = exports.userUpdateSchema = exports.userLoginSchema = exports.userRegistrationSchema = exports.timestampSchema = exports.userStatusSchema = exports.avatarUrlSchema = exports.displayNameSchema = exports.emailSchema = exports.strongPasswordSchema = exports.passwordSchema = exports.usernameSchema = exports.uuidSchema = void 0;
-exports.contactQueryParamsSchema = exports.messageQueryParamsSchema = exports.chatQueryParamsSchema = exports.readReceiptEventSchema = exports.presenceEventSchema = exports.typingEventSchema = exports.userSearchSchema = exports.searchQuerySchema = exports.cursorPaginationSchema = void 0;
+exports.callSchema = exports.endCallSchema = exports.respondToCallSchema = exports.callResponseSchema = exports.callTypeSchema = exports.contactQueryParamsSchema = exports.messageQueryParamsSchema = exports.chatQueryParamsSchema = exports.readReceiptEventSchema = exports.presenceEventSchema = exports.typingEventSchema = exports.userSearchSchema = exports.searchQuerySchema = exports.cursorPaginationSchema = void 0;
 exports.validateUsername = validateUsername;
 exports.validatePassword = validatePassword;
 exports.validateStrongPassword = validateStrongPassword;
@@ -351,6 +351,29 @@ exports.contactQueryParamsSchema = zod_1.z.object({
     status: exports.contactStatusSchema.optional(),
     limit: zod_1.z.string().transform(Number).pipe(zod_1.z.number().int().positive().max(100)).optional(),
     offset: zod_1.z.string().transform(Number).pipe(zod_1.z.number().int().min(0)).optional(),
+});
+exports.callTypeSchema = zod_1.z.enum(['audio', 'video']);
+exports.callResponseSchema = zod_1.z.enum(['accept', 'reject']);
+exports.respondToCallSchema = zod_1.z.object({
+    callId: exports.uuidSchema,
+    response: exports.callResponseSchema,
+    sdp: zod_1.z.any().optional(),
+});
+exports.endCallSchema = zod_1.z.object({
+    callId: exports.uuidSchema,
+});
+exports.callSchema = zod_1.z.object({
+    id: exports.uuidSchema,
+    callerId: exports.uuidSchema,
+    callerName: zod_1.z.string(),
+    recipientId: exports.uuidSchema,
+    recipientName: zod_1.z.string().optional(),
+    type: exports.callTypeSchema,
+    status: zod_1.z.enum(['pending', 'active', 'ended', 'rejected']),
+    createdAt: exports.timestampSchema,
+    answeredAt: exports.timestampSchema.optional(),
+    endedAt: exports.timestampSchema.optional(),
+    sdp: zod_1.z.any().optional(),
 });
 function validateUsername(username) {
     return exports.usernameSchema.safeParse(username).success;

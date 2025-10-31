@@ -45,7 +45,7 @@ class MessageService {
             chatId: dto.chatId,
             recipients,
         });
-        this.socketManager.broadcastToChat(dto.chatId, 'message:new', {
+        this.socketManager.broadcastToChat(dto.chatId, 'message.new', {
             ...message,
             sender: await this.getUserInfo(dto.senderId),
         });
@@ -73,7 +73,7 @@ class MessageService {
             isEdited: true,
             editedAt: new Date(),
         });
-        this.socketManager.broadcastToChat(message.chatId, 'message:edited', {
+        this.socketManager.broadcastToChat(message.chatId, 'message.edited', {
             messageId,
             content: newContent,
             editedAt: updatedMessage.editedAt,
@@ -93,7 +93,7 @@ class MessageService {
             deletedAt: new Date(),
             content: '[Deleted]',
         });
-        this.socketManager.broadcastToChat(message.chatId, 'message:deleted', {
+        this.socketManager.broadcastToChat(message.chatId, 'message.deleted', {
             messageId,
         });
     }
@@ -118,7 +118,7 @@ class MessageService {
         }
         await this.messageRepo.updateDeliveryStatus(messageId, userId, 'read');
         await this.chatRepo.resetUnreadCount(message.chatId, userId);
-        this.socketManager.sendToUser(message.senderId, 'message:read', {
+        this.socketManager.sendToUser(message.senderId, 'message_read', {
             messageId,
             chatId: message.chatId,
             readBy: userId,

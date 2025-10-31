@@ -770,6 +770,70 @@ export type ReadReceiptEvent = z.infer<typeof readReceiptEventSchema>;
 export type ChatQueryParams = z.infer<typeof chatQueryParamsSchema>;
 export type MessageQueryParams = z.infer<typeof messageQueryParamsSchema>;
 export type ContactQueryParams = z.infer<typeof contactQueryParamsSchema>;
+export declare const callTypeSchema: z.ZodEnum<["audio", "video"]>;
+export declare const callResponseSchema: z.ZodEnum<["accept", "reject"]>;
+export declare const respondToCallSchema: z.ZodObject<{
+    callId: z.ZodString;
+    response: z.ZodEnum<["accept", "reject"]>;
+    sdp: z.ZodOptional<z.ZodAny>;
+}, "strip", z.ZodTypeAny, {
+    callId: string;
+    response: "accept" | "reject";
+    sdp?: any;
+}, {
+    callId: string;
+    response: "accept" | "reject";
+    sdp?: any;
+}>;
+export declare const endCallSchema: z.ZodObject<{
+    callId: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    callId: string;
+}, {
+    callId: string;
+}>;
+export declare const callSchema: z.ZodObject<{
+    id: z.ZodString;
+    callerId: z.ZodString;
+    callerName: z.ZodString;
+    recipientId: z.ZodString;
+    recipientName: z.ZodOptional<z.ZodString>;
+    type: z.ZodEnum<["audio", "video"]>;
+    status: z.ZodEnum<["pending", "active", "ended", "rejected"]>;
+    createdAt: z.ZodUnion<[z.ZodString, z.ZodDate]>;
+    answeredAt: z.ZodOptional<z.ZodUnion<[z.ZodString, z.ZodDate]>>;
+    endedAt: z.ZodOptional<z.ZodUnion<[z.ZodString, z.ZodDate]>>;
+    sdp: z.ZodOptional<z.ZodAny>;
+}, "strip", z.ZodTypeAny, {
+    type: "audio" | "video";
+    status: "pending" | "active" | "ended" | "rejected";
+    id: string;
+    createdAt: string | Date;
+    callerId: string;
+    callerName: string;
+    recipientId: string;
+    sdp?: any;
+    recipientName?: string | undefined;
+    answeredAt?: string | Date | undefined;
+    endedAt?: string | Date | undefined;
+}, {
+    type: "audio" | "video";
+    status: "pending" | "active" | "ended" | "rejected";
+    id: string;
+    createdAt: string | Date;
+    callerId: string;
+    callerName: string;
+    recipientId: string;
+    sdp?: any;
+    recipientName?: string | undefined;
+    answeredAt?: string | Date | undefined;
+    endedAt?: string | Date | undefined;
+}>;
+export type CallType = z.infer<typeof callTypeSchema>;
+export type CallResponse = z.infer<typeof callResponseSchema>;
+export type RespondToCall = z.infer<typeof respondToCallSchema>;
+export type EndCall = z.infer<typeof endCallSchema>;
+export type Call = z.infer<typeof callSchema>;
 export declare function validateUsername(username: string): boolean;
 export declare function validatePassword(password: string): boolean;
 export declare function validateStrongPassword(password: string): boolean;

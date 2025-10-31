@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SocketManager = void 0;
+exports.setSocketManager = setSocketManager;
+exports.getSocketManager = getSocketManager;
 const socket_io_1 = require("socket.io");
 const redis_adapter_1 = require("@socket.io/redis-adapter");
 const redis_1 = require("../config/redis");
@@ -139,7 +141,7 @@ class SocketManager {
         this.io.to(`user:${userId}`).emit(event, data);
     }
     broadcastUserStatus(userId, status) {
-        this.io.emit('user:status', {
+        this.io.emit('user.status', {
             userId,
             status,
             timestamp: new Date(),
@@ -202,6 +204,16 @@ class SocketManager {
         }
         logger_util_1.logger.info(`Disconnected all sessions for user ${userId}`);
     }
+    emitToUser(userId, event, data) {
+        this.sendToUser(userId, event, data);
+    }
 }
 exports.SocketManager = SocketManager;
+let socketManagerInstance = null;
+function setSocketManager(instance) {
+    socketManagerInstance = instance;
+}
+function getSocketManager() {
+    return socketManagerInstance;
+}
 //# sourceMappingURL=socket.manager.js.map
