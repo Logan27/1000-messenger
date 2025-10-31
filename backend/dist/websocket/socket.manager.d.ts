@@ -39,5 +39,8 @@ export declare class SocketManager {
     getChatUsers(chatId: string): Promise<string[]>;
     isUserOnline(userId: string): Promise<boolean>;
     disconnectUser(userId: string): Promise<void>;
+    emitToUser(userId: string, event: string, data: any): void;
 }
+export declare function setSocketManager(instance: SocketManager): void;
+export declare function getSocketManager(): SocketManager | null;
 //# sourceMappingURL=socket.manager.d.ts.map

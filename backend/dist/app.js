@@ -14,6 +14,7 @@ const chat_routes_1 = require("./routes/chat.routes");
 const message_routes_1 = require("./routes/message.routes");
 const contact_routes_1 = require("./routes/contact.routes");
 const health_routes_1 = require("./routes/health.routes");
+const call_routes_1 = require("./routes/call.routes");
 const env_1 = require("./config/env");
 const logger_util_1 = require("./utils/logger.util");
 function createApp() {
@@ -32,6 +33,7 @@ function createApp() {
     app.use('/api/chats', chat_routes_1.chatRoutes);
     app.use('/api/messages', message_routes_1.messageRoutes);
     app.use('/api/contacts', contact_routes_1.contactRoutes);
+    app.use('/api/calls', call_routes_1.callRoutes);
     app.use(error_middleware_1.notFoundHandler);
     app.use(error_middleware_1.errorHandler);
     logger_util_1.logger.info('Express app initialized');

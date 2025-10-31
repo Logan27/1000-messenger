@@ -12,7 +12,7 @@ class PresenceHandler {
         socket.on('presence:update', async (data) => {
             try {
                 await this.userRepo.updateStatus(userId, data.status);
-                socket.broadcast.emit('user:status', {
+                socket.broadcast.emit('user.status', {
                     userId,
                     status: data.status,
                     timestamp: new Date(),
