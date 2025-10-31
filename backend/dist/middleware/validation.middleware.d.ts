@@ -96,5 +96,46 @@ export declare const chatSchema: z.ZodObject<{
     avatarUrl?: string | undefined;
     slug?: string | undefined;
 }>;
-export declare const validate: (schema: z.ZodSchema) => (req: Request, res: Response, next: NextFunction) => void;
+export type ValidationTarget = 'body' | 'query' | 'params';
+export interface ValidationOptions {
+    stripUnknown?: boolean;
+    abortEarly?: boolean;
+    errorPrefix?: string;
+    logErrors?: boolean;
+}
+export interface ValidationErrorResponse {
+    error: string;
+    details: Array<{
+        field: string;
+        message: string;
+        code?: string;
+    }>;
+}
+export interface ValidationSchemas {
+    body?: z.ZodSchema;
+    query?: z.ZodSchema;
+    params?: z.ZodSchema;
+}
+export declare const validate: (schema: z.ZodSchema, target?: ValidationTarget, options?: ValidationOptions) => (req: Request, res: Response, next: NextFunction) => void;
+export declare const validateMultiple: (schemas: ValidationSchemas, options?: ValidationOptions) => (req: Request, res: Response, next: NextFunction) => void;
+export declare const validateBody: (schema: z.ZodSchema, options?: ValidationOptions) => (req: Request, res: Response, next: NextFunction) => void;
+export declare const validateQuery: (schema: z.ZodSchema, options?: ValidationOptions) => (req: Request, res: Response, next: NextFunction) => void;
+export declare const validateParams: (schema: z.ZodSchema, options?: ValidationOptions) => (req: Request, res: Response, next: NextFunction) => void;
+export declare const createValidator: (defaultOptions: ValidationOptions) => (schema: z.ZodSchema, target?: ValidationTarget, overrideOptions?: ValidationOptions) => (req: Request, res: Response, next: NextFunction) => void;
+export declare const createUuidParamsSchema: (...paramNames: string[]) => z.ZodObject<Record<string, z.ZodString>, "strip", z.ZodTypeAny, {
+    [x: string]: string;
+}, {
+    [x: string]: string;
+}>;
+export declare const createPaginationSchema: (maxLimit?: number, defaultLimit?: number) => z.ZodObject<{
+    limit: z.ZodPipeline<z.ZodEffects<z.ZodOptional<z.ZodString>, number, string | undefined>, z.ZodNumber>;
+    offset: z.ZodPipeline<z.ZodEffects<z.ZodOptional<z.ZodString>, number, string | undefined>, z.ZodNumber>;
+}, "strip", z.ZodTypeAny, {
+    limit: number;
+    offset: number;
+}, {
+    limit?: string | undefined;
+    offset?: string | undefined;
+}>;
+export declare const validateAsync: (validatorFn: (req: Request) => Promise<any>, target?: ValidationTarget, options?: ValidationOptions) => (req: Request, res: Response, next: NextFunction) => Promise<void>;
 //# sourceMappingURL=validation.middleware.d.ts.map

@@ -41,7 +41,7 @@ exports.authRateLimit = (0, express_rate_limit_1.default)({
 exports.messageRateLimit = (0, express_rate_limit_1.default)({
     windowMs: 1000,
     max: constants_1.LIMITS.MESSAGES_PER_SECOND_PER_USER,
-    keyGenerator: req => req.user?.userId || req.ip,
+    keyGenerator: (req) => req.user?.userId || req.ip,
     message: 'Too many messages, slow down',
 });
 const sanitizeContent = (content) => {
@@ -54,18 +54,22 @@ const sanitizeContent = (content) => {
 exports.sanitizeContent = sanitizeContent;
 const validateImageUpload = (req, res, next) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
+    const file = req.file;
+    if (!file) {
+        res.status(400).json({ error: 'No file uploaded' });
+        return;
     }
-    if (!allowedTypes.includes(req.file.mimetype)) {
-        return res.status(400).json({
+    if (!allowedTypes.includes(file.mimetype)) {
+        res.status(400).json({
             error: 'Invalid file type. Allowed: JPEG, PNG, GIF, WebP',
         });
+        return;
     }
-    if (req.file.size > constants_1.LIMITS.IMAGE_MAX_SIZE) {
-        return res.status(400).json({
+    if (file.size > constants_1.LIMITS.IMAGE_MAX_SIZE) {
+        res.status(400).json({
             error: `File too large. Maximum size: ${constants_1.LIMITS.IMAGE_MAX_SIZE / (1024 * 1024)}MB`,
         });
+        return;
     }
     next();
 };
