@@ -3,8 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateImageUpload = exports.sanitizeContent = exports.messageRateLimit = exports.authRateLimit = exports.apiRateLimit = exports.securityHeaders = void 0;
+exports.validateImageUpload = exports.sanitizeContent = exports.messageRateLimit = exports.authRateLimit = exports.apiRateLimit = exports.corsMiddleware = exports.corsOptions = exports.securityHeaders = void 0;
 const helmet_1 = __importDefault(require("helmet"));
+const cors_1 = __importDefault(require("cors"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const sanitize_html_1 = __importDefault(require("sanitize-html"));
 const constants_1 = require("../config/constants");
@@ -25,6 +26,27 @@ exports.securityHeaders = (0, helmet_1.default)({
     },
     crossOriginEmbedderPolicy: false,
 });
+exports.corsOptions = {
+    origin: (origin, callback) => {
+        const allowedOrigins = [env_1.config.FRONTEND_URL];
+        if (!origin) {
+            return callback(null, true);
+        }
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        }
+        else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+    exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
+    maxAge: 86400,
+    optionsSuccessStatus: 204,
+};
+exports.corsMiddleware = (0, cors_1.default)(exports.corsOptions);
 exports.apiRateLimit = (0, express_rate_limit_1.default)({
     windowMs: 60 * 1000,
     max: 100,
@@ -41,7 +63,7 @@ exports.authRateLimit = (0, express_rate_limit_1.default)({
 exports.messageRateLimit = (0, express_rate_limit_1.default)({
     windowMs: 1000,
     max: constants_1.LIMITS.MESSAGES_PER_SECOND_PER_USER,
-    keyGenerator: req => req.user?.userId || req.ip,
+    keyGenerator: (req) => req.user?.userId || req.ip,
     message: 'Too many messages, slow down',
 });
 const sanitizeContent = (content) => {
@@ -54,15 +76,16 @@ const sanitizeContent = (content) => {
 exports.sanitizeContent = sanitizeContent;
 const validateImageUpload = (req, res, next) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (!req.file) {
+    const file = req.file;
+    if (!file) {
         return res.status(400).json({ error: 'No file uploaded' });
     }
-    if (!allowedTypes.includes(req.file.mimetype)) {
+    if (!allowedTypes.includes(file.mimetype)) {
         return res.status(400).json({
             error: 'Invalid file type. Allowed: JPEG, PNG, GIF, WebP',
         });
     }
-    if (req.file.size > constants_1.LIMITS.IMAGE_MAX_SIZE) {
+    if (file.size > constants_1.LIMITS.IMAGE_MAX_SIZE) {
         return res.status(400).json({
             error: `File too large. Maximum size: ${constants_1.LIMITS.IMAGE_MAX_SIZE / (1024 * 1024)}MB`,
         });

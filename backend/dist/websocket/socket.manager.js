@@ -5,6 +5,7 @@ const socket_io_1 = require("socket.io");
 const redis_adapter_1 = require("@socket.io/redis-adapter");
 const redis_1 = require("../config/redis");
 const logger_util_1 = require("../utils/logger.util");
+const security_middleware_1 = require("../middleware/security.middleware");
 class SocketManager {
     authService;
     sessionService;
@@ -15,10 +16,7 @@ class SocketManager {
         this.sessionService = sessionService;
         this.userRepo = userRepo;
         this.io = new socket_io_1.Server(httpServer, {
-            cors: {
-                origin: process.env['FRONTEND_URL'],
-                credentials: true,
-            },
+            cors: security_middleware_1.corsOptions,
             transports: ['websocket', 'polling'],
             pingTimeout: 60000,
             pingInterval: 25000,

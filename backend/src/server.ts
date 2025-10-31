@@ -1,4 +1,4 @@
-import http from 'http';
+import * as http from 'http';
 import { createApp } from './app';
 import { config } from './config/env';
 import { testConnection, closeConnections } from './config/database';
@@ -10,16 +10,17 @@ import { logger } from './utils/logger.util';
 
 // Import services and repositories
 import { UserRepository } from './repositories/user.repository';
-import { ChatRepository } from './repositories/chat.repository';
 import { MessageRepository } from './repositories/message.repository';
 import { AuthService } from './services/auth.service';
 import { SessionService } from './services/session.service';
-import { MessageService } from './services/message.service';
 
 let server: http.Server;
 let socketManager: SocketManager;
 let messageQueue: MessageDeliveryQueue;
 let isShuttingDown = false;
+
+const SHUTDOWN_TIMEOUT = 30000; // 30 seconds max shutdown time
+const GRACEFUL_WAIT_TIME = 5000; // 5 seconds to allow in-flight requests to complete
 
 async function startServer() {
   try {
@@ -37,7 +38,6 @@ async function startServer() {
 
     // Initialize repositories
     const userRepo = new UserRepository();
-    const chatRepo = new ChatRepository();
     const messageRepo = new MessageRepository();
 
     // Initialize services
@@ -56,7 +56,7 @@ async function startServer() {
     // Initialize message delivery queue
     messageQueue = new MessageDeliveryQueue(messageRepo, socketManager);
     await messageQueue.initialize();
-    messageQueue.startProcessing();
+    void messageQueue.startProcessing();
 
     // Start server
     server.listen(config.PORT, () => {
@@ -66,8 +66,19 @@ async function startServer() {
     });
 
     // Graceful shutdown handlers
-    process.on('SIGTERM', gracefulShutdown);
-    process.on('SIGINT', gracefulShutdown);
+    process.on('SIGTERM', () => void gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => void gracefulShutdown('SIGINT'));
+
+    // Handle uncaught exceptions and unhandled rejections
+    process.on('uncaughtException', (error: Error) => {
+      logger.error('Uncaught Exception:', error);
+      void gracefulShutdown('UNCAUGHT_EXCEPTION');
+    });
+
+    process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
+      logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+      void gracefulShutdown('UNHANDLED_REJECTION');
+    });
   } catch (error) {
     logger.error('Failed to start server', error);
     process.exit(1);
@@ -75,40 +86,110 @@ async function startServer() {
 }
 
 async function gracefulShutdown(signal: string) {
-  if (isShuttingDown) return;
+  if (isShuttingDown) {
+    logger.warn('Shutdown already in progress, ignoring duplicate signal');
+    return;
+  }
   isShuttingDown = true;
 
   logger.info(`${signal} received, starting graceful shutdown...`);
 
-  // Stop accepting new connections
-  server.close(() => {
-    logger.info('HTTP server closed');
-  });
+  // Set a hard timeout to force exit if graceful shutdown takes too long
+  const forceExitTimer = setTimeout(() => {
+    logger.error('Graceful shutdown timeout exceeded, forcing exit');
+    process.exit(1);
+  }, SHUTDOWN_TIMEOUT);
 
-  // Notify all connected clients
-  if (socketManager) {
-    socketManager.getIO().emit('server:shutdown', {
-      message: 'Server is shutting down, please reconnect in a moment',
+  try {
+    // Step 1: Stop accepting new connections
+    logger.info('Step 1/6: Stopping HTTP server from accepting new connections...');
+    await new Promise<void>((resolve, reject) => {
+      if (!server || !server.listening) {
+        resolve();
+        return;
+      }
+      server.close(err => {
+        if (err) {
+          logger.error('Error closing HTTP server', err);
+          reject(err);
+        } else {
+          logger.info('HTTP server closed successfully');
+          resolve();
+        }
+      });
     });
+
+    // Step 2: Notify all connected WebSocket clients
+    logger.info('Step 2/6: Notifying connected WebSocket clients...');
+    if (socketManager) {
+      try {
+        socketManager.getIO().emit('server:shutdown', {
+          message: 'Server is shutting down, please reconnect in a moment',
+          timestamp: new Date().toISOString(),
+        });
+        logger.info('Shutdown notification sent to all connected clients');
+      } catch (error) {
+        logger.error('Error notifying WebSocket clients', error);
+      }
+    }
+
+    // Step 3: Stop message queue processing
+    logger.info('Step 3/6: Stopping message delivery queue...');
+    if (messageQueue) {
+      try {
+        messageQueue.stopProcessing();
+        logger.info('Message queue stopped successfully');
+      } catch (error) {
+        logger.error('Error stopping message queue', error);
+      }
+    }
+
+    // Step 4: Wait for in-flight requests to complete
+    logger.info(`Step 4/6: Waiting ${GRACEFUL_WAIT_TIME}ms for in-flight requests to complete...`);
+    await new Promise(resolve => setTimeout(resolve, GRACEFUL_WAIT_TIME));
+
+    // Step 5: Disconnect all WebSocket clients gracefully
+    logger.info('Step 5/6: Disconnecting WebSocket clients...');
+    if (socketManager) {
+      try {
+        const sockets = await socketManager.getIO().fetchSockets();
+        logger.info(`Disconnecting ${sockets.length} active WebSocket connections`);
+        for (const socket of sockets) {
+          socket.disconnect(true);
+        }
+        logger.info('All WebSocket clients disconnected');
+      } catch (error) {
+        logger.error('Error disconnecting WebSocket clients', error);
+      }
+    }
+
+    // Step 6: Close database and Redis connections
+    logger.info('Step 6/6: Closing database and Redis connections...');
+    try {
+      await Promise.all([
+        closeConnections().catch(err => {
+          logger.error('Error closing database connections', err);
+        }),
+        closeRedis().catch(err => {
+          logger.error('Error closing Redis connections', err);
+        }),
+      ]);
+      logger.info('All connections closed successfully');
+    } catch (error) {
+      logger.error('Error during connection cleanup', error);
+    }
+
+    // Clear the force exit timer
+    clearTimeout(forceExitTimer);
+
+    logger.info('✅ Graceful shutdown completed successfully');
+    process.exit(0);
+  } catch (error) {
+    logger.error('Error during graceful shutdown', error);
+    clearTimeout(forceExitTimer);
+    process.exit(1);
   }
-
-  // Stop message queue processing
-  if (messageQueue) {
-    messageQueue.stopProcessing();
-  }
-
-  // Wait a bit for in-flight requests
-  await new Promise(resolve => setTimeout(resolve, 5000));
-
-  // Close database connections
-  await closeConnections();
-
-  // Close Redis connections
-  await closeRedis();
-
-  logger.info('Graceful shutdown completed');
-  process.exit(0);
 }
 
 // Start the server
-startServer();
+void startServer();
