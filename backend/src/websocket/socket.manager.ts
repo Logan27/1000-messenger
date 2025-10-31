@@ -6,7 +6,7 @@ import { AuthService } from '../services/auth.service';
 import { SessionService } from '../services/session.service';
 import { UserRepository } from '../repositories/user.repository';
 import { logger } from '../utils/logger.util';
-import { corsOptions } from '../middleware/security.middleware';
+import { config } from '../config/env';
 
 interface SocketData {
   userId: string;
@@ -23,7 +23,10 @@ export class SocketManager {
     private userRepo: UserRepository
   ) {
     this.io = new SocketServer(httpServer, {
-      cors: corsOptions,
+      cors: {
+        origin: config.FRONTEND_URL,
+        credentials: true,
+      },
       transports: ['websocket', 'polling'], // WebSocket with polling fallback
       pingTimeout: 60000,
       pingInterval: 25000,

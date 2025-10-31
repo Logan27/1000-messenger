@@ -1,4 +1,3 @@
-import cors, { CorsOptions } from 'cors';
 import { Request, Response, NextFunction } from 'express';
 export declare const securityHeaders: (req: import("http").IncomingMessage, res: import("http").ServerResponse, next: (err?: unknown) => void) => void;
 export declare const corsOptions: CorsOptions;
@@ -11,5 +10,5 @@ export declare const apiRateLimit: import("express-rate-limit").RateLimitRequest
 export declare const authRateLimit: import("express-rate-limit").RateLimitRequestHandler;
 export declare const messageRateLimit: import("express-rate-limit").RateLimitRequestHandler;
 export declare const sanitizeContent: (content: string) => string;
-export declare const validateImageUpload: (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined;
+export declare const validateImageUpload: (req: Request, res: Response, next: NextFunction) => void;
 //# sourceMappingURL=security.middleware.d.ts.map

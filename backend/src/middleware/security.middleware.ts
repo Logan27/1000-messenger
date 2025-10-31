@@ -16,7 +16,6 @@
  */
 
 import helmet from 'helmet';
-import cors, { CorsOptions } from 'cors';
 import rateLimit from 'express-rate-limit';
 import sanitizeHtml from 'sanitize-html';
 import { Request, Response, NextFunction } from 'express';
@@ -61,63 +60,6 @@ export const securityHeaders = helmet({
   },
   crossOriginEmbedderPolicy: false,
 });
-
-/**
- * CORS (Cross-Origin Resource Sharing) Configuration
- *
- * Configures CORS to allow the frontend application to make requests to the API
- * while blocking unauthorized origins. Essential for browser-based applications.
- *
- * Configuration:
- * - **origin**: Function-based validation allowing only configured frontend URL
- * - **credentials**: true - Allows cookies and Authorization headers
- * - **methods**: Whitelist of HTTP methods (GET, POST, PUT, PATCH, DELETE, OPTIONS)
- * - **allowedHeaders**: Headers the client is allowed to send
- * - **exposedHeaders**: Headers the client can read from responses
- * - **maxAge**: 24 hours - Cache preflight requests to reduce overhead
- *
- * Security Considerations:
- * - Only configured FRONTEND_URL is allowed (no wildcards)
- * - Requests without origin (e.g., Postman, curl) are allowed for development/testing
- * - credentials: true enables authentication cookies and JWT tokens
- * - Preflight caching reduces performance impact of CORS checks
- *
- * Usage:
- * ```typescript
- * // Express
- * app.use(corsMiddleware);
- *
- * // Socket.IO
- * const io = new SocketServer(httpServer, { cors: corsOptions });
- * ```
- *
- * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
- */
-export const corsOptions: CorsOptions = {
-  origin: (origin, callback) => {
-    const allowedOrigins = [config.FRONTEND_URL];
-
-    // Allow requests with no origin (like mobile apps, Postman, or curl)
-    if (!origin) {
-      return callback(null, true);
-    }
-
-    // Check if origin is in allowed list
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true, // Allow cookies and authentication headers
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-  exposedHeaders: ['X-Total-Count', 'X-Page-Count'], // Headers that client can access
-  maxAge: 86400, // 24 hours - cache preflight requests
-  optionsSuccessStatus: 204, // Some legacy browsers choke on 204
-};
-
-export const corsMiddleware = cors(corsOptions);
 
 /**
  * API Rate Limiting Middleware
@@ -259,24 +201,27 @@ export const sanitizeContent = (content: string): string => {
  * @see FR-034: System MUST enforce maximum image size of 10MB per image
  * @see FR-191: System MUST validate file types for uploads
  */
-export const validateImageUpload = (req: Request, res: Response, next: NextFunction) => {
+export const validateImageUpload = (req: Request, res: Response, next: NextFunction): void => {
   const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
   const file = (req as any).file;
 
   if (!file) {
-    return res.status(400).json({ error: 'No file uploaded' });
+    res.status(400).json({ error: 'No file uploaded' });
+    return;
   }
 
   if (!allowedTypes.includes(file.mimetype)) {
-    return res.status(400).json({
+    res.status(400).json({
       error: 'Invalid file type. Allowed: JPEG, PNG, GIF, WebP',
     });
+    return;
   }
 
   if (file.size > LIMITS.IMAGE_MAX_SIZE) {
-    return res.status(400).json({
+    res.status(400).json({
       error: `File too large. Maximum size: ${LIMITS.IMAGE_MAX_SIZE / (1024 * 1024)}MB`,
     });
+    return;
   }
 
   next();

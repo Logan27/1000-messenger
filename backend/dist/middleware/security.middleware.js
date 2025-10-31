@@ -78,17 +78,20 @@ const validateImageUpload = (req, res, next) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     const file = req.file;
     if (!file) {
-        return res.status(400).json({ error: 'No file uploaded' });
+        res.status(400).json({ error: 'No file uploaded' });
+        return;
     }
     if (!allowedTypes.includes(file.mimetype)) {
-        return res.status(400).json({
+        res.status(400).json({
             error: 'Invalid file type. Allowed: JPEG, PNG, GIF, WebP',
         });
+        return;
     }
     if (file.size > constants_1.LIMITS.IMAGE_MAX_SIZE) {
-        return res.status(400).json({
+        res.status(400).json({
             error: `File too large. Maximum size: ${constants_1.LIMITS.IMAGE_MAX_SIZE / (1024 * 1024)}MB`,
         });
+        return;
     }
     next();
 };
