@@ -16,14 +16,11 @@ interface AuthState {
   isAuthenticated: boolean;
 
   login: (username: string, password: string) => Promise<void>;
-  register: (username: string, password: string) => Promise<void>;
-  logout: () => void;
+  register: (username: string, password: string, passwordConfirm: string, displayName?: string) => Promise<void>;
+  logout: () => Promise<void>;
   setAuth: (user: User, token: string, refreshToken: string) => void;
   clearAuth: () => void;
   updateUser: (updates: Partial<User>) => void;
-  login: (username: string, password: string) => Promise<void>;
-  register: (username: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -46,64 +43,8 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
-      register: async (username, password) => {
-        const response = await apiService.register(username, password);
-        localStorage.setItem('accessToken', response.accessToken);
-        localStorage.setItem('refreshToken', response.refreshToken);
-        set({
-          user: response.user,
-          token: response.accessToken,
-          refreshToken: response.refreshToken,
-          isAuthenticated: true,
-        });
-      },
-
-      logout: () => {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        set({
-          user: null,
-          token: null,
-          refreshToken: null,
-          isAuthenticated: false,
-        });
-      },
-
-      setAuth: (user, token, refreshToken) =>
-        set({
-          user,
-          token,
-          refreshToken,
-          isAuthenticated: true,
-        }),
-
-      clearAuth: () =>
-        set({
-          user: null,
-          token: null,
-          refreshToken: null,
-          isAuthenticated: false,
-        }),
-
-      updateUser: updates =>
-        set(state => ({
-          user: state.user ? { ...state.user, ...updates } : null,
-        })),
-
-      login: async (username, password) => {
-        const response = await apiService.login(username, password);
-        localStorage.setItem('accessToken', response.accessToken);
-        localStorage.setItem('refreshToken', response.refreshToken);
-        set({
-          user: response.user,
-          token: response.accessToken,
-          refreshToken: response.refreshToken,
-          isAuthenticated: true,
-        });
-      },
-
-      register: async (username, password) => {
-        const response = await apiService.register(username, password);
+      register: async (username, password, passwordConfirm, displayName) => {
+        const response = await apiService.register(username, password, passwordConfirm, displayName);
         localStorage.setItem('accessToken', response.accessToken);
         localStorage.setItem('refreshToken', response.refreshToken);
         set({
@@ -130,6 +71,27 @@ export const useAuthStore = create<AuthState>()(
           });
         }
       },
+
+      setAuth: (user, token, refreshToken) =>
+        set({
+          user,
+          token,
+          refreshToken,
+          isAuthenticated: true,
+        }),
+
+      clearAuth: () =>
+        set({
+          user: null,
+          token: null,
+          refreshToken: null,
+          isAuthenticated: false,
+        }),
+
+      updateUser: updates =>
+        set(state => ({
+          user: state.user ? { ...state.user, ...updates } : null,
+        })),
     }),
     {
       name: 'auth-storage',
