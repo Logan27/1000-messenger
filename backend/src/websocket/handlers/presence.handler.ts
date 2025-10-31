@@ -13,7 +13,7 @@ export class PresenceHandler {
         await this.userRepo.updateStatus(userId, data.status);
 
         // Broadcast status change to all connected clients
-        socket.broadcast.emit('user:status', {
+        socket.broadcast.emit('user.status', {
           userId,
           status: data.status,
           timestamp: new Date(),

@@ -4,7 +4,7 @@ import { config } from './config/env';
 import { testConnection, closeConnections } from './config/database';
 import { connectRedis, closeRedis } from './config/redis';
 import { initializeStorage } from './config/storage';
-import { SocketManager } from './websocket/socket.manager';
+import { SocketManager, setSocketManager } from './websocket/socket.manager';
 import { MessageDeliveryQueue } from './queues/message-delivery.queue';
 import { logger } from './utils/logger.util';
 
@@ -56,6 +56,9 @@ async function startServer() {
 
     // Initialize WebSocket manager (without MessageService to avoid circular dependency)
     socketManager = new SocketManager(server, authService, sessionService, userRepo, chatRepo);
+    
+    // Register as global singleton for controllers to access
+    setSocketManager(socketManager);
 
     // Initialize message delivery queue
     messageQueue = new MessageDeliveryQueue(messageRepo, socketManager);

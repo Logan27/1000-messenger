@@ -505,6 +505,44 @@ export type MessageQueryParams = z.infer<typeof messageQueryParamsSchema>;
 export type ContactQueryParams = z.infer<typeof contactQueryParamsSchema>;
 
 // ============================================================================
+// CALL VALIDATORS
+// ============================================================================
+
+export const callTypeSchema = z.enum(['audio', 'video']);
+
+export const callResponseSchema = z.enum(['accept', 'reject']);
+
+export const respondToCallSchema = z.object({
+  callId: uuidSchema,
+  response: callResponseSchema,
+  sdp: z.any().optional(), // WebRTC SDP data
+});
+
+export const endCallSchema = z.object({
+  callId: uuidSchema,
+});
+
+export const callSchema = z.object({
+  id: uuidSchema,
+  callerId: uuidSchema,
+  callerName: z.string(),
+  recipientId: uuidSchema,
+  recipientName: z.string().optional(),
+  type: callTypeSchema,
+  status: z.enum(['pending', 'active', 'ended', 'rejected']),
+  createdAt: timestampSchema,
+  answeredAt: timestampSchema.optional(),
+  endedAt: timestampSchema.optional(),
+  sdp: z.any().optional(),
+});
+
+export type CallType = z.infer<typeof callTypeSchema>;
+export type CallResponse = z.infer<typeof callResponseSchema>;
+export type RespondToCall = z.infer<typeof respondToCallSchema>;
+export type EndCall = z.infer<typeof endCallSchema>;
+export type Call = z.infer<typeof callSchema>;
+
+// ============================================================================
 // CONVENIENCE VALIDATOR FUNCTIONS
 // ============================================================================
 

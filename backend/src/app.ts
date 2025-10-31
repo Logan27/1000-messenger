@@ -8,6 +8,7 @@ import { chatRoutes } from './routes/chat.routes';
 import { messageRoutes } from './routes/message.routes';
 import { contactRoutes } from './routes/contact.routes';
 import { healthRoutes } from './routes/health.routes';
+import { callRoutes } from './routes/call.routes';
 import { config } from './config/env';
 import { logger } from './utils/logger.util';
 
@@ -39,6 +40,7 @@ export function createApp() {
   app.use('/api/chats', chatRoutes);
   app.use('/api/messages', messageRoutes);
   app.use('/api/contacts', contactRoutes);
+  app.use('/api/calls', callRoutes);
 
   // 404 handler
   app.use(notFoundHandler);

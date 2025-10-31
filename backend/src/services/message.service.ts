@@ -70,7 +70,7 @@ export class MessageService {
     });
 
     // Try immediate WebSocket delivery
-    this.socketManager.broadcastToChat(dto.chatId, 'message:new', {
+    this.socketManager.broadcastToChat(dto.chatId, 'message.new', {
       ...message,
       sender: await this.getUserInfo(dto.senderId),
     });
@@ -110,7 +110,7 @@ export class MessageService {
     });
 
     // Broadcast update
-    this.socketManager.broadcastToChat(message.chatId, 'message:edited', {
+    this.socketManager.broadcastToChat(message.chatId, 'message.edited', {
       messageId,
       content: newContent,
       editedAt: updatedMessage.editedAt,
@@ -138,7 +138,7 @@ export class MessageService {
     });
 
     // Broadcast deletion
-    this.socketManager.broadcastToChat(message.chatId, 'message:deleted', {
+    this.socketManager.broadcastToChat(message.chatId, 'message.deleted', {
       messageId,
     });
   }
@@ -174,7 +174,7 @@ export class MessageService {
     await this.chatRepo.resetUnreadCount(message.chatId, userId);
 
     // Notify sender about read receipt
-    this.socketManager.sendToUser(message.senderId, 'message:read', {
+    this.socketManager.sendToUser(message.senderId, 'message_read', {
       messageId,
       chatId: message.chatId,
       readBy: userId,

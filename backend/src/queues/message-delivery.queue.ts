@@ -163,7 +163,7 @@ export class MessageDeliveryQueue {
 
         if (isOnline) {
           // Send via WebSocket
-          this.socketManager.sendToUser(recipientId, 'message:new', message);
+          this.socketManager.sendToUser(recipientId, 'message.new', message);
 
           // Mark as delivered
           await this.messageRepo.updateDeliveryStatus(data.messageId, recipientId, 'delivered');

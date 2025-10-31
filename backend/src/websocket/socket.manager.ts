@@ -209,7 +209,7 @@ export class SocketManager {
 
   public broadcastUserStatus(userId: string, status: string) {
     // Broadcast to all contacts
-    this.io.emit('user:status', {
+    this.io.emit('user.status', {
       userId,
       status,
       timestamp: new Date(),
@@ -302,4 +302,22 @@ export class SocketManager {
     
     logger.info(`Disconnected all sessions for user ${userId}`);
   }
+
+  /**
+   * Emit event to a specific user across all their connected sockets
+   */
+  public emitToUser(userId: string, event: string, data: any): void {
+    this.sendToUser(userId, event, data);
+  }
+}
+
+// Singleton instance for global access
+let socketManagerInstance: SocketManager | null = null;
+
+export function setSocketManager(instance: SocketManager): void {
+  socketManagerInstance = instance;
+}
+
+export function getSocketManager(): SocketManager | null {
+  return socketManagerInstance;
 }
