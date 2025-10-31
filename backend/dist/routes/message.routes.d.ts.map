@@ -1,1 +1,1 @@
-{"version":3,"file":"message.routes.d.ts","sourceRoot":"","sources":["../../src/routes/message.routes.ts"],"names":[],"mappings":"AAcA,QAAA,MAAM,MAAM,4CAAW,CAAC;AAmCxB,OAAO,EAAE,MAAM,IAAI,aAAa,EAAE,CAAC"}
+{"version":3,"file":"message.routes.d.ts","sourceRoot":"","sources":["../../src/routes/message.routes.ts"],"names":[],"mappings":"AAYA,QAAA,MAAM,MAAM,4CAAW,CAAC;AAgCxB,OAAO,EAAE,MAAM,IAAI,aAAa,EAAE,CAAC"}

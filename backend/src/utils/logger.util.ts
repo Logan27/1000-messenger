@@ -275,5 +275,34 @@ export const logWebSocket = (
   });
 };
 
+/**
+ * Log a security event
+ * 
+ * Helper function to log security-related events (authentication failures,
+ * rate limit violations, etc.) with consistent formatting
+ * 
+ * @param message - Security event message
+ * @param metadata - Additional metadata
+ * 
+ * @example
+ * ```typescript
+ * logSecurity('Failed login attempt', { ip: '192.168.1.1', username: 'john' });
+ * ```
+ */
+export const logSecurity = (
+  message: string,
+  metadata?: Record<string, any>
+) => {
+  logger.warn(message, {
+    type: 'security',
+    ...metadata,
+  });
+};
+
+// Extend logger with custom methods
+Object.assign(logger, {
+  security: logSecurity,
+});
+
 // Export the logger as default
 export default logger;

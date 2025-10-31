@@ -1,17 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthService } from '../services/auth.service';
+import { JwtPayload } from '../utils/jwt.util';
 declare global {
     namespace Express {
         interface Request {
             user?: {
                 userId: string;
+                tokenPayload?: JwtPayload;
             };
         }
     }
 }
 export declare class AuthMiddleware {
-    private authService;
-    constructor(authService: AuthService);
-    authenticate: (req: Request, res: Response, next: NextFunction) => Promise<Response<any, Record<string, any>> | undefined>;
+    authenticate: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 }
+export declare const authMiddleware: AuthMiddleware;
+export declare const optionalAuthenticate: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 //# sourceMappingURL=auth.middleware.d.ts.map
