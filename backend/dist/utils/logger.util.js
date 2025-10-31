@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logWebSocket = exports.logQuery = exports.logRequest = exports.createChildLogger = exports.logger = void 0;
+exports.logSecurity = exports.logWebSocket = exports.logQuery = exports.logRequest = exports.createChildLogger = exports.logger = void 0;
 const winston_1 = __importDefault(require("winston"));
 const env_1 = require("../config/env");
 const fs = __importStar(require("fs"));
@@ -151,5 +151,15 @@ const logWebSocket = (event, userId, metadata) => {
     });
 };
 exports.logWebSocket = logWebSocket;
+const logSecurity = (message, metadata) => {
+    exports.logger.warn(message, {
+        type: 'security',
+        ...metadata,
+    });
+};
+exports.logSecurity = logSecurity;
+Object.assign(exports.logger, {
+    security: exports.logSecurity,
+});
 exports.default = exports.logger;
 //# sourceMappingURL=logger.util.js.map

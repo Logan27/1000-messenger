@@ -4,6 +4,7 @@ import { ContactService } from '../services/contact.service';
 import { ContactRepository } from '../repositories/contact.repository';
 import { UserRepository } from '../repositories/user.repository';
 import { authMiddleware } from '../middleware/auth.middleware';
+import { contactRequestRateLimit } from '../middleware/rate-limit.middleware';
 
 const router = Router();
 
@@ -19,7 +20,7 @@ router.use(authMiddleware.authenticate);
 // Contact routes
 router.get('/', contactController.getContacts);
 router.get('/pending', contactController.getPendingRequests);
-router.post('/request', contactController.sendRequest);
+router.post('/request', contactRequestRateLimit, contactController.sendRequest);
 router.post('/:requestId/accept', contactController.acceptRequest);
 router.post('/:requestId/reject', contactController.rejectRequest);
 router.delete('/:contactId', contactController.removeContact);

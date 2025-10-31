@@ -15,9 +15,8 @@ const userRepo = new user_repository_1.UserRepository();
 const sessionService = new session_service_1.SessionService();
 const authService = new auth_service_1.AuthService(userRepo, sessionService);
 const authController = new auth_controller_1.AuthController(authService);
-const authMiddleware = new auth_middleware_1.AuthMiddleware(authService);
 router.post('/register', rate_limit_middleware_1.authRateLimit, (0, validation_middleware_1.validate)(validation_middleware_1.registerSchema), authController.register);
 router.post('/login', rate_limit_middleware_1.authRateLimit, (0, validation_middleware_1.validate)(validation_middleware_1.loginSchema), authController.login);
 router.post('/refresh', rate_limit_middleware_1.authRateLimit, authController.refreshToken);
-router.post('/logout', authMiddleware.authenticate, authController.logout);
+router.post('/logout', auth_middleware_1.authMiddleware.authenticate, authController.logout);
 //# sourceMappingURL=auth.routes.js.map

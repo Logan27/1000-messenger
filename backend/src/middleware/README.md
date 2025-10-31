@@ -182,3 +182,214 @@ const authMiddleware = new AuthMiddleware(authService);
 // New (recommended)
 import { authMiddleware } from '../middleware/auth.middleware';
 ```
+
+## Rate Limiting Middleware (`rate-limit.middleware.ts`)
+
+Redis-based rate limiting middleware for protecting routes from abuse and ensuring fair resource usage across all server instances.
+
+### Features
+
+- ✅ Redis-backed distributed rate limiting
+- ✅ Per-user and per-IP rate limits
+- ✅ Multiple rate limiters for different use cases
+- ✅ Standard rate limit headers (RateLimit-*)
+- ✅ Automatic key expiration
+- ✅ Security logging for violations
+- ✅ Graceful degradation on Redis errors
+
+### Available Rate Limiters
+
+#### API Rate Limiter
+
+General rate limiting for all API endpoints:
+
+```typescript
+import { apiRateLimit } from '../middleware/rate-limit.middleware';
+
+router.use('/api', apiRateLimit);
+```
+
+- **Limit**: 100 requests per minute per IP
+- **Window**: 1 minute
+- **Key**: IP address
+
+#### Authentication Rate Limiter
+
+Stricter rate limiting for login endpoints:
+
+```typescript
+import { authRateLimit } from '../middleware/rate-limit.middleware';
+
+router.post('/auth/login', authRateLimit, loginHandler);
+```
+
+- **Limit**: 5 attempts per 15 minutes per IP
+- **Window**: 15 minutes
+- **Key**: IP address
+- **Special**: Skips successful requests (only counts failures)
+
+#### Message Rate Limiter
+
+Rate limiting for message sending:
+
+```typescript
+import { messageRateLimit } from '../middleware/rate-limit.middleware';
+
+router.post('/messages', authMiddleware.authenticate, messageRateLimit, sendMessageHandler);
+```
+
+- **Limit**: 10 messages per second per user
+- **Window**: 1 second
+- **Key**: User ID (falls back to IP for unauthenticated requests)
+
+#### Upload Rate Limiter
+
+Rate limiting for file uploads:
+
+```typescript
+import { uploadRateLimit } from '../middleware/rate-limit.middleware';
+
+router.post('/upload', authMiddleware.authenticate, uploadRateLimit, uploadHandler);
+```
+
+- **Limit**: 10 uploads per minute per user
+- **Window**: 1 minute
+- **Key**: User ID (falls back to IP for unauthenticated requests)
+
+#### Search Rate Limiter
+
+Rate limiting for search endpoints:
+
+```typescript
+import { searchRateLimit } from '../middleware/rate-limit.middleware';
+
+router.get('/search', authMiddleware.authenticate, searchRateLimit, searchHandler);
+```
+
+- **Limit**: 30 searches per minute per user
+- **Window**: 1 minute
+- **Key**: User ID (falls back to IP for unauthenticated requests)
+
+#### Contact Request Rate Limiter
+
+Daily rate limiting for contact requests:
+
+```typescript
+import { contactRequestRateLimit } from '../middleware/rate-limit.middleware';
+
+router.post('/contacts/request', authMiddleware.authenticate, contactRequestRateLimit, sendContactRequestHandler);
+```
+
+- **Limit**: 50 requests per day per user
+- **Window**: 24 hours
+- **Key**: User ID (falls back to IP for unauthenticated requests)
+
+### Rate Limit Response
+
+When a rate limit is exceeded, the middleware returns a 429 Too Many Requests response:
+
+```json
+{
+  "error": "Too Many Requests",
+  "message": "Too many login attempts, please try again later",
+  "retryAfter": "900"
+}
+```
+
+### Rate Limit Headers
+
+Standard rate limit headers are included in all responses:
+
+```
+RateLimit-Limit: 100
+RateLimit-Remaining: 99
+RateLimit-Reset: 1635768000
+```
+
+### Redis Key Structure
+
+All rate limit keys are prefixed with `ratelimit:` followed by the limiter type:
+
+- `ratelimit:api:{ip}` - API rate limits
+- `ratelimit:auth:{ip}` - Authentication rate limits
+- `ratelimit:message:{userId}` - Message rate limits
+- `ratelimit:upload:{userId}` - Upload rate limits
+- `ratelimit:search:{userId}` - Search rate limits
+- `ratelimit:contact:{userId}` - Contact request rate limits
+
+### Distributed Rate Limiting
+
+The rate limiters use Redis as a shared store, ensuring that rate limits are enforced consistently across all server instances in a horizontally scaled deployment. This means:
+
+- Rate limits are shared across all servers
+- Server restarts don't reset rate limit counters
+- Load balancing doesn't affect rate limit accuracy
+
+### Security Logging
+
+All rate limit violations are logged with security metadata:
+
+```typescript
+logger.warn('Rate limit exceeded', {
+  type: 'security',
+  ip: '192.168.1.1',
+  user: 'user123',
+  path: '/api/messages',
+  method: 'POST',
+});
+```
+
+### Configuration
+
+Rate limits are configured in `backend/src/config/constants.ts`:
+
+```typescript
+export const LIMITS = {
+  LOGIN_MAX_ATTEMPTS: 5,
+  LOGIN_ATTEMPTS_WINDOW_MS: 15 * 60 * 1000,
+  API_RATE_MAX_REQUESTS: 100,
+  API_RATE_WINDOW_MS: 60 * 1000,
+  MESSAGES_PER_SECOND_PER_USER: 10,
+  UPLOAD_MAX_REQUESTS: 10,
+  UPLOAD_RATE_WINDOW_MS: 60 * 1000,
+  SEARCH_MAX_REQUESTS: 30,
+  SEARCH_RATE_WINDOW_MS: 60 * 1000,
+  CONTACT_REQUESTS_PER_DAY: 50,
+};
+```
+
+### Best Practices
+
+1. **Apply rate limits early**: Add rate limiters before resource-intensive middleware
+2. **Use appropriate limiters**: Choose the right rate limiter for each endpoint type
+3. **Order matters**: Place authentication middleware before user-based rate limiters
+4. **Monitor violations**: Watch security logs for patterns of abuse
+5. **Adjust limits**: Tune limits based on actual usage patterns and abuse detection
+
+### Example Usage
+
+Full example with multiple rate limiters:
+
+```typescript
+import express from 'express';
+import { authMiddleware } from '../middleware/auth.middleware';
+import { apiRateLimit, authRateLimit, messageRateLimit } from '../middleware/rate-limit.middleware';
+
+const router = express.Router();
+
+// Apply general API rate limiting to all routes
+router.use(apiRateLimit);
+
+// Authentication routes with stricter limits
+router.post('/auth/login', authRateLimit, loginHandler);
+router.post('/auth/register', authRateLimit, registerHandler);
+
+// Protected routes with user-specific rate limits
+router.post('/messages', authMiddleware.authenticate, messageRateLimit, sendMessageHandler);
+```
+
+### Related Files
+
+- **Redis Config**: `backend/src/config/redis.ts` - Redis client and configuration
+- **Constants**: `backend/src/config/constants.ts` - Rate limit values
+- **Logger**: `backend/src/utils/logger.util.ts` - Security logging utilities
