@@ -120,8 +120,11 @@ class MessageDeliveryQueue {
             if (!messages || messages.length === 0) {
                 return;
             }
-            for (const [_stream, messageList] of messages) {
-                for (const { id, message } of messageList) {
+            for (const streamEntry of messages) {
+                if (!streamEntry || !streamEntry.messages) {
+                    continue;
+                }
+                for (const { id, message } of streamEntry.messages) {
                     const startTime = Date.now();
                     try {
                         const data = JSON.parse(message.data);
@@ -148,7 +151,7 @@ class MessageDeliveryQueue {
     }
     async processPendingMessages() {
         try {
-            const pending = await redis_1.redisClient.xPending(this.STREAM_KEY, this.CONSUMER_GROUP, '-', '+', this.config.batchSize);
+            const pending = await redis_1.redisClient.xPendingRange(this.STREAM_KEY, this.CONSUMER_GROUP, '-', '+', this.config.batchSize);
             if (!pending || pending.length === 0) {
                 return;
             }
@@ -314,8 +317,8 @@ class MessageDeliveryQueue {
     async getHealthStatus() {
         try {
             const streamInfo = await redis_1.redisClient.xLen(this.STREAM_KEY);
-            const pendingInfo = await redis_1.redisClient.xPending(this.STREAM_KEY, this.CONSUMER_GROUP, '-', '+', 1);
-            const pendingCount = pendingInfo ? pendingInfo.length : 0;
+            const pendingInfo = await redis_1.redisClient.xPending(this.STREAM_KEY, this.CONSUMER_GROUP);
+            const pendingCount = pendingInfo ? pendingInfo.pending : 0;
             const failureRate = this.metrics.processed > 0
                 ? this.metrics.failed / this.metrics.processed
                 : 0;

@@ -86,15 +86,15 @@ export declare const deviceInfoSchema: z.ZodObject<{
     ipAddress: z.ZodOptional<z.ZodString>;
     userAgent: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    deviceId?: string | undefined;
     deviceType?: string | undefined;
     deviceName?: string | undefined;
+    deviceId?: string | undefined;
     ipAddress?: string | undefined;
     userAgent?: string | undefined;
 }, {
-    deviceId?: string | undefined;
     deviceType?: string | undefined;
     deviceName?: string | undefined;
+    deviceId?: string | undefined;
     ipAddress?: string | undefined;
     userAgent?: string | undefined;
 }>;
@@ -115,30 +115,30 @@ export declare const sessionSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     id: string;
     createdAt: string | Date;
-    deviceId: string | null;
-    deviceType: string | null;
-    deviceName: string | null;
-    ipAddress: string | null;
-    userAgent: string | null;
     isActive: boolean;
     userId: string;
+    deviceType: string | null;
+    deviceName: string | null;
+    lastActivity: string | Date;
+    deviceId: string | null;
+    ipAddress: string | null;
+    userAgent: string | null;
     sessionToken: string;
     socketId: string | null;
-    lastActivity: string | Date;
     expiresAt: string | Date;
 }, {
     id: string;
     createdAt: string | Date;
-    deviceId: string | null;
-    deviceType: string | null;
-    deviceName: string | null;
-    ipAddress: string | null;
-    userAgent: string | null;
     isActive: boolean;
     userId: string;
+    deviceType: string | null;
+    deviceName: string | null;
+    lastActivity: string | Date;
+    deviceId: string | null;
+    ipAddress: string | null;
+    userAgent: string | null;
     sessionToken: string;
     socketId: string | null;
-    lastActivity: string | Date;
     expiresAt: string | Date;
 }>;
 export declare const contactStatusSchema: z.ZodEnum<["pending", "accepted", "blocked"]>;
