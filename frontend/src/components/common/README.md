@@ -1,67 +1,119 @@
 # Common UI Components
 
-This directory contains reusable UI components used throughout the application.
+This directory contains reusable UI components that are used throughout the application.
 
-## Avatar
+## Modal Component
 
-A flexible avatar component for displaying user profile pictures or initials.
+A flexible, accessible modal dialog component with support for various configurations.
+
+### Features
+
+- **Backdrop Overlay**: Semi-transparent black background
+- **Click Outside to Close**: Configurable overlay click behavior
+- **Keyboard Navigation**: 
+  - ESC key to close (configurable)
+  - Focus trap for accessibility
+- **Responsive Sizing**: Four size variants (sm, md, lg, xl)
+- **Prevent Body Scroll**: Automatically prevents scrolling when open
+- **Customizable Footer**: Optional footer for action buttons
+- **Close Button**: Optional X button in the header
+- **Smooth Animations**: Fade in/out transitions
+- **Accessibility**: Proper ARIA attributes and roles
 
 ### Usage
 
 ```tsx
-import { Avatar } from '@/components/common';
+import { Modal } from './components/common/Modal';
 
-// Basic usage with initials fallback
-<Avatar name="John Doe" />
+function MyComponent() {
+  const [isOpen, setIsOpen] = useState(false);
 
-// With avatar image
-<Avatar name="John Doe" avatarUrl="https://example.com/avatar.jpg" />
-
-// Different sizes
-<Avatar name="John Doe" size="xs" />
-<Avatar name="John Doe" size="sm" />
-<Avatar name="John Doe" size="md" /> // default
-<Avatar name="John Doe" size="lg" />
-<Avatar name="John Doe" size="xl" />
-
-// With online status indicator
-<Avatar name="John Doe" status="online" />
-<Avatar name="John Doe" status="away" />
-<Avatar name="John Doe" status="offline" />
-
-// With custom className
-<Avatar name="John Doe" className="mr-4" />
+  return (
+    <>
+      <button onClick={() => setIsOpen(true)}>Open Modal</button>
+      
+      <Modal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        title="My Modal"
+        size="md"
+        footer={
+          <div className="flex justify-end gap-2">
+            <button onClick={() => setIsOpen(false)}>Cancel</button>
+            <button onClick={handleSubmit}>Submit</button>
+          </div>
+        }
+      >
+        <p>Modal content goes here</p>
+      </Modal>
+    </>
+  );
+}
 ```
 
 ### Props
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `name` | `string` | Yes | - | User's name (used for initials fallback) |
-| `avatarUrl` | `string` | No | `undefined` | URL of the user's avatar image |
-| `size` | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'` | No | `'md'` | Size of the avatar |
-| `status` | `'online' \| 'offline' \| 'away'` | No | `undefined` | Online status indicator |
-| `className` | `string` | No | `''` | Additional CSS classes |
-
-### Features
-
-- **Automatic Initials**: If no avatar image is provided, displays user's initials (first letter of first and last name, or just first letter)
-- **Multiple Sizes**: Five predefined sizes from extra small to extra large
-- **Status Indicators**: Optional colored badge showing online/away/offline status
-- **Responsive Images**: Avatar images use `object-cover` to maintain aspect ratio
-- **Fallback Styling**: Consistent gray background with dark gray text for initials
-- **Accessible**: Includes proper `alt` attributes for images
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `isOpen` | `boolean` | Required | Controls modal visibility |
+| `onClose` | `() => void` | Required | Callback when modal should close |
+| `title` | `string` | `undefined` | Optional modal title |
+| `children` | `ReactNode` | Required | Modal content |
+| `footer` | `ReactNode` | `undefined` | Optional footer content (usually buttons) |
+| `size` | `'sm' \| 'md' \| 'lg' \| 'xl'` | `'md'` | Modal width |
+| `closeOnOverlayClick` | `boolean` | `true` | Close when clicking backdrop |
+| `closeOnEsc` | `boolean` | `true` | Close when pressing Escape key |
+| `showCloseButton` | `boolean` | `true` | Show X button in header |
 
 ### Size Reference
 
-- `xs`: 24×24px (6 Tailwind units)
-- `sm`: 32×32px (8 Tailwind units)
-- `md`: 40×40px (10 Tailwind units) - Default
-- `lg`: 48×48px (12 Tailwind units)
-- `xl`: 64×64px (16 Tailwind units)
+- `sm`: max-w-md (28rem / 448px)
+- `md`: max-w-lg (32rem / 512px)
+- `lg`: max-w-2xl (42rem / 672px)
+- `xl`: max-w-4xl (56rem / 896px)
 
-### Status Colors
+### Examples
 
-- `online`: Green indicator
-- `away`: Yellow indicator
-- `offline`: Gray indicator
+See `Modal.example.tsx` for comprehensive usage examples including:
+- Simple modal with just title and content
+- Confirmation dialog with action buttons
+- Form modal with input fields
+- Large modal with scrollable content
+
+### Use Cases in Messenger App
+
+The Modal component can be used for:
+- **Confirmation dialogs**: Delete message, leave group, remove contact
+- **Group management**: Create/edit group, add/remove participants
+- **User profile**: View user details, shared chats
+- **Settings panels**: App settings, notification preferences
+- **Contact requests**: Accept/reject contact requests
+- **Image viewer**: Full-size image display (alternative to inline viewer)
+
+### Accessibility
+
+The Modal component follows accessibility best practices:
+- Uses `role="dialog"` and `aria-modal="true"`
+- Properly labels with `aria-labelledby` when title is provided
+- Closes on Escape key (configurable)
+- Prevents body scroll when open
+- Focuses modal on open for keyboard navigation
+- Close button has `aria-label` for screen readers
+
+### Styling
+
+The Modal uses Tailwind CSS classes for styling:
+- Responsive design with proper padding on mobile
+- Maximum height of 90vh to prevent overflow
+- Smooth transitions for fade in/out
+- Hover states on close button
+- Proper z-index (z-50) for stacking context
+
+### Best Practices
+
+1. **Always provide `onClose`**: Even if close behaviors are disabled, provide a way to close
+2. **Use appropriate size**: Choose the smallest size that fits your content
+3. **Footer for actions**: Put primary actions in the footer for consistency
+4. **Keep content focused**: Modals should have a single, clear purpose
+5. **Avoid nested modals**: Don't open modals from within other modals
+6. **Test keyboard navigation**: Ensure Tab, Escape, and Enter keys work as expected
