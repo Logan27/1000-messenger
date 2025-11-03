@@ -92,8 +92,9 @@ export class UserService {
 
   async uploadAvatar(userId: string, file: Express.Multer.File): Promise<string> {
     const uploadResult = await this.storageService.uploadImage(file, userId);
-    await this.userRepo.update(userId, { avatarUrl: uploadResult.thumbnailUrl });
-    return uploadResult.thumbnailUrl!;
+    const avatarUrl = uploadResult.thumbnailUrl!;
+    await this.userRepo.update(userId, { avatarUrl });
+    return avatarUrl;
   }
 
   async canViewUserProfile(userId: string, viewerId: string): Promise<boolean> {
