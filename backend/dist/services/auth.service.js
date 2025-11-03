@@ -16,25 +16,60 @@ class AuthService {
         this.userRepo = userRepo;
         this.sessionService = sessionService;
     }
-    async register(username, password) {
-        if (username.length < 3 || username.length > 50) {
-            throw new Error('Username must be between 3 and 50 characters');
+    async register(username, password, deviceInfo) {
+        if (username.length < constants_1.LIMITS.USERNAME_MIN_LENGTH || username.length > constants_1.LIMITS.USERNAME_MAX_LENGTH) {
+            throw new Error(`Username must be between ${constants_1.LIMITS.USERNAME_MIN_LENGTH} and ${constants_1.LIMITS.USERNAME_MAX_LENGTH} characters`);
+        }
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            throw new Error('Username can only contain letters, numbers, and underscores');
+        }
+        if (password.length < constants_1.LIMITS.PASSWORD_MIN_LENGTH) {
+            throw new Error(`Password must be at least ${constants_1.LIMITS.PASSWORD_MIN_LENGTH} characters`);
         }
         const existingUser = await this.userRepo.findByUsername(username);
         if (existingUser) {
             throw new Error('Username already taken');
         }
-        const passwordHash = await bcrypt_1.default.hash(password, 12);
+        const passwordHash = await bcrypt_1.default.hash(password, constants_1.LIMITS.BCRYPT_ROUNDS);
         const user = await this.userRepo.create({
             username,
             passwordHash,
             displayName: username,
         });
         logger_util_1.logger.info(`User registered: ${username}`);
+        const accessToken = this.generateAccessToken(user.id);
+        const refreshToken = this.generateRefreshToken(user.id);
+        const sessionData = {
+            userId: user.id,
+            sessionToken: refreshToken,
+            expiresAt: new Date(Date.now() + constants_1.LIMITS.SESSION_DURATION_DAYS * 24 * 60 * 60 * 1000),
+        };
+        if (deviceInfo?.deviceId !== undefined) {
+            sessionData.deviceId = deviceInfo.deviceId;
+        }
+        if (deviceInfo?.deviceType !== undefined) {
+            sessionData.deviceType = deviceInfo.deviceType;
+        }
+        if (deviceInfo?.deviceName !== undefined) {
+            sessionData.deviceName = deviceInfo.deviceName;
+        }
+        if (deviceInfo?.ipAddress !== undefined) {
+            sessionData.ipAddress = deviceInfo.ipAddress;
+        }
+        if (deviceInfo?.userAgent !== undefined) {
+            sessionData.userAgent = deviceInfo.userAgent;
+        }
+        await this.sessionService.createSession(sessionData);
+        await this.userRepo.updateLastSeen(user.id);
         return {
-            id: user.id,
-            username: user.username,
-            displayName: user.displayName,
+            accessToken,
+            refreshToken,
+            user: {
+                id: user.id,
+                username: user.username,
+                displayName: user.displayName,
+                avatarUrl: user.avatarUrl,
+            },
         };
     }
     async login(username, password, deviceInfo) {

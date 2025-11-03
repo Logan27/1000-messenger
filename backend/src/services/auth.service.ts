@@ -1,5 +1,5 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 import { config, JWT_CONFIG } from '../config/env';
 import { LIMITS } from '../config/constants';
 import { UserRepository } from '../repositories/user.repository';
@@ -12,10 +12,30 @@ export class AuthService {
     private sessionService: SessionService
   ) {}
 
-  async register(username: string, password: string) {
-    // Validate username
-    if (username.length < 3 || username.length > 50) {
-      throw new Error('Username must be between 3 and 50 characters');
+  async register(
+    username: string,
+    password: string,
+    deviceInfo?: {
+      deviceId?: string;
+      deviceType?: string;
+      deviceName?: string;
+      ipAddress?: string;
+      userAgent?: string;
+    }
+  ) {
+    // Validate username length
+    if (username.length < LIMITS.USERNAME_MIN_LENGTH || username.length > LIMITS.USERNAME_MAX_LENGTH) {
+      throw new Error(`Username must be between ${LIMITS.USERNAME_MIN_LENGTH} and ${LIMITS.USERNAME_MAX_LENGTH} characters`);
+    }
+
+    // Validate username format
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      throw new Error('Username can only contain letters, numbers, and underscores');
+    }
+
+    // Validate password length
+    if (password.length < LIMITS.PASSWORD_MIN_LENGTH) {
+      throw new Error(`Password must be at least ${LIMITS.PASSWORD_MIN_LENGTH} characters`);
     }
 
     // Check if user exists
@@ -24,8 +44,8 @@ export class AuthService {
       throw new Error('Username already taken');
     }
 
-    // Hash password
-    const passwordHash = await bcrypt.hash(password, 12);
+    // Hash password with bcrypt (12 rounds as per spec)
+    const passwordHash = await bcrypt.hash(password, LIMITS.BCRYPT_ROUNDS);
 
     // Create user
     const user = await this.userRepo.create({
@@ -36,10 +56,47 @@ export class AuthService {
 
     logger.info(`User registered: ${username}`);
 
+    // Auto-login after registration (FR-004)
+    const accessToken = this.generateAccessToken(user.id);
+    const refreshToken = this.generateRefreshToken(user.id);
+
+    // Create session
+    const sessionData: any = {
+      userId: user.id,
+      sessionToken: refreshToken,
+      expiresAt: new Date(Date.now() + LIMITS.SESSION_DURATION_DAYS * 24 * 60 * 60 * 1000),
+    };
+    
+    if (deviceInfo?.deviceId !== undefined) {
+      sessionData.deviceId = deviceInfo.deviceId;
+    }
+    if (deviceInfo?.deviceType !== undefined) {
+      sessionData.deviceType = deviceInfo.deviceType;
+    }
+    if (deviceInfo?.deviceName !== undefined) {
+      sessionData.deviceName = deviceInfo.deviceName;
+    }
+    if (deviceInfo?.ipAddress !== undefined) {
+      sessionData.ipAddress = deviceInfo.ipAddress;
+    }
+    if (deviceInfo?.userAgent !== undefined) {
+      sessionData.userAgent = deviceInfo.userAgent;
+    }
+    
+    await this.sessionService.createSession(sessionData);
+
+    // Update last seen
+    await this.userRepo.updateLastSeen(user.id);
+
     return {
-      id: user.id,
-      username: user.username,
-      displayName: user.displayName,
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id,
+        username: user.username,
+        displayName: user.displayName,
+        avatarUrl: user.avatarUrl,
+      },
     };
   }
 
