@@ -19,7 +19,7 @@ export const RegisterPage = () => {
     }
 
     try {
-      await register(username, password);
+      await register(username, password, confirmPassword);
       navigate('/');
     } catch (err) {
       setError('Registration failed. Username might already exist.');
