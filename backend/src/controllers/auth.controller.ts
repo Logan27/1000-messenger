@@ -12,9 +12,30 @@ export class AuthController {
         return res.status(400).json({ error: 'Username and password are required' });
       }
 
-      const user = await this.authService.register(username, password);
+      const deviceInfoRaw = {
+        deviceId: req.headers['x-device-id'] as string,
+        deviceType: req.headers['x-device-type'] as string,
+        deviceName: req.headers['x-device-name'] as string,
+        ipAddress: req.ip,
+        userAgent: req.headers['user-agent'],
+      };
       
-      return res.status(201).json({ user });
+      const deviceInfo: any = {
+        deviceId: deviceInfoRaw.deviceId,
+        deviceType: deviceInfoRaw.deviceType,
+        deviceName: deviceInfoRaw.deviceName,
+      };
+      
+      if (deviceInfoRaw.ipAddress !== undefined) {
+        deviceInfo.ipAddress = deviceInfoRaw.ipAddress;
+      }
+      if (deviceInfoRaw.userAgent !== undefined) {
+        deviceInfo.userAgent = deviceInfoRaw.userAgent;
+      }
+
+      const result = await this.authService.register(username, password, deviceInfo);
+      
+      return res.status(201).json(result);
     } catch (error) {
       return next(error);
     }
