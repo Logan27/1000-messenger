@@ -97,6 +97,53 @@ export class UserRepository {
     return result.rows.map(row => this.mapRow(row));
   }
 
+  async findAll(limit: number = 100, offset: number = 0): Promise<User[]> {
+    const query = `
+      SELECT id, username, display_name, avatar_url, status, last_seen, created_at, updated_at
+      FROM users
+      ORDER BY created_at DESC
+      LIMIT $1 OFFSET $2
+    `;
+
+    const result = await readPool.query(query, [limit, offset]);
+    return result.rows.map(row => this.mapRow(row));
+  }
+
+  async findByIds(userIds: string[]): Promise<User[]> {
+    if (userIds.length === 0) {
+      return [];
+    }
+
+    const query = `
+      SELECT * FROM users
+      WHERE id = ANY($1::uuid[])
+    `;
+
+    const result = await readPool.query(query, [userIds]);
+    return result.rows.map(row => this.mapRow(row));
+  }
+
+  async updatePassword(userId: string, newPasswordHash: string): Promise<void> {
+    const query = `
+      UPDATE users
+      SET password_hash = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+    `;
+
+    await pool.query(query, [newPasswordHash, userId]);
+  }
+
+  async delete(userId: string): Promise<void> {
+    const query = `DELETE FROM users WHERE id = $1`;
+    await pool.query(query, [userId]);
+  }
+
+  async count(): Promise<number> {
+    const query = `SELECT COUNT(*) as count FROM users`;
+    const result = await readPool.query(query);
+    return parseInt(result.rows[0].count, 10);
+  }
+
   private mapRow(row: any): User {
     return {
       id: row.id,

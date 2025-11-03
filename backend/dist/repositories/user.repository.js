@@ -73,6 +73,44 @@ class UserRepository {
         const result = await database_1.readPool.query(sql, [`%${query}%`, limit]);
         return result.rows.map(row => this.mapRow(row));
     }
+    async findAll(limit = 100, offset = 0) {
+        const query = `
+      SELECT id, username, display_name, avatar_url, status, last_seen, created_at, updated_at
+      FROM users
+      ORDER BY created_at DESC
+      LIMIT $1 OFFSET $2
+    `;
+        const result = await database_1.readPool.query(query, [limit, offset]);
+        return result.rows.map(row => this.mapRow(row));
+    }
+    async findByIds(userIds) {
+        if (userIds.length === 0) {
+            return [];
+        }
+        const query = `
+      SELECT * FROM users
+      WHERE id = ANY($1::uuid[])
+    `;
+        const result = await database_1.readPool.query(query, [userIds]);
+        return result.rows.map(row => this.mapRow(row));
+    }
+    async updatePassword(userId, newPasswordHash) {
+        const query = `
+      UPDATE users
+      SET password_hash = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+    `;
+        await database_1.pool.query(query, [newPasswordHash, userId]);
+    }
+    async delete(userId) {
+        const query = `DELETE FROM users WHERE id = $1`;
+        await database_1.pool.query(query, [userId]);
+    }
+    async count() {
+        const query = `SELECT COUNT(*) as count FROM users`;
+        const result = await database_1.readPool.query(query);
+        return parseInt(result.rows[0].count, 10);
+    }
     mapRow(row) {
         return {
             id: row.id,
