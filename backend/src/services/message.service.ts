@@ -70,10 +70,8 @@ export class MessageService {
     });
 
     // Try immediate WebSocket delivery
-    this.socketManager.broadcastToChat(dto.chatId, 'message.new', {
-      ...message,
-      sender: await this.getUserInfo(dto.senderId),
-    });
+    // Note: Sender info should be included by the client or fetched separately
+    this.socketManager.broadcastToChat(dto.chatId, 'message.new', message);
 
     logger.info(`Message sent: ${message.id} in chat ${dto.chatId}`);
 
@@ -225,10 +223,5 @@ export class MessageService {
       reactionId,
       messageId: reaction.messageId,
     });
-  }
-
-  private async getUserInfo(userId: string) {
-    // Simplified - would normally use UserRepository
-    return { id: userId, username: 'User' };
   }
 }

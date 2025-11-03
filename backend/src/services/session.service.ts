@@ -180,14 +180,19 @@ export class SessionService {
       const sessionIds = await cacheHelpers.smembers(this.getUserSessionsKey(userId));
       
       if (sessionIds.length > 0) {
-        const sessions: Session[] = [];
-        
+        // Batch fetch all sessions using pipeline for better performance
+        const pipeline = [];
         for (const sessionId of sessionIds) {
-          const session = await this.getCachedSessionById(sessionId);
-          if (session && session.isActive && new Date(session.expiresAt) > new Date()) {
-            sessions.push(session);
-          }
+          pipeline.push(this.getCachedSessionById(sessionId));
         }
+        
+        const sessionResults = await Promise.all(pipeline);
+        const sessions = sessionResults.filter(
+          (session): session is Session => 
+            session !== null && 
+            session.isActive && 
+            new Date(session.expiresAt) > new Date()
+        );
         
         if (sessions.length > 0) {
           // Sort by last activity

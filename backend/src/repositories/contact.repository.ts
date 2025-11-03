@@ -88,6 +88,16 @@ export class ContactRepository {
     await pool.query(query, [contactId]);
   }
 
+  async getUserContactIds(userId: string): Promise<string[]> {
+    const query = `
+      SELECT contact_id FROM contacts
+      WHERE user_id = $1 AND status = 'accepted'
+    `;
+
+    const result = await readPool.query(query, [userId]);
+    return result.rows.map(row => row.contact_id);
+  }
+
   private mapRow(row: any): Contact {
     return {
       id: row.id,

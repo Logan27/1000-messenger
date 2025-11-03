@@ -210,12 +210,30 @@ export const cacheHelpers = {
 
   /**
    * Delete multiple keys matching a pattern
+   * Uses SCAN instead of KEYS to avoid blocking Redis in production
    */
   async delPattern(pattern: string): Promise<void> {
     try {
-      const keys = await redisClient.keys(pattern);
-      if (keys.length > 0) {
-        await redisClient.del(keys);
+      let cursor = 0;
+      const keysToDelete: string[] = [];
+      
+      do {
+        const result = await redisClient.scan(cursor, {
+          MATCH: pattern,
+          COUNT: 100,
+        });
+        
+        cursor = result.cursor;
+        keysToDelete.push(...result.keys);
+      } while (cursor !== 0);
+      
+      if (keysToDelete.length > 0) {
+        // Delete in batches to avoid command size limits
+        const batchSize = 1000;
+        for (let i = 0; i < keysToDelete.length; i += batchSize) {
+          const batch = keysToDelete.slice(i, i + batchSize);
+          await redisClient.del(batch);
+        }
       }
     } catch (error) {
       logger.error(`Cache delete pattern error for ${pattern}`, error);

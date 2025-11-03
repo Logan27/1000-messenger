@@ -24,6 +24,8 @@ export class SocketManager {
   private socketAuthMiddleware: SocketAuthMiddleware;
   private initialized = false;
 
+  private contactRepo?: any;
+
   constructor(
     httpServer: HttpServer,
     private authService: AuthService,
@@ -59,7 +61,7 @@ export class SocketManager {
    * Initialize message-related handlers after MessageService is created
    * This resolves circular dependency between SocketManager and MessageService
    */
-  public initializeMessageHandlers(messageService: MessageService): void {
+  public initializeMessageHandlers(messageService: MessageService, contactRepo?: any): void {
     if (this.initialized) {
       logger.warn('Message handlers already initialized');
       return;
@@ -67,6 +69,7 @@ export class SocketManager {
 
     this.messageHandler = new MessageHandler(messageService);
     this.readReceiptHandler = new ReadReceiptHandler(messageService);
+    this.contactRepo = contactRepo;
     this.initialized = true;
 
     logger.info('Message handlers initialized successfully');
@@ -186,13 +189,37 @@ export class SocketManager {
     this.io.to(`user:${userId}`).emit(event, data);
   }
 
-  public broadcastUserStatus(userId: string, status: string) {
-    // Broadcast to all contacts
-    this.io.emit('user.status', {
-      userId,
-      status,
-      timestamp: new Date(),
-    });
+  public async broadcastUserStatus(userId: string, status: string) {
+    // Broadcast only to user's contacts for better performance
+    if (this.contactRepo) {
+      try {
+        const contactIds = await this.contactRepo.getUserContactIds(userId);
+        
+        // Send to each contact's room
+        for (const contactId of contactIds) {
+          this.sendToUser(contactId, 'user.status', {
+            userId,
+            status,
+            timestamp: new Date(),
+          });
+        }
+      } catch (error) {
+        logger.error('Error broadcasting user status to contacts', { error, userId });
+        // Fallback to broadcast to all
+        this.io.emit('user.status', {
+          userId,
+          status,
+          timestamp: new Date(),
+        });
+      }
+    } else {
+      // Fallback if contactRepo not initialized
+      this.io.emit('user.status', {
+        userId,
+        status,
+        timestamp: new Date(),
+      });
+    }
   }
 
   public async addUserToChat(userId: string, chatId: string) {
