@@ -1,1 +1,2 @@
-export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from './Button';
+export { Avatar } from './Avatar';
+export type { AvatarProps } from './Avatar';
