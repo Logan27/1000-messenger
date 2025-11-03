@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { createApp } from '../../src/app';
 import { PrismaClient } from '@prisma/client';
-import { redisClient } from '../../src/config/redis';
+import { connectTestRedis, closeTestRedis } from '../helpers/test-setup';
 
 /**
  * Integration tests for authentication endpoints
@@ -32,7 +32,7 @@ describe('Authentication Endpoints', () => {
     
     // Ensure connections are established
     await prisma.$connect();
-    await redisClient.ping();
+    await connectTestRedis();
   });
 
   afterAll(async () => {
@@ -51,7 +51,7 @@ describe('Authentication Endpoints', () => {
 
     // Close connections
     await prisma.$disconnect();
-    await redisClient.quit();
+    await closeTestRedis();
   });
 
   describe('POST /api/auth/register', () => {

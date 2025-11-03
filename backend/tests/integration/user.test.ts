@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { createApp } from '../../src/app';
 import { PrismaClient } from '@prisma/client';
-import { redisClient } from '../../src/config/redis';
+import { connectTestRedis, closeTestRedis } from '../helpers/test-setup';
 
 /**
  * Integration tests for user endpoints
@@ -38,7 +38,7 @@ describe('User Endpoints', () => {
     prisma = new PrismaClient();
     
     await prisma.$connect();
-    await redisClient.ping();
+    await connectTestRedis();
 
     // Register test user
     const registerResponse = await request(app)
@@ -80,7 +80,7 @@ describe('User Endpoints', () => {
     }
 
     await prisma.$disconnect();
-    await redisClient.quit();
+    await closeTestRedis();
   });
 
   describe('GET /api/users/me', () => {

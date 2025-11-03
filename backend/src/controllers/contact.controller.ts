@@ -26,13 +26,14 @@ export class ContactController {
     }
   };
 
-  sendRequest = async (req: Request, res: Response, next: NextFunction) => {
+  sendRequest = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = req.user!.userId;
       const { contactId } = req.body;
 
       if (!contactId) {
-        return res.status(400).json({ error: 'Contact ID is required' });
+        res.status(400).json({ error: 'Contact ID is required' });
+        return;
       }
 
       const request = await this.contactService.sendRequest(userId, contactId);
@@ -48,7 +49,7 @@ export class ContactController {
       const userId = req.user!.userId;
       const { requestId } = req.params;
 
-      await this.contactService.acceptRequest(userId, requestId);
+      await this.contactService.acceptRequest(userId, requestId!);
 
       res.json({ message: 'Contact request accepted' });
     } catch (error) {
@@ -61,7 +62,7 @@ export class ContactController {
       const userId = req.user!.userId;
       const { requestId } = req.params;
 
-      await this.contactService.rejectRequest(userId, requestId);
+      await this.contactService.rejectRequest(userId, requestId!);
 
       res.json({ message: 'Contact request rejected' });
     } catch (error) {
@@ -74,7 +75,7 @@ export class ContactController {
       const userId = req.user!.userId;
       const { contactId } = req.params;
 
-      await this.contactService.removeContact(userId, contactId);
+      await this.contactService.removeContact(userId, contactId!);
 
       res.json({ message: 'Contact removed successfully' });
     } catch (error) {
@@ -82,13 +83,14 @@ export class ContactController {
     }
   };
 
-  blockContact = async (req: Request, res: Response, next: NextFunction) => {
+  blockContact = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = req.user!.userId;
       const { contactId } = req.body;
 
       if (!contactId) {
-        return res.status(400).json({ error: 'Contact ID is required' });
+        res.status(400).json({ error: 'Contact ID is required' });
+        return;
       }
 
       await this.contactService.blockContact(userId, contactId);
@@ -104,7 +106,7 @@ export class ContactController {
       const userId = req.user!.userId;
       const { contactId } = req.params;
 
-      await this.contactService.unblockContact(userId, contactId);
+      await this.contactService.unblockContact(userId, contactId!);
 
       res.json({ message: 'Contact unblocked successfully' });
     } catch (error) {

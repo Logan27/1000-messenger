@@ -22,13 +22,23 @@ import { logger, logSecurity } from '../utils/logger.util';
  * Create a Redis store for rate limiting
  * @param prefix - Key prefix for this rate limiter
  */
-function createRedisStore(prefix: string): RedisStore {
-  return new RedisStore({
-    // Use the sendCommand method from the redis client
-    sendCommand: (...args: string[]) => redisClient.sendCommand(args),
-    // Prefix all keys with the rate limit namespace
-    prefix: `${REDIS_CONFIG.KEYS.RATE_LIMIT}${prefix}:`,
-  });
+function createRedisStore(prefix: string): RedisStore | undefined {
+  try {
+    // Check if Redis is connected
+    if (!redisClient.isOpen) {
+      logger.warn(`Redis not connected, rate limiting will use memory store for ${prefix}`);
+      return undefined;
+    }
+    return new RedisStore({
+      // Use the sendCommand method from the redis client
+      sendCommand: (...args: string[]) => redisClient.sendCommand(args),
+      // Prefix all keys with the rate limit namespace
+      prefix: `${REDIS_CONFIG.KEYS.RATE_LIMIT}${prefix}:`,
+    });
+  } catch (error) {
+    logger.error(`Failed to create Redis store for rate limiting (${prefix}):`, error);
+    return undefined;
+  }
 }
 
 /**
@@ -46,13 +56,14 @@ function onLimitReached(req: any, _res: any, _options: any): void {
 }
 
 // General API rate limiting
+const apiRedisStore = createRedisStore('api');
 export const apiRateLimit = rateLimit({
   windowMs: LIMITS.API_RATE_WINDOW_MS, // 1 minute
   max: LIMITS.API_RATE_MAX_REQUESTS, // 100 requests per minute
   message: 'Too many requests from this IP, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
-  store: createRedisStore('api'),
+  ...(apiRedisStore ? { store: apiRedisStore } : {}),
   keyGenerator: req => req.ip || 'unknown',
   handler: (req, res, _next, options) => {
     onLimitReached(req, res, options);
@@ -65,6 +76,7 @@ export const apiRateLimit = rateLimit({
 });
 
 // Authentication rate limiting (stricter, per-IP)
+const authRedisStore = createRedisStore('auth');
 export const authRateLimit = rateLimit({
   windowMs: LIMITS.LOGIN_ATTEMPTS_WINDOW_MS, // 15 minutes
   max: LIMITS.LOGIN_MAX_ATTEMPTS, // 5 attempts
@@ -72,7 +84,7 @@ export const authRateLimit = rateLimit({
   skipSuccessfulRequests: true,
   standardHeaders: true,
   legacyHeaders: false,
-  store: createRedisStore('auth'),
+  ...(authRedisStore ? { store: authRedisStore } : {}),
   keyGenerator: req => req.ip || 'unknown',
   handler: (req, res, _next, options) => {
     onLimitReached(req, res, options);
@@ -89,13 +101,14 @@ export const authRateLimit = rateLimit({
 });
 
 // Message sending rate limiting (per-user)
+const messageRedisStore = createRedisStore('message');
 export const messageRateLimit = rateLimit({
   windowMs: 1000, // 1 second
   max: LIMITS.MESSAGES_PER_SECOND_PER_USER, // 10 messages per second
   message: 'Too many messages, please slow down',
   standardHeaders: true,
   legacyHeaders: false,
-  store: createRedisStore('message'),
+  ...(messageRedisStore ? { store: messageRedisStore } : {}),
   keyGenerator: req => req.user?.userId || req.ip || 'unknown',
   handler: (req, res, _next, options) => {
     onLimitReached(req, res, options);
@@ -108,13 +121,14 @@ export const messageRateLimit = rateLimit({
 });
 
 // File upload rate limiting (per-user)
+const uploadRedisStore = createRedisStore('upload');
 export const uploadRateLimit = rateLimit({
   windowMs: LIMITS.UPLOAD_RATE_WINDOW_MS, // 1 minute
   max: LIMITS.UPLOAD_MAX_REQUESTS, // 10 uploads per minute
   message: 'Too many file uploads, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
-  store: createRedisStore('upload'),
+  ...(uploadRedisStore ? { store: uploadRedisStore } : {}),
   keyGenerator: req => req.user?.userId || req.ip || 'unknown',
   handler: (req, res, _next, options) => {
     onLimitReached(req, res, options);
@@ -127,13 +141,14 @@ export const uploadRateLimit = rateLimit({
 });
 
 // Search rate limiting (per-user)
+const searchRedisStore = createRedisStore('search');
 export const searchRateLimit = rateLimit({
   windowMs: LIMITS.SEARCH_RATE_WINDOW_MS, // 1 minute
   max: LIMITS.SEARCH_MAX_REQUESTS, // 30 searches per minute
   message: 'Too many search requests, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
-  store: createRedisStore('search'),
+  ...(searchRedisStore ? { store: searchRedisStore } : {}),
   keyGenerator: req => req.user?.userId || req.ip || 'unknown',
   handler: (req, res, _next, options) => {
     onLimitReached(req, res, options);
@@ -146,13 +161,14 @@ export const searchRateLimit = rateLimit({
 });
 
 // Contact request rate limiting (per-user, daily limit)
+const contactRedisStore = createRedisStore('contact');
 export const contactRequestRateLimit = rateLimit({
   windowMs: 24 * 60 * 60 * 1000, // 24 hours
   max: LIMITS.CONTACT_REQUESTS_PER_DAY, // 50 per day
   message: 'Too many contact requests sent today, please try again tomorrow',
   standardHeaders: true,
   legacyHeaders: false,
-  store: createRedisStore('contact'),
+  ...(contactRedisStore ? { store: contactRedisStore } : {}),
   keyGenerator: req => req.user?.userId || req.ip || 'unknown',
   handler: (req, res, _next, options) => {
     onLimitReached(req, res, options);

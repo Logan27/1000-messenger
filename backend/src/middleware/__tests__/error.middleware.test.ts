@@ -310,9 +310,8 @@ describe('Error Middleware', () => {
     });
 
     test('should catch sync errors and pass to next', async () => {
-      const error = new Error('Sync error');
       const mockHandler = jest.fn().mockImplementation(() => {
-        throw error;
+        throw new Error('Sync error');
       });
       const wrapped = asyncHandler(mockHandler);
 
@@ -322,7 +321,9 @@ describe('Error Middleware', () => {
         mockNext
       );
 
-      expect(mockNext).toHaveBeenCalledWith(error);
+      expect(mockNext).toHaveBeenCalled();
+      expect(mockNext.mock.calls[0]?.[0]).toBeInstanceOf(Error);
+      expect(mockNext.mock.calls[0]?.[0]?.message).toBe('Sync error');
     });
   });
 });

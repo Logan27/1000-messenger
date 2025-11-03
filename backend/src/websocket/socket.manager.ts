@@ -44,10 +44,10 @@ export class SocketManager {
     });
 
     // Initialize authentication middleware
-    this.socketAuthMiddleware = new SocketAuthMiddleware(authService, sessionService);
+    this.socketAuthMiddleware = new SocketAuthMiddleware(this.authService, this.sessionService);
 
     // Initialize handlers that don't depend on MessageService
-    this.presenceHandler = new PresenceHandler(userRepo);
+    this.presenceHandler = new PresenceHandler(this.userRepo);
     this.typingHandler = new TypingHandler();
 
     this.setupRedisAdapter();

@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { createApp } from '../../src/app';
-import { redisClient } from '../../src/config/redis';
+import { connectTestRedis, closeTestRedis, cleanupRateLimitKeys } from '../helpers/test-setup';
 
 /**
  * Integration test for authentication rate limiting
@@ -22,26 +22,20 @@ describe('Authentication Rate Limiting', () => {
     app = await createApp();
     
     // Ensure Redis is connected
-    await redisClient.ping();
+    await connectTestRedis();
   });
 
   afterAll(async () => {
     // Cleanup: flush rate limit keys
-    const keys = await redisClient.keys('rate-limit:auth:*');
-    if (keys.length > 0) {
-      await redisClient.del(keys);
-    }
+    await cleanupRateLimitKeys();
     
     // Close Redis connection
-    await redisClient.quit();
+    await closeTestRedis();
   });
 
   beforeEach(async () => {
     // Clear rate limit keys before each test
-    const keys = await redisClient.keys('rate-limit:auth:*');
-    if (keys.length > 0) {
-      await redisClient.del(keys);
-    }
+    await cleanupRateLimitKeys();
   });
 
   describe('POST /auth/login - Rate Limiting', () => {
