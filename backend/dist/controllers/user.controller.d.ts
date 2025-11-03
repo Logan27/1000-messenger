@@ -5,7 +5,7 @@ export declare class UserController {
     constructor(userService: UserService);
     getProfile: (req: Request, res: Response, next: NextFunction) => Promise<void>;
     updateProfile: (req: Request, res: Response, next: NextFunction) => Promise<void>;
-    searchUsers: (req: Request, res: Response, next: NextFunction) => Promise<Response<any, Record<string, any>> | undefined>;
+    searchUsers: (req: Request, res: Response, next: NextFunction) => Promise<void>;
     getUserById: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 }
 //# sourceMappingURL=user.controller.d.ts.map

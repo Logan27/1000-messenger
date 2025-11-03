@@ -32,7 +32,8 @@ class UserController {
             const { q } = req.query;
             const limit = parseInt(req.query['limit']) || 20;
             if (!q || typeof q !== 'string') {
-                return res.status(400).json({ error: 'Search query is required' });
+                res.status(400).json({ error: 'Search query is required' });
+                return;
             }
             const users = await this.userService.searchUsers(q, limit);
             res.json({ users });
@@ -44,7 +45,8 @@ class UserController {
     getUserById = async (req, res, next) => {
         try {
             const { userId } = req.params;
-            const user = await this.userService.getUserById(userId);
+            const viewerId = req.user.userId;
+            const user = await this.userService.getUserById(userId, viewerId);
             res.json({ user });
         }
         catch (error) {
