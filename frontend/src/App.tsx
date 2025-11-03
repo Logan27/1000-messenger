@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { useWebSocket } from './hooks/useWebSocket';
@@ -6,7 +7,12 @@ import { RegisterPage } from './components/auth/RegisterPage';
 import { ChatLayout } from './components/chat/ChatLayout';
 
 function App() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, initialize } = useAuthStore();
+
+  // Initialize auth state from localStorage on mount
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   // Initialize WebSocket connection
   useWebSocket();
