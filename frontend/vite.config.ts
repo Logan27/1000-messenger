@@ -16,10 +16,19 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunk for react and react-dom
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          // Separate chunk for socket.io client
+          'socket-vendor': ['socket.io-client'],
+          // Separate chunk for state management
+          'state-vendor': ['zustand'],
+        },
+      },
     },
+    // Increase chunk size warning limit for better performance
+    chunkSizeWarningLimit: 1000,
   },
 });

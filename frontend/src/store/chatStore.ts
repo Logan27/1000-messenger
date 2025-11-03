@@ -4,7 +4,7 @@ import { devtools, persist } from 'zustand/middleware';
 interface Participant {
   id: string;
   username: string;
-  displayName?: string;
+  displayName: string;
   avatarUrl?: string;
 }
 
@@ -34,13 +34,6 @@ interface Reaction {
   messageId: string;
   userId: string;
   emoji: string;
-}
-
-interface Participant {
-  id: string;
-  username: string;
-  displayName: string;
-  avatarUrl?: string;
 }
 
 interface Chat {
@@ -239,6 +232,8 @@ export const useChatStore = create<ChatState>()(
         partialize: state => ({
           chats: state.chats,
           activeChat: state.activeChat,
+          // Don't persist messages to avoid unbounded memory growth
+          // Messages will be fetched from the server on demand
         }),
       }
     )

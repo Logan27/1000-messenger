@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, memo } from 'react';
 import { Message } from './Message';
 
 interface MessageMetadata {
@@ -24,7 +24,7 @@ interface MessageListProps {
   messageId?: string;
 }
 
-export const MessageList: React.FC<MessageListProps> = ({ messages, messageId }) => {
+const MessageListComponent: React.FC<MessageListProps> = ({ messages, messageId }) => {
   const highlightedMessageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,3 +51,13 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, messageId })
     </div>
   );
 };
+
+// Memoize the component to prevent unnecessary re-renders
+// Only re-render if messages or messageId change
+export const MessageList = memo(MessageListComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.messages.length === nextProps.messages.length &&
+    prevProps.messageId === nextProps.messageId &&
+    prevProps.messages.every((msg, idx) => msg.id === nextProps.messages[idx]?.id)
+  );
+});

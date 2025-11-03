@@ -115,7 +115,7 @@ class ApiService {
   constructor() {
     this.api = axios.create({
       baseURL: config.API_URL,
-      timeout: 30000,
+      timeout: 15000, // Reduced from 30s to 15s for faster failure detection
       headers: {
         'Content-Type': 'application/json',
       },
