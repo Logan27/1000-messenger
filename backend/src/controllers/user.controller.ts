@@ -4,7 +4,7 @@ import { UserService } from '../services/user.service';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  getProfile = async (req: Request, res: Response, next: NextFunction) => {
+  getProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = req.user!.userId;
       const user = await this.userService.getProfile(userId);
@@ -15,7 +15,7 @@ export class UserController {
     }
   };
 
-  updateProfile = async (req: Request, res: Response, next: NextFunction) => {
+  updateProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = req.user!.userId;
       const { displayName, avatarUrl } = req.body;
@@ -28,13 +28,14 @@ export class UserController {
     }
   };
 
-  searchUsers = async (req: Request, res: Response, next: NextFunction) => {
+  searchUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { q } = req.query;
       const limit = parseInt(req.query['limit'] as string) || 20;
 
       if (!q || typeof q !== 'string') {
-        return res.status(400).json({ error: 'Search query is required' });
+        res.status(400).json({ error: 'Search query is required' });
+        return;
       }
 
       const users = await this.userService.searchUsers(q, limit);
@@ -45,10 +46,11 @@ export class UserController {
     }
   };
 
-  getUserById = async (req: Request, res: Response, next: NextFunction) => {
+  getUserById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { userId } = req.params;
-      const user = await this.userService.getUserById(userId);
+      const viewerId = req.user!.userId;
+      const user = await this.userService.getUserById(userId!, viewerId);
 
       res.json({ user });
     } catch (error) {
