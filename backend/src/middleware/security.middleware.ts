@@ -87,31 +87,17 @@ export const apiRateLimit = rateLimit({
 /**
  * Authentication Rate Limiting Middleware
  *
- * Stricter rate limiter specifically for login/authentication endpoints to prevent
- * brute force attacks and credential stuffing.
+ * Note: The production auth rate limiter is implemented in rate-limit.middleware.ts
+ * using Redis for distributed rate limiting across multiple server instances.
  *
- * Limits:
- * - 5 login attempts per 15 minutes per username
- * - Successful requests don't count against the limit
+ * For authentication endpoints, use the Redis-backed authRateLimit from
+ * middleware/rate-limit.middleware.ts instead of this simple in-memory version.
  *
- * Responses:
- * - Returns 429 Too Many Requests when limit is exceeded
- * - 15-minute lockout after 5 failed attempts
- *
- * Usage:
- * ```typescript
- * router.post('/login', authRateLimit, loginController);
- * ```
- *
+ * @see middleware/rate-limit.middleware.ts for Redis-backed rate limiting
  * @see FR-006: System MUST implement rate limiting for login attempts (5 per 15 minutes)
  * @see FR-181: System MUST rate limit login attempts (5 per 15 minutes)
+ * @deprecated Use authRateLimit from rate-limit.middleware.ts for production
  */
-export const authRateLimit = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 attempts
-  message: 'Too many login attempts, please try again later',
-  skipSuccessfulRequests: true,
-});
 
 /**
  * Message Rate Limiting Middleware
