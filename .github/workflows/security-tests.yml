@@ -1,0 +1,119 @@
+name: Security Tests
+
+on:
+  push:
+    branches: [ main, develop, security-testing-app ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run security tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  security-tests:
+    name: Run Security Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: Run security tests
+        working-directory: ./backend
+        run: npm run test:security
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test-jwt-secret-key-min-32-characters-long
+          JWT_REFRESH_SECRET: test-jwt-refresh-secret-min-32-chars
+
+      - name: Generate security coverage report
+        working-directory: ./backend
+        run: npm run test:security:coverage
+        continue-on-error: true
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./backend/coverage/lcov.info
+          flags: security-tests
+          name: security-coverage
+        continue-on-error: true
+
+      - name: Security test results summary
+        if: always()
+        run: |
+          echo "## Security Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Security tests completed. Check logs for details." >> $GITHUB_STEP_SUMMARY
+
+  dependency-scan:
+    name: Dependency Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Run npm audit (backend)
+        working-directory: ./backend
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Run npm audit (frontend)
+        working-directory: ./frontend
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Dependency scan summary
+        if: always()
+        run: |
+          echo "## Dependency Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Dependency scanning completed." >> $GITHUB_STEP_SUMMARY
