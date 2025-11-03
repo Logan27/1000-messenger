@@ -1,11 +1,41 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
-const bcrypt_1 = __importDefault(require("bcrypt"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const bcrypt = __importStar(require("bcrypt"));
+const jwt = __importStar(require("jsonwebtoken"));
 const env_1 = require("../config/env");
 const constants_1 = require("../config/constants");
 const logger_util_1 = require("../utils/logger.util");
@@ -30,7 +60,7 @@ class AuthService {
         if (existingUser) {
             throw new Error('Username already taken');
         }
-        const passwordHash = await bcrypt_1.default.hash(password, constants_1.LIMITS.BCRYPT_ROUNDS);
+        const passwordHash = await bcrypt.hash(password, constants_1.LIMITS.BCRYPT_ROUNDS);
         const user = await this.userRepo.create({
             username,
             passwordHash,
@@ -77,7 +107,7 @@ class AuthService {
         if (!user) {
             throw new Error('Invalid credentials');
         }
-        const isValid = await bcrypt_1.default.compare(password, user.passwordHash);
+        const isValid = await bcrypt.compare(password, user.passwordHash);
         if (!isValid) {
             throw new Error('Invalid credentials');
         }
@@ -119,7 +149,7 @@ class AuthService {
     }
     async refreshAccessToken(refreshToken) {
         try {
-            const payload = jsonwebtoken_1.default.verify(refreshToken, env_1.config.JWT_REFRESH_SECRET);
+            const payload = jwt.verify(refreshToken, env_1.config.JWT_REFRESH_SECRET);
             const session = await this.sessionService.findByToken(refreshToken);
             if (!session || !session.isActive || new Date(session.expiresAt) < new Date()) {
                 throw new Error('Invalid session');
@@ -141,14 +171,14 @@ class AuthService {
         logger_util_1.logger.info(`User logged out: ${userId}`);
     }
     generateAccessToken(userId) {
-        return jsonwebtoken_1.default.sign({ userId, type: 'access' }, env_1.config.JWT_SECRET, { expiresIn: env_1.JWT_CONFIG.ACCESS_TOKEN_EXPIRY });
+        return jwt.sign({ userId, type: 'access' }, env_1.config.JWT_SECRET, { expiresIn: env_1.JWT_CONFIG.ACCESS_TOKEN_EXPIRY });
     }
     generateRefreshToken(userId) {
-        return jsonwebtoken_1.default.sign({ userId, type: 'refresh' }, env_1.config.JWT_REFRESH_SECRET, { expiresIn: env_1.JWT_CONFIG.REFRESH_TOKEN_EXPIRY });
+        return jwt.sign({ userId, type: 'refresh' }, env_1.config.JWT_REFRESH_SECRET, { expiresIn: env_1.JWT_CONFIG.REFRESH_TOKEN_EXPIRY });
     }
     async verifyAccessToken(token) {
         try {
-            const payload = jsonwebtoken_1.default.verify(token, env_1.config.JWT_SECRET);
+            const payload = jwt.verify(token, env_1.config.JWT_SECRET);
             return payload;
         }
         catch (error) {
