@@ -46,7 +46,7 @@ class AuthService {
         this.userRepo = userRepo;
         this.sessionService = sessionService;
     }
-    async register(username, password, deviceInfo) {
+    async register(username, password, deviceInfo, displayName) {
         if (username.length < constants_1.LIMITS.USERNAME_MIN_LENGTH || username.length > constants_1.LIMITS.USERNAME_MAX_LENGTH) {
             throw new Error(`Username must be between ${constants_1.LIMITS.USERNAME_MIN_LENGTH} and ${constants_1.LIMITS.USERNAME_MAX_LENGTH} characters`);
         }
@@ -64,7 +64,7 @@ class AuthService {
         const user = await this.userRepo.create({
             username,
             passwordHash,
-            displayName: username,
+            displayName: displayName || username,
         });
         logger_util_1.logger.info(`User registered: ${username}`);
         const accessToken = this.generateAccessToken(user.id);

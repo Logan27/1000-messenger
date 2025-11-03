@@ -31,6 +31,22 @@ class UserController {
             next(error);
         }
     };
+    updateAvatar = async (req, res, next) => {
+        try {
+            const userId = req.user.userId;
+            const file = req.file;
+            if (!file) {
+                res.status(400).json({ error: 'No file uploaded' });
+                return;
+            }
+            const avatarUrl = await this.userService.uploadAvatar(userId, file);
+            const updatedUser = await this.userService.getProfile(userId);
+            res.json({ user: updatedUser, avatarUrl });
+        }
+        catch (error) {
+            next(error);
+        }
+    };
     searchUsers = async (req, res, next) => {
         try {
             const { q } = req.query;
@@ -48,7 +64,7 @@ class UserController {
     };
     getUserById = async (req, res, next) => {
         try {
-            const { userId } = req.params;
+            const userId = req.params.id || req.params.userId;
             const viewerId = req.user.userId;
             const user = await this.userService.getUserById(userId, viewerId);
             res.json({ user });

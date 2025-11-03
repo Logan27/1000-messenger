@@ -8,17 +8,30 @@ export declare const displayNameSchema: z.ZodOptional<z.ZodString>;
 export declare const avatarUrlSchema: z.ZodOptional<z.ZodString>;
 export declare const userStatusSchema: z.ZodEnum<["online", "offline", "away"]>;
 export declare const timestampSchema: z.ZodUnion<[z.ZodString, z.ZodDate]>;
-export declare const userRegistrationSchema: z.ZodObject<{
+export declare const userRegistrationSchema: z.ZodEffects<z.ZodObject<{
     username: z.ZodString;
     password: z.ZodString;
+    passwordConfirm: z.ZodString;
     displayName: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     password: string;
     username: string;
+    passwordConfirm: string;
     displayName?: string | undefined;
 }, {
     password: string;
     username: string;
+    passwordConfirm: string;
+    displayName?: string | undefined;
+}>, {
+    password: string;
+    username: string;
+    passwordConfirm: string;
+    displayName?: string | undefined;
+}, {
+    password: string;
+    username: string;
+    passwordConfirm: string;
     displayName?: string | undefined;
 }>;
 export declare const userLoginSchema: z.ZodObject<{

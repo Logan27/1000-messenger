@@ -19,6 +19,7 @@ export declare class UserService {
     private userRepo;
     private contactRepo;
     private chatRepo;
+    private storageService;
     constructor(userRepo: UserRepository, contactRepo: ContactRepository, chatRepo: ChatRepository);
     getProfile(userId: string): Promise<UserProfileDto>;
     updateProfile(userId: string, data: UpdateProfileDto): Promise<UserProfileDto>;
@@ -26,6 +27,7 @@ export declare class UserService {
     getUserById(userId: string, viewerId?: string): Promise<UserProfileDto>;
     updateStatus(userId: string, status: string): Promise<void>;
     updateLastSeen(userId: string): Promise<void>;
+    uploadAvatar(userId: string, file: Express.Multer.File): Promise<string>;
     canViewUserProfile(userId: string, viewerId: string): Promise<boolean>;
     private sanitizeUser;
 }

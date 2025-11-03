@@ -1,14 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
+const storage_service_1 = require("./storage.service");
 class UserService {
     userRepo;
     contactRepo;
     chatRepo;
+    storageService;
     constructor(userRepo, contactRepo, chatRepo) {
         this.userRepo = userRepo;
         this.contactRepo = contactRepo;
         this.chatRepo = chatRepo;
+        this.storageService = new storage_service_1.StorageService();
     }
     async getProfile(userId) {
         const user = await this.userRepo.findById(userId);
@@ -47,6 +50,11 @@ class UserService {
     }
     async updateLastSeen(userId) {
         await this.userRepo.updateLastSeen(userId);
+    }
+    async uploadAvatar(userId, file) {
+        const uploadResult = await this.storageService.uploadImage(file, userId);
+        await this.userRepo.update(userId, { avatarUrl: uploadResult.thumbnailUrl });
+        return uploadResult.thumbnailUrl;
     }
     async canViewUserProfile(userId, viewerId) {
         if (userId === viewerId) {

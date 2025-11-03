@@ -1,16 +1,29 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-export declare const registerSchema: z.ZodObject<{
+export declare const registerSchema: z.ZodEffects<z.ZodObject<{
     username: z.ZodString;
     password: z.ZodString;
+    passwordConfirm: z.ZodString;
     displayName: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     password: string;
     username: string;
+    passwordConfirm: string;
     displayName?: string | undefined;
 }, {
     password: string;
     username: string;
+    passwordConfirm: string;
+    displayName?: string | undefined;
+}>, {
+    password: string;
+    username: string;
+    passwordConfirm: string;
+    displayName?: string | undefined;
+}, {
+    password: string;
+    username: string;
+    passwordConfirm: string;
     displayName?: string | undefined;
 }>;
 export declare const loginSchema: z.ZodObject<{
