@@ -135,6 +135,7 @@ describe('Validators Utility', () => {
         const validData = {
           username: 'testuser',
           password: 'password123',
+          passwordConfirm: 'password123',
           displayName: 'Test User',
         };
         const result = userRegistrationSchema.safeParse(validData);
@@ -145,6 +146,7 @@ describe('Validators Utility', () => {
         const validData = {
           username: 'testuser',
           password: 'password123',
+          passwordConfirm: 'password123',
         };
         const result = userRegistrationSchema.safeParse(validData);
         expect(result.success).toBe(true);
@@ -154,6 +156,7 @@ describe('Validators Utility', () => {
         const invalidData = {
           username: 'ab',
           password: 'password123',
+          passwordConfirm: 'password123',
         };
         const result = userRegistrationSchema.safeParse(invalidData);
         expect(result.success).toBe(false);
@@ -163,9 +166,23 @@ describe('Validators Utility', () => {
         const invalidData = {
           username: 'testuser',
           password: '1234567',
+          passwordConfirm: '1234567',
         };
         const result = userRegistrationSchema.safeParse(invalidData);
         expect(result.success).toBe(false);
+      });
+
+      it('should reject non-matching passwords', () => {
+        const invalidData = {
+          username: 'testuser',
+          password: 'password123',
+          passwordConfirm: 'different123',
+        };
+        const result = userRegistrationSchema.safeParse(invalidData);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.errors.some(e => e.message === 'Passwords do not match')).toBe(true);
+        }
       });
     });
 
@@ -402,7 +419,7 @@ describe('Validators Utility', () => {
 
       it('should include field path in errors', () => {
         const schema = userRegistrationSchema;
-        const result = validate(schema, { username: 'ab', password: '123' });
+        const result = validate(schema, { username: 'ab', password: '123', passwordConfirm: '123' });
         expect(result.success).toBe(false);
         expect(result.errors).toBeDefined();
         expect(result.errors?.some(e => e.field === 'username')).toBe(true);

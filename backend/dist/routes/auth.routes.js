@@ -8,6 +8,7 @@ const user_repository_1 = require("../repositories/user.repository");
 const session_service_1 = require("../services/session.service");
 const auth_middleware_1 = require("../middleware/auth.middleware");
 const validation_middleware_1 = require("../middleware/validation.middleware");
+const validators_util_1 = require("../utils/validators.util");
 const rate_limit_middleware_1 = require("../middleware/rate-limit.middleware");
 const router = (0, express_1.Router)();
 exports.authRoutes = router;
@@ -17,6 +18,6 @@ const authService = new auth_service_1.AuthService(userRepo, sessionService);
 const authController = new auth_controller_1.AuthController(authService);
 router.post('/register', rate_limit_middleware_1.authRateLimit, (0, validation_middleware_1.validate)(validation_middleware_1.registerSchema), authController.register);
 router.post('/login', rate_limit_middleware_1.authRateLimit, (0, validation_middleware_1.validate)(validation_middleware_1.loginSchema), authController.login);
-router.post('/refresh', rate_limit_middleware_1.authRateLimit, authController.refreshToken);
+router.post('/refresh', rate_limit_middleware_1.authRateLimit, (0, validation_middleware_1.validate)(validators_util_1.refreshTokenSchema), authController.refreshToken);
 router.post('/logout', auth_middleware_1.authMiddleware.authenticate, authController.logout);
 //# sourceMappingURL=auth.routes.js.map

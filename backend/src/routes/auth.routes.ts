@@ -5,6 +5,7 @@ import { UserRepository } from '../repositories/user.repository';
 import { SessionService } from '../services/session.service';
 import { authMiddleware } from '../middleware/auth.middleware';
 import { validate, registerSchema, loginSchema } from '../middleware/validation.middleware';
+import { refreshTokenSchema } from '../utils/validators.util';
 import { authRateLimit } from '../middleware/rate-limit.middleware';
 
 const router = Router();
@@ -20,7 +21,7 @@ router.post('/register', authRateLimit, validate(registerSchema), authController
 
 router.post('/login', authRateLimit, validate(loginSchema), authController.login);
 
-router.post('/refresh', authRateLimit, authController.refreshToken);
+router.post('/refresh', authRateLimit, validate(refreshTokenSchema), authController.refreshToken);
 
 // Protected routes
 router.post('/logout', authMiddleware.authenticate, authController.logout);

@@ -10,7 +10,7 @@ export declare class AuthService {
         deviceName?: string;
         ipAddress?: string;
         userAgent?: string;
-    }): Promise<{
+    }, displayName?: string): Promise<{
         accessToken: string;
         refreshToken: string;
         user: {

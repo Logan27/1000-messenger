@@ -21,7 +21,8 @@ export class AuthService {
       deviceName?: string;
       ipAddress?: string;
       userAgent?: string;
-    }
+    },
+    displayName?: string
   ) {
     // Validate username length
     if (username.length < LIMITS.USERNAME_MIN_LENGTH || username.length > LIMITS.USERNAME_MAX_LENGTH) {
@@ -51,7 +52,7 @@ export class AuthService {
     const user = await this.userRepo.create({
       username,
       passwordHash,
-      displayName: username,
+      displayName: displayName || username,
     });
 
     logger.info(`User registered: ${username}`);

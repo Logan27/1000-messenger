@@ -44,10 +44,16 @@ exports.avatarUrlSchema = zod_1.z
     .optional();
 exports.userStatusSchema = zod_1.z.enum(['online', 'offline', 'away']);
 exports.timestampSchema = zod_1.z.union([zod_1.z.string().datetime(), zod_1.z.date()]);
-exports.userRegistrationSchema = zod_1.z.object({
+exports.userRegistrationSchema = zod_1.z
+    .object({
     username: exports.usernameSchema,
     password: exports.passwordSchema,
+    passwordConfirm: zod_1.z.string().min(1, 'Password confirmation is required'),
     displayName: exports.displayNameSchema,
+})
+    .refine((data) => data.password === data.passwordConfirm, {
+    message: 'Passwords do not match',
+    path: ['passwordConfirm'],
 });
 exports.userLoginSchema = zod_1.z.object({
     username: zod_1.z.string().min(1, 'Username is required'),

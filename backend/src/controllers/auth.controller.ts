@@ -6,12 +6,7 @@ export class AuthController {
 
   register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { username, password } = req.body;
-
-      if (!username || !password) {
-        res.status(400).json({ error: 'Username and password are required' });
-        return;
-      }
+      const { username, password, displayName } = req.body;
 
       const deviceInfoRaw = {
         deviceId: req.headers['x-device-id'] as string,
@@ -34,7 +29,7 @@ export class AuthController {
         deviceInfo.userAgent = deviceInfoRaw.userAgent;
       }
 
-      const result = await this.authService.register(username, password, deviceInfo);
+      const result = await this.authService.register(username, password, deviceInfo, displayName);
       
       res.status(201).json(result);
     } catch (error) {
@@ -45,11 +40,6 @@ export class AuthController {
   login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { username, password } = req.body;
-
-      if (!username || !password) {
-        res.status(400).json({ error: 'Username and password are required' });
-        return;
-      }
 
       const deviceInfoRaw = {
         deviceId: req.headers['x-device-id'] as string,
@@ -83,11 +73,6 @@ export class AuthController {
   refreshToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { refreshToken } = req.body;
-
-      if (!refreshToken) {
-        res.status(400).json({ error: 'Refresh token is required' });
-        return;
-      }
 
       const result = await this.authService.refreshAccessToken(refreshToken);
       

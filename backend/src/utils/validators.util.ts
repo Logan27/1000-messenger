@@ -52,11 +52,17 @@ export const timestampSchema = z.union([z.string().datetime(), z.date()]);
 // USER SCHEMAS
 // ============================================================================
 
-export const userRegistrationSchema = z.object({
-  username: usernameSchema,
-  password: passwordSchema,
-  displayName: displayNameSchema,
-});
+export const userRegistrationSchema = z
+  .object({
+    username: usernameSchema,
+    password: passwordSchema,
+    passwordConfirm: z.string().min(1, 'Password confirmation is required'),
+    displayName: displayNameSchema,
+  })
+  .refine((data) => data.password === data.passwordConfirm, {
+    message: 'Passwords do not match',
+    path: ['passwordConfirm'],
+  });
 
 export const userLoginSchema = z.object({
   username: z.string().min(1, 'Username is required'),
