@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 
 export const RegisterPage = () => {
@@ -71,9 +71,9 @@ export const RegisterPage = () => {
         </form>
         <p className="mt-4 text-center text-sm">
           Already have an account?{' '}
-          <a href="/login" className="text-blue-500 hover:underline">
+          <Link to="/login" className="text-blue-500 hover:underline">
             Login
-          </a>
+          </Link>
         </p>
       </div>
     </div>
