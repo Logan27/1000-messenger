@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import { ChatHeader } from './ChatHeader';
@@ -8,44 +9,56 @@ import { useWebSocket } from '../../hooks/useWebSocket';
 import { apiService } from '../../services/api.service';
 
 export const ChatWindow: React.FC = () => {
-  const { activeChat, messages, typingUsers } = useChatStore();
+  const { chatId, slug, messageId } = useParams<{ chatId?: string; slug?: string; messageId?: string }>();
+  const { activeChat, messages, typingUsers, setActiveChat } = useChatStore();
   const { startTyping, stopTyping } = useWebSocket();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
+  // Determine the effective chat ID from URL params or active chat state
+  const effectiveChatId = chatId || activeChat;
+
   const currentMessages = useMemo(() => {
-    return activeChat ? messages[activeChat] || [] : [];
-  }, [activeChat, messages]);
+    return effectiveChatId ? messages[effectiveChatId] || [] : [];
+  }, [effectiveChatId, messages]);
 
   const currentTypingUsers = useMemo(() => {
-    return activeChat ? typingUsers[activeChat] || [] : [];
-  }, [activeChat, typingUsers]);
+    return effectiveChatId ? typingUsers[effectiveChatId] || [] : [];
+  }, [effectiveChatId, typingUsers]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  const loadMessages = useCallback(async (chatId: string) => {
+  const loadMessages = useCallback(async (targetChatId: string) => {
     try {
-      const response = await apiService.getMessages(chatId);
-      useChatStore.getState().setMessages(chatId, response.data);
+      const response = await apiService.getMessages(targetChatId);
+      useChatStore.getState().setMessages(targetChatId, response.data);
     } catch (error) {
       console.error('Failed to load messages:', error);
     }
   }, []);
 
+  // Handle deep linking: Update active chat when URL params change
   useEffect(() => {
-    if (activeChat) {
-      loadMessages(activeChat);
+    if (chatId && chatId !== activeChat) {
+      setActiveChat(chatId);
     }
-  }, [activeChat, loadMessages]);
+  }, [chatId, activeChat, setActiveChat]);
+
+  // Load messages when effective chat ID changes
+  useEffect(() => {
+    if (effectiveChatId) {
+      loadMessages(effectiveChatId);
+    }
+  }, [effectiveChatId, loadMessages]);
 
   useEffect(() => {
     scrollToBottom();
   }, [currentMessages, scrollToBottom]);
 
   const handleSendMessage = async (content: string, files?: File[]) => {
-    if (!activeChat) return;
+    if (!effectiveChatId) return;
 
     try {
       // Upload images first if any
@@ -63,22 +76,22 @@ export const ChatWindow: React.FC = () => {
         };
       }
 
-      await apiService.sendMessage(activeChat, {
+      await apiService.sendMessage(effectiveChatId, {
         content,
         contentType: files && files.length > 0 ? 'image' : 'text',
         metadata,
       });
 
-      stopTyping(activeChat);
+      stopTyping(effectiveChatId);
     } catch (error) {
       console.error('Failed to send message:', error);
     }
   };
 
   const handleTyping = () => {
-    if (!activeChat) return;
+    if (!effectiveChatId) return;
 
-    startTyping(activeChat);
+    startTyping(effectiveChatId);
 
     // Clear existing timeout
     if (typingTimeoutRef.current) {
@@ -87,11 +100,11 @@ export const ChatWindow: React.FC = () => {
 
     // Stop typing after 3 seconds of inactivity
     typingTimeoutRef.current = setTimeout(() => {
-      stopTyping(activeChat);
+      stopTyping(effectiveChatId);
     }, 3000);
   };
 
-  if (!activeChat) {
+  if (!effectiveChatId) {
     return (
       <div className="flex-1 flex items-center justify-center bg-gray-50">
         <div className="text-center text-gray-500">
@@ -103,10 +116,10 @@ export const ChatWindow: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col h-full">
-      <ChatHeader chatId={activeChat} />
+      <ChatHeader chatId={effectiveChatId} />
 
       <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
-        <MessageList messages={currentMessages} />
+        <MessageList messages={currentMessages} messageId={messageId} />
         <div ref={messagesEndRef} />
       </div>
 
