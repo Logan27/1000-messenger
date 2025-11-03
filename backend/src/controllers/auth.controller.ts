@@ -4,12 +4,13 @@ import { AuthService } from '../services/auth.service';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  register = async (req: Request, res: Response, next: NextFunction) => {
+  register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { username, password } = req.body;
 
       if (!username || !password) {
-        return res.status(400).json({ error: 'Username and password are required' });
+        res.status(400).json({ error: 'Username and password are required' });
+        return;
       }
 
       const deviceInfoRaw = {
@@ -35,18 +36,19 @@ export class AuthController {
 
       const result = await this.authService.register(username, password, deviceInfo);
       
-      return res.status(201).json(result);
+      res.status(201).json(result);
     } catch (error) {
-      return next(error);
+      next(error);
     }
   };
 
-  login = async (req: Request, res: Response, next: NextFunction) => {
+  login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { username, password } = req.body;
 
       if (!username || !password) {
-        return res.status(400).json({ error: 'Username and password are required' });
+        res.status(400).json({ error: 'Username and password are required' });
+        return;
       }
 
       const deviceInfoRaw = {
@@ -72,38 +74,39 @@ export class AuthController {
 
       const result = await this.authService.login(username, password, deviceInfo);
       
-      return res.json(result);
+      res.json(result);
     } catch (error) {
-      return next(error);
+      next(error);
     }
   };
 
-  refreshToken = async (req: Request, res: Response, next: NextFunction) => {
+  refreshToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { refreshToken } = req.body;
 
       if (!refreshToken) {
-        return res.status(400).json({ error: 'Refresh token is required' });
+        res.status(400).json({ error: 'Refresh token is required' });
+        return;
       }
 
       const result = await this.authService.refreshAccessToken(refreshToken);
       
-      return res.json(result);
+      res.json(result);
     } catch (error) {
-      return next(error);
+      next(error);
     }
   };
 
-  logout = async (req: Request, res: Response, next: NextFunction) => {
+  logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = req.user!.userId;
       const { refreshToken } = req.body;
 
       await this.authService.logout(userId, refreshToken);
       
-      return res.json({ message: 'Logged out successfully' });
+      res.status(204).send();
     } catch (error) {
-      return next(error);
+      next(error);
     }
   };
 }
