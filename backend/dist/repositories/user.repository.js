@@ -64,7 +64,7 @@ class UserRepository {
     }
     async search(query, limit = 20) {
         const sql = `
-      SELECT id, username, display_name, avatar_url, status
+      SELECT id, username, display_name, avatar_url, status, last_seen, created_at, updated_at
       FROM users
       WHERE username ILIKE $1
       ORDER BY username

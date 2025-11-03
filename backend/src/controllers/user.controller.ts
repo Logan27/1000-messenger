@@ -18,11 +18,17 @@ export class UserController {
   updateProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = req.user!.userId;
-      const { displayName, avatarUrl } = req.body;
+      const { displayName, avatarUrl, status } = req.body;
 
-      const user = await this.userService.updateProfile(userId, { displayName, avatarUrl });
+      await this.userService.updateProfile(userId, { displayName, avatarUrl });
 
-      res.json({ user });
+      if (status) {
+        await this.userService.updateStatus(userId, status);
+      }
+
+      const updatedUser = await this.userService.getProfile(userId);
+
+      res.json({ user: updatedUser });
     } catch (error) {
       next(error);
     }
