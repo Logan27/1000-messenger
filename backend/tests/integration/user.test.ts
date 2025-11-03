@@ -22,7 +22,6 @@ describe('User Endpoints', () => {
   let accessToken: string;
   let userId: string;
   let otherUserId: string;
-  let otherAccessToken: string;
 
   const testUser = {
     username: `testuser_${Date.now()}`,
@@ -63,7 +62,6 @@ describe('User Endpoints', () => {
         passwordConfirm: otherUser.password,
       });
     
-    otherAccessToken = otherRegisterResponse.body.accessToken;
     otherUserId = otherRegisterResponse.body.user.id;
   });
 

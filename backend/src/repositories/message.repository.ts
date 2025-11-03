@@ -124,9 +124,9 @@ export class MessageRepository {
     }
 
     const values = userIds
-      .map((userId, idx) => {
+      .map((_userId, idx) => {
         const base = idx * 3;
-        return `($${base + 1}, $${base + 2}, $${base + 3})`;
+        return `(${base + 1}, ${base + 2}, ${base + 3})`;
       })
       .join(', ');
 

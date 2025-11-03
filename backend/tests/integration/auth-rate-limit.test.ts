@@ -29,7 +29,7 @@ describe('Authentication Rate Limiting', () => {
     // Cleanup: flush rate limit keys
     const keys = await redisClient.keys('rate-limit:auth:*');
     if (keys.length > 0) {
-      await redisClient.del(...keys);
+      await redisClient.del(keys);
     }
     
     // Close Redis connection
@@ -40,7 +40,7 @@ describe('Authentication Rate Limiting', () => {
     // Clear rate limit keys before each test
     const keys = await redisClient.keys('rate-limit:auth:*');
     if (keys.length > 0) {
-      await redisClient.del(...keys);
+      await redisClient.del(keys);
     }
   });
 
@@ -48,7 +48,7 @@ describe('Authentication Rate Limiting', () => {
     it('should allow 5 failed login attempts', async () => {
       // Make 5 failed login attempts
       for (let i = 0; i < 5; i++) {
-        const response = await request(app)
+        await request(app)
           .post('/api/auth/login')
           .send({
             username: testUsername,

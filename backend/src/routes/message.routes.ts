@@ -3,7 +3,6 @@ import { MessageController } from '../controllers/message.controller';
 import { MessageService } from '../services/message.service';
 import { MessageRepository } from '../repositories/message.repository';
 import { ChatRepository } from '../repositories/chat.repository';
-import { UserRepository } from '../repositories/user.repository';
 import { authMiddleware } from '../middleware/auth.middleware';
 import { MessageDeliveryQueue } from '../queues/message-delivery.queue';
 import { SocketManager } from '../websocket/socket.manager';
@@ -13,7 +12,6 @@ import { messageRateLimit } from '../middleware/rate-limit.middleware';
 const router = Router();
 
 // Initialize services
-const userRepo = new UserRepository();
 const chatRepo = new ChatRepository();
 const messageRepo = new MessageRepository();
 

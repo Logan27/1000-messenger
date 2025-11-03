@@ -241,12 +241,17 @@ export const errorHandler = (
     appError = new ValidationError('Validation failed', formatZodError(error));
   } else if (error instanceof JwtError) {
     appError = handleJwtError(error);
-  } else if (Prisma && (
-    error instanceof Prisma.PrismaClientKnownRequestError ||
-    error instanceof Prisma.PrismaClientValidationError ||
-    error instanceof Prisma.PrismaClientInitializationError ||
-    error instanceof Prisma.PrismaClientRustPanicError
-  )) {
+  } else if (
+    Prisma &&
+    Prisma.PrismaClientKnownRequestError &&
+    Prisma.PrismaClientValidationError &&
+    Prisma.PrismaClientInitializationError &&
+    Prisma.PrismaClientRustPanicError &&
+    (error instanceof Prisma.PrismaClientKnownRequestError ||
+      error instanceof Prisma.PrismaClientValidationError ||
+      error instanceof Prisma.PrismaClientInitializationError ||
+      error instanceof Prisma.PrismaClientRustPanicError)
+  ) {
     appError = handlePrismaError(error);
   } else if (error.message === 'Invalid credentials') {
     // Common authentication error from services

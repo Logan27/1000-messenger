@@ -73,7 +73,7 @@ export class UserController {
 
   getUserById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.params.id || req.params.userId;
+      const userId = req.params['id'] || req.params['userId'];
       const viewerId = req.user!.userId;
       const user = await this.userService.getUserById(userId!, viewerId);
 

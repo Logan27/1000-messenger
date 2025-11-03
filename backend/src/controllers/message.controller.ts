@@ -4,18 +4,19 @@ import { MessageService } from '../services/message.service';
 export class MessageController {
   constructor(private messageService: MessageService) {}
 
-  sendMessage = async (req: Request, res: Response, next: NextFunction) => {
+  sendMessage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { chatId } = req.params;
       const userId = req.user!.userId;
       const { content, contentType, metadata, replyToId } = req.body;
 
       if (!content || content.trim().length === 0) {
-        return res.status(400).json({ error: 'Message content is required' });
+        res.status(400).json({ error: 'Message content is required' });
+        return;
       }
 
       const message = await this.messageService.sendMessage({
-        chatId,
+        chatId: chatId!,
         senderId: userId,
         content: content.trim(),
         contentType,
@@ -36,7 +37,7 @@ export class MessageController {
       const limit = parseInt(req.query['limit'] as string) || 50;
       const cursor = req.query['cursor'] as string;
 
-      const result = await this.messageService.getMessages(chatId, userId, limit, cursor);
+      const result = await this.messageService.getMessages(chatId!, userId, limit, cursor);
 
       res.json(result);
     } catch (error) {
@@ -44,17 +45,18 @@ export class MessageController {
     }
   };
 
-  editMessage = async (req: Request, res: Response, next: NextFunction) => {
+  editMessage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { messageId } = req.params;
       const userId = req.user!.userId;
       const { content } = req.body;
 
       if (!content || content.trim().length === 0) {
-        return res.status(400).json({ error: 'Message content is required' });
+        res.status(400).json({ error: 'Message content is required' });
+        return;
       }
 
-      const message = await this.messageService.editMessage(messageId, userId, content.trim());
+      const message = await this.messageService.editMessage(messageId!, userId, content.trim());
 
       res.json({ message });
     } catch (error) {
@@ -67,7 +69,7 @@ export class MessageController {
       const { messageId } = req.params;
       const userId = req.user!.userId;
 
-      await this.messageService.deleteMessage(messageId, userId);
+      await this.messageService.deleteMessage(messageId!, userId);
 
       res.json({ message: 'Message deleted successfully' });
     } catch (error) {
@@ -80,7 +82,7 @@ export class MessageController {
       const { messageId } = req.params;
       const userId = req.user!.userId;
 
-      await this.messageService.markAsRead(messageId, userId);
+      await this.messageService.markAsRead(messageId!, userId);
 
       res.json({ message: 'Message marked as read' });
     } catch (error) {
@@ -88,17 +90,18 @@ export class MessageController {
     }
   };
 
-  addReaction = async (req: Request, res: Response, next: NextFunction) => {
+  addReaction = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { messageId } = req.params;
       const userId = req.user!.userId;
       const { emoji } = req.body;
 
       if (!emoji) {
-        return res.status(400).json({ error: 'Emoji is required' });
+        res.status(400).json({ error: 'Emoji is required' });
+        return;
       }
 
-      const reaction = await this.messageService.addReaction(messageId, userId, emoji);
+      const reaction = await this.messageService.addReaction(messageId!, userId, emoji);
 
       res.json({ reaction });
     } catch (error) {
@@ -111,7 +114,7 @@ export class MessageController {
       const { reactionId } = req.params;
       const userId = req.user!.userId;
 
-      await this.messageService.removeReaction(reactionId, userId);
+      await this.messageService.removeReaction(reactionId!, userId);
 
       res.json({ message: 'Reaction removed successfully' });
     } catch (error) {

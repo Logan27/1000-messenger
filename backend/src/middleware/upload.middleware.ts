@@ -12,7 +12,7 @@ const storage = multer.memoryStorage();
  * Only allows JPEG, PNG, GIF, and WebP formats
  */
 const fileFilter = (
-  req: Express.Request,
+  _req: Express.Request,
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ): void => {

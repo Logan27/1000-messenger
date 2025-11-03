@@ -105,7 +105,7 @@ export const validate = (
       const parseOptions = {
         errorMap: abortEarly
           ? undefined
-          : (issue: z.ZodIssueOptionalMessage, ctx: z.ErrorMapCtx) => ({
+          : (_issue: z.ZodIssueOptionalMessage, ctx: z.ErrorMapCtx) => ({
               message: ctx.defaultError,
             }),
       };

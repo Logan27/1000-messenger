@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { ChatController } from '../controllers/chat.controller';
 import { ChatService } from '../services/chat.service';
 import { ChatRepository } from '../repositories/chat.repository';
-import { UserRepository } from '../repositories/user.repository';
 import { authMiddleware } from '../middleware/auth.middleware';
 import { validate, chatSchema } from '../middleware/validation.middleware';
 import { messageRateLimit } from '../middleware/rate-limit.middleware';
@@ -10,9 +9,8 @@ import { messageRateLimit } from '../middleware/rate-limit.middleware';
 const router = Router();
 
 // Initialize services
-const userRepo = new UserRepository();
 const chatRepo = new ChatRepository();
-const chatService = new ChatService(chatRepo, userRepo);
+const chatService = new ChatService(chatRepo);
 const chatController = new ChatController(chatService);
 
 // All routes require authentication

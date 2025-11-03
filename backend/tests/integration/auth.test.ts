@@ -23,7 +23,6 @@ describe('Authentication Endpoints', () => {
   let prisma: PrismaClient;
   const testUsername = `testuser_${Date.now()}`;
   const testPassword = 'TestPass123!';
-  let accessToken: string;
   let refreshToken: string;
 
   beforeAll(async () => {
@@ -75,7 +74,6 @@ describe('Authentication Endpoints', () => {
       expect(response.body.user.displayName).toBe('Test User');
       
       // Store tokens for subsequent tests
-      accessToken = response.body.accessToken;
       refreshToken = response.body.refreshToken;
     });
 
