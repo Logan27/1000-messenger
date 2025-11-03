@@ -1,6 +1,7 @@
 import { UserRepository } from '../repositories/user.repository';
 import { ContactRepository } from '../repositories/contact.repository';
 import { ChatRepository } from '../repositories/chat.repository';
+import { StorageService } from './storage.service';
 
 /**
  * User profile data transfer object
@@ -30,11 +31,15 @@ export interface UpdateProfileDto {
  * Handles user profile operations including viewing, updating, and searching for users
  */
 export class UserService {
+  private storageService: StorageService;
+
   constructor(
     private userRepo: UserRepository,
     private contactRepo: ContactRepository,
     private chatRepo: ChatRepository
-  ) {}
+  ) {
+    this.storageService = new StorageService();
+  }
 
   async getProfile(userId: string): Promise<UserProfileDto> {
     const user = await this.userRepo.findById(userId);
@@ -83,6 +88,12 @@ export class UserService {
 
   async updateLastSeen(userId: string): Promise<void> {
     await this.userRepo.updateLastSeen(userId);
+  }
+
+  async uploadAvatar(userId: string, file: Express.Multer.File): Promise<string> {
+    const uploadResult = await this.storageService.uploadImage(file, userId);
+    await this.userRepo.update(userId, { avatarUrl: uploadResult.thumbnailUrl });
+    return uploadResult.thumbnailUrl!;
   }
 
   async canViewUserProfile(userId: string, viewerId: string): Promise<boolean> {

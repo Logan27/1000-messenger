@@ -5,8 +5,10 @@ import { UserRepository } from '../repositories/user.repository';
 import { ContactRepository } from '../repositories/contact.repository';
 import { ChatRepository } from '../repositories/chat.repository';
 import { authMiddleware } from '../middleware/auth.middleware';
-import { searchRateLimit } from '../middleware/rate-limit.middleware';
+import { uploadRateLimit, searchRateLimit } from '../middleware/rate-limit.middleware';
 import { validateBody, validateParams, createUuidParamsSchema } from '../middleware/validation.middleware';
+import { validateImageUpload } from '../middleware/security.middleware';
+import { uploadSingle } from '../middleware/upload.middleware';
 import { userUpdateSchema } from '../utils/validators.util';
 
 const router = Router();
@@ -23,10 +25,11 @@ const userController = new UserController(userService);
 // All routes require authentication
 router.use(authMiddleware.authenticate);
 
-// User routes
-router.get('/profile', userController.getProfile);
-router.put('/profile', validateBody(userUpdateSchema), userController.updateProfile);
+// User routes - specific routes must come before parameterized routes
+router.get('/me', userController.getProfile);
+router.put('/me', validateBody(userUpdateSchema), userController.updateProfile);
+router.patch('/me/avatar', uploadRateLimit, uploadSingle.single('avatar'), validateImageUpload, userController.updateAvatar);
 router.get('/search', searchRateLimit, userController.searchUsers);
-router.get('/:userId', validateParams(createUuidParamsSchema('userId')), userController.getUserById);
+router.get('/:id', validateParams(createUuidParamsSchema('id')), userController.getUserById);
 
 export { router as userRoutes };
