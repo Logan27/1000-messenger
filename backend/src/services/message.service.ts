@@ -35,47 +35,59 @@ export class MessageService {
       throw new Error('User is not a participant of this chat');
     }
 
-    // Create message
-    const messageData: any = {
-      id: uuidv4(),
-      chatId: dto.chatId,
-      senderId: dto.senderId,
-      content: dto.content,
-      contentType: dto.contentType || 'text',
-      metadata: dto.metadata || {},
-    };
+    // Begin transaction for ACID compliance (T105)
+    const client = await this.messageRepo.beginTransaction();
     
-    if (dto.replyToId !== undefined) {
-      messageData.replyToId = dto.replyToId;
+    try {
+      // Create message
+      const messageData: any = {
+        id: uuidv4(),
+        chatId: dto.chatId,
+        senderId: dto.senderId,
+        content: dto.content,
+        contentType: dto.contentType || 'text',
+        metadata: dto.metadata || {},
+      };
+      
+      if (dto.replyToId !== undefined) {
+        messageData.replyToId = dto.replyToId;
+      }
+      
+      const message = await this.messageRepo.createWithClient(client, messageData);
+
+      // Get all participants except sender
+      const participants = await this.chatRepo.getActiveParticipantIds(dto.chatId);
+      const recipients = participants.filter(id => id !== dto.senderId);
+
+      // Create delivery records
+      await this.messageRepo.createDeliveryRecordsWithClient(client, message.id, recipients);
+
+      // Update chat last_message_at and increment unread counts
+      await this.chatRepo.updateLastMessageAtWithClient(client, dto.chatId);
+      await this.chatRepo.incrementUnreadCountsWithClient(client, dto.chatId, recipients);
+
+      // Commit transaction
+      await this.messageRepo.commitTransaction(client);
+
+      // Queue for reliable delivery (outside transaction)
+      await this.deliveryQueue.addMessage({
+        messageId: message.id,
+        chatId: dto.chatId,
+        recipients,
+      });
+
+      // Try immediate WebSocket delivery
+      // Note: Sender info should be included by the client or fetched separately
+      this.socketManager.broadcastToChat(dto.chatId, 'message.new', message);
+
+      logger.info(`Message sent: ${message.id} in chat ${dto.chatId}`);
+
+      return message;
+    } catch (error) {
+      // Rollback transaction on error
+      await this.messageRepo.rollbackTransaction(client);
+      throw error;
     }
-    
-    const message = await this.messageRepo.create(messageData);
-
-    // Get all participants except sender
-    const participants = await this.chatRepo.getActiveParticipantIds(dto.chatId);
-    const recipients = participants.filter(id => id !== dto.senderId);
-
-    // Create delivery records
-    await this.messageRepo.createDeliveryRecords(message.id, recipients);
-
-    // Update chat last_message_at and increment unread counts
-    await this.chatRepo.updateLastMessageAt(dto.chatId);
-    await this.chatRepo.incrementUnreadCounts(dto.chatId, recipients);
-
-    // Queue for reliable delivery
-    await this.deliveryQueue.addMessage({
-      messageId: message.id,
-      chatId: dto.chatId,
-      recipients,
-    });
-
-    // Try immediate WebSocket delivery
-    // Note: Sender info should be included by the client or fetched separately
-    this.socketManager.broadcastToChat(dto.chatId, 'message.new', message);
-
-    logger.info(`Message sent: ${message.id} in chat ${dto.chatId}`);
-
-    return message;
   }
 
   async editMessage(messageId: string, userId: string, newContent: string) {
@@ -159,6 +171,24 @@ export class MessageService {
     };
   }
 
+  async markAsDelivered(messageId: string, userId: string) {
+    const message = await this.messageRepo.findById(messageId);
+    if (!message) {
+      throw new Error('Message not found');
+    }
+
+    // Update delivery status to delivered
+    await this.messageRepo.updateDeliveryStatus(messageId, userId, 'delivered');
+
+    // Notify sender about delivery
+    this.socketManager.sendToUser(message.senderId, 'message:delivered', {
+      messageId,
+      chatId: message.chatId,
+      deliveredTo: userId,
+      deliveredAt: new Date(),
+    });
+  }
+
   async markAsRead(messageId: string, userId: string) {
     const message = await this.messageRepo.findById(messageId);
     if (!message) {
@@ -171,13 +201,33 @@ export class MessageService {
     // Reset unread count for this chat
     await this.chatRepo.resetUnreadCount(message.chatId, userId);
 
-    // Notify sender about read receipt
-    this.socketManager.sendToUser(message.senderId, 'message_read', {
-      messageId,
-      chatId: message.chatId,
-      readBy: userId,
-      readAt: new Date(),
-    });
+    // Get read count for group messages
+    const readCount = await this.messageRepo.getReadCount(messageId);
+
+    // Notify sender about read receipt (if there is a sender)
+    if (message.senderId) {
+      this.socketManager.sendToUser(message.senderId, 'message:read', {
+        messageId,
+        chatId: message.chatId,
+        readBy: userId,
+        readAt: new Date(),
+        readCount, // Include read count for group messages
+      });
+    }
+  }
+
+  async bulkMarkAsRead(chatId: string, userId: string) {
+    // Verify user is participant
+    const isParticipant = await this.chatRepo.isUserParticipant(chatId, userId);
+    if (!isParticipant) {
+      throw new Error('User is not a participant of this chat');
+    }
+
+    // Mark all messages in chat as read
+    await this.messageRepo.bulkMarkAsRead(chatId, userId);
+
+    // Reset unread count for this chat
+    await this.chatRepo.resetUnreadCount(chatId, userId);
   }
 
   async addReaction(messageId: string, userId: string, emoji: string) {
@@ -223,5 +273,13 @@ export class MessageService {
       reactionId,
       messageId: reaction.messageId,
     });
+  }
+
+  async getAttachment(attachmentId: string) {
+    const attachment = await this.messageRepo.findAttachmentById(attachmentId);
+    if (!attachment) {
+      return null;
+    }
+    return attachment;
   }
 }

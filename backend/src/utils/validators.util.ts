@@ -1,6 +1,37 @@
 import { z } from 'zod';
 
 // ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+/**
+ * Sanitize HTML from user input to prevent XSS attacks
+ * Strips all HTML tags and dangerous characters
+ */
+export function sanitizeHtml(content: string): string {
+  if (!content) return content;
+  
+  // Remove all HTML tags
+  let sanitized = content.replace(/<[^>]*>/g, '');
+  
+  // Decode HTML entities
+  sanitized = sanitized
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .replace(/&#x2F;/g, '/');
+  
+  // Remove script-like content
+  sanitized = sanitized.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+  sanitized = sanitized.replace(/javascript:/gi, '');
+  sanitized = sanitized.replace(/on\w+\s*=/gi, '');
+  
+  return sanitized.trim();
+}
+
+// ============================================================================
 // PRIMITIVE VALIDATORS
 // ============================================================================
 
@@ -230,7 +261,8 @@ export const messageContentTypeSchema = z.enum(['text', 'image', 'system']);
 export const messageContentSchema = z
   .string()
   .min(1, 'Message content cannot be empty')
-  .max(10000, 'Message content must not exceed 10,000 characters');
+  .max(10000, 'Message content must not exceed 10,000 characters')
+  .transform(sanitizeHtml);
 
 export const messageFormattingSchema = z.object({
   bold: z.array(z.tuple([z.number(), z.number()])).optional(),

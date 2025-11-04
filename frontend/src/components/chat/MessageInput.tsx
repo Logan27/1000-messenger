@@ -1,12 +1,23 @@
 import React, { useState, useRef, KeyboardEvent } from 'react';
 import { PaperAirplaneIcon, PhotoIcon } from '@heroicons/react/24/outline';
 
-interface MessageInputProps {
-  onSend: (content: string, files?: File[]) => void;
-  onTyping: () => void;
+interface ReplyMessage {
+  id: string;
+  senderId?: string;
+  sender?: {
+    username: string;
+  };
+  content: string;
 }
 
-export const MessageInput: React.FC<MessageInputProps> = ({ onSend, onTyping }) => {
+interface MessageInputProps {
+  onSend: (content: string, files?: File[], replyToId?: string) => void;
+  onTyping: () => void;
+  replyTo?: ReplyMessage;
+  onCancelReply?: () => void;
+}
+
+export const MessageInput: React.FC<MessageInputProps> = ({ onSend, onTyping, replyTo, onCancelReply }) => {
   const [content, setContent] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isBold, setIsBold] = useState(false);
@@ -27,7 +38,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, onTyping }) 
       formattedContent = `<em>${formattedContent}</em>`;
     }
 
-    onSend(formattedContent, selectedFiles);
+    onSend(formattedContent, selectedFiles, replyTo?.id);
     setContent('');
     setSelectedFiles([]);
     setIsBold(false);
@@ -61,6 +72,26 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, onTyping }) 
 
   return (
     <div className="border-t bg-white p-4">
+      {/* Reply Preview */}
+      {replyTo && (
+        <div className="mb-2 p-2 bg-gray-100 rounded-lg flex justify-between items-start">
+          <div className="flex-1">
+            <div className="text-xs font-medium text-gray-600">
+              Replying to {replyTo.sender?.username || 'Unknown User'}
+            </div>
+            <div className="text-sm text-gray-800 truncate">
+              {replyTo.content}
+            </div>
+          </div>
+          <button
+            onClick={onCancelReply}
+            className="ml-2 text-gray-500 hover:text-gray-700 text-lg"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {/* Selected files preview */}
       {selectedFiles.length > 0 && (
         <div className="flex gap-2 mb-2 overflow-x-auto">

@@ -107,6 +107,9 @@ export class SocketManager {
         // Join all user's chat rooms
         await this.joinUserChats(userId, socket);
 
+        // Store online user in Redis with TTL (30 minutes)
+        await redisPubClient.setEx(`presence:${userId}`, 1800, 'online');
+
         // Broadcast online status to contacts
         this.broadcastUserStatus(userId, 'online');
 
@@ -128,7 +131,13 @@ export class SocketManager {
             const activeSessions = await this.sessionService.getActiveUserSessions(userId);
 
             if (activeSessions.length === 0) {
+              // Update last_seen timestamp and set offline
               await this.userRepo.updateStatus(userId, 'offline');
+              await this.userRepo.update(userId, { lastSeen: new Date() });
+              
+              // Remove from Redis presence
+              await redisPubClient.del(`presence:${userId}`);
+              
               this.broadcastUserStatus(userId, 'offline');
             }
           } catch (error) {

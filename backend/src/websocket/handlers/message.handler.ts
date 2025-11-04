@@ -76,6 +76,14 @@ export class MessageHandler {
       }
     });
 
+    socket.on('message:delivered', async (data: { messageId: string }) => {
+      try {
+        await this.messageService.markAsDelivered(data.messageId, userId);
+      } catch (error) {
+        logger.error('Failed to mark message as delivered', error);
+      }
+    });
+
     socket.on('message:read', async (data: { messageId: string }) => {
       try {
         await this.messageService.markAsRead(data.messageId, userId);

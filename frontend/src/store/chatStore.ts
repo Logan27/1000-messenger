@@ -1,68 +1,38 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
-interface Participant {
-  id: string;
-  username: string;
-  displayName: string;
-  avatarUrl?: string;
-}
+import type { Chat as APIChat, Message as APIMessage, Reaction as APIReaction } from '../services/api.service';
 
-interface MessageMetadata {
-  images?: Array<{
-    url: string;
-    thumbnailUrl: string;
-    originalUrl: string;
-  }>;
-  [key: string]: unknown;
-}
-
-interface Message {
-  id: string;
-  chatId: string;
-  senderId: string;
-  content: string;
-  contentType: 'text' | 'image' | 'system';
-  metadata?: Record<string, unknown>;
-  createdAt: string;
-  isEdited: boolean;
-  reactions?: Reaction[];
-}
-
-interface Reaction {
-  id: string;
-  messageId: string;
-  userId: string;
-  emoji: string;
-}
-
-interface Chat {
-  id: string;
-  type: 'direct' | 'group';
-  name?: string;
-  slug?: string;
-  avatarUrl?: string;
-  participants: Array<Record<string, unknown>>;
-  lastMessage?: Message;
-  unreadCount: number;
-  lastMessageAt?: string;
-}
+// Re-export types from API service for consistency
+type Chat = APIChat;
+type Message = APIMessage;
+type Reaction = APIReaction;
 
 interface ChatState {
   chats: Chat[];
   messages: Record<string, Message[]>;
   activeChat: string | null;
   typingUsers: Record<string, string[]>;
+  
+  // Pagination state
+  messageCursors: Record<string, string | null>; // Track cursor for each chat
+  hasMoreMessages: Record<string, boolean>; // Track if more messages available
+  isLoadingMessages: Record<string, boolean>; // Track loading state per chat
 
   // Actions
   setChats: (chats: Chat[]) => void;
   addChat: (chat: Chat) => void;
+  updateChat: (chatId: string, updates: Partial<Chat>) => void;
+  removeChat: (chatId: string) => void;
   setActiveChat: (chatId: string | null) => void;
 
   setMessages: (chatId: string, messages: Message[]) => void;
+  prependMessages: (chatId: string, messages: Message[], cursor: string | null, hasMore: boolean) => void;
   addMessage: (message: Message) => void;
   updateMessage: (messageId: string, updates: Partial<Message>) => void;
   deleteMessage: (messageId: string) => void;
+  
+  setLoadingMessages: (chatId: string, isLoading: boolean) => void;
 
   addReaction: (messageId: string, emoji: string, userId: string) => void;
   removeReaction: (messageId: string, reactionId: string) => void;
@@ -73,6 +43,12 @@ interface ChatState {
 
   incrementUnread: (chatId: string) => void;
   resetUnread: (chatId: string) => void;
+  
+  updateMessageDeliveryStatus: (
+    messageId: string,
+    deliveryStatus: 'sent' | 'delivered' | 'read',
+    readCount?: { total: number; read: number }
+  ) => void;
 }
 
 export const useChatStore = create<ChatState>()(
@@ -83,12 +59,28 @@ export const useChatStore = create<ChatState>()(
         messages: {},
         activeChat: null,
         typingUsers: {},
+        messageCursors: {},
+        hasMoreMessages: {},
+        isLoadingMessages: {},
 
         setChats: chats => set({ chats }),
 
         addChat: chat =>
           set(state => ({
             chats: [chat, ...state.chats],
+          })),
+
+        updateChat: (chatId, updates) =>
+          set(state => ({
+            chats: state.chats.map(chat =>
+              chat.id === chatId ? { ...chat, ...updates } : chat
+            ),
+          })),
+
+        removeChat: chatId =>
+          set(state => ({
+            chats: state.chats.filter(chat => chat.id !== chatId),
+            activeChat: state.activeChat === chatId ? null : state.activeChat,
           })),
 
         setActiveChat: chatId => set({ activeChat: chatId }),
@@ -98,6 +90,47 @@ export const useChatStore = create<ChatState>()(
             messages: {
               ...state.messages,
               [chatId]: messages,
+            },
+            messageCursors: {
+              ...state.messageCursors,
+              [chatId]: messages.length > 0 ? messages[0].createdAt : null,
+            },
+            hasMoreMessages: {
+              ...state.hasMoreMessages,
+              [chatId]: messages.length >= 50, // Assume more if we got a full page
+            },
+          })),
+
+        prependMessages: (chatId, messages, cursor, hasMore) =>
+          set(state => {
+            const existingMessages = state.messages[chatId] || [];
+            const newMessages = [...messages, ...existingMessages];
+
+            return {
+              messages: {
+                ...state.messages,
+                [chatId]: newMessages,
+              },
+              messageCursors: {
+                ...state.messageCursors,
+                [chatId]: cursor,
+              },
+              hasMoreMessages: {
+                ...state.hasMoreMessages,
+                [chatId]: hasMore,
+              },
+              isLoadingMessages: {
+                ...state.isLoadingMessages,
+                [chatId]: false,
+              },
+            };
+          }),
+
+        setLoadingMessages: (chatId, isLoading) =>
+          set(state => ({
+            isLoadingMessages: {
+              ...state.isLoadingMessages,
+              [chatId]: isLoading,
             },
           })),
 
@@ -163,7 +196,13 @@ export const useChatStore = create<ChatState>()(
                     ...msg,
                     reactions: [
                       ...reactions,
-                      { id: Date.now().toString(), messageId, userId, emoji },
+                      { 
+                        id: Date.now().toString(), 
+                        messageId, 
+                        userId, 
+                        emoji,
+                        createdAt: new Date().toISOString()
+                      },
                     ],
                   };
                 }
@@ -216,7 +255,7 @@ export const useChatStore = create<ChatState>()(
         incrementUnread: chatId =>
           set(state => ({
             chats: state.chats.map(chat =>
-              chat.id === chatId ? { ...chat, unreadCount: chat.unreadCount + 1 } : chat
+              chat.id === chatId ? { ...chat, unreadCount: (chat.unreadCount || 0) + 1 } : chat
             ),
           })),
 
@@ -226,6 +265,27 @@ export const useChatStore = create<ChatState>()(
               chat.id === chatId ? { ...chat, unreadCount: 0 } : chat
             ),
           })),
+
+        updateMessageDeliveryStatus: (
+          messageId: string,
+          deliveryStatus: 'sent' | 'delivered' | 'read',
+          readCount?: { total: number; read: number }
+        ) =>
+          set(state => {
+            const newMessages = { ...state.messages };
+            for (const chatId in newMessages) {
+              const chatMessages = newMessages[chatId];
+              const messageIndex = chatMessages.findIndex(m => m.id === messageId);
+              if (messageIndex !== -1) {
+                chatMessages[messageIndex] = {
+                  ...chatMessages[messageIndex],
+                  deliveryStatus,
+                  readCount,
+                };
+              }
+            }
+            return { messages: newMessages };
+          }),
       }),
       {
         name: 'chat-storage',

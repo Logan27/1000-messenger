@@ -59,6 +59,7 @@ export interface Message {
   attachments?: Attachment[];
   reactions?: Reaction[];
   deliveryStatus?: 'sent' | 'delivered' | 'read';
+  readCount?: { total: number; read: number }; // For group messages
 }
 
 export interface Attachment {

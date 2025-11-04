@@ -149,6 +149,27 @@ export class ChatRepository {
     await pool.query(query, [chatId, userId]);
   }
 
+  async getChatParticipants(chatId: string): Promise<any[]> {
+    const query = `
+      SELECT 
+        cp.id as participant_id,
+        cp.user_id,
+        cp.role,
+        cp.joined_at,
+        u.username,
+        u.display_name,
+        u.avatar_url,
+        u.status
+      FROM chat_participants cp
+      JOIN users u ON cp.user_id = u.id
+      WHERE cp.chat_id = $1 AND cp.left_at IS NULL
+      ORDER BY cp.joined_at ASC
+    `;
+
+    const result = await readPool.query(query, [chatId]);
+    return result.rows;
+  }
+
   async getActiveParticipantIds(chatId: string): Promise<string[]> {
     const query = `
       SELECT user_id FROM chat_participants
@@ -190,6 +211,16 @@ export class ChatRepository {
     await pool.query(query, [chatId]);
   }
 
+  async updateLastMessageAtWithClient(client: any, chatId: string): Promise<void> {
+    const query = `
+      UPDATE chats
+      SET last_message_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+    `;
+
+    await client.query(query, [chatId]);
+  }
+
   async incrementUnreadCounts(chatId: string, userIds: string[]): Promise<void> {
     if (userIds.length === 0) {
       return;
@@ -204,6 +235,20 @@ export class ChatRepository {
     await pool.query(query, [chatId, userIds]);
   }
 
+  async incrementUnreadCountsWithClient(client: any, chatId: string, userIds: string[]): Promise<void> {
+    if (userIds.length === 0) {
+      return;
+    }
+
+    const query = `
+      UPDATE chat_participants
+      SET unread_count = unread_count + 1
+      WHERE chat_id = $1 AND user_id = ANY($2)
+    `;
+
+    await client.query(query, [chatId, userIds]);
+  }
+
   async resetUnreadCount(chatId: string, userId: string): Promise<void> {
     const query = `
       UPDATE chat_participants
@@ -212,6 +257,44 @@ export class ChatRepository {
     `;
 
     await pool.query(query, [chatId, userId]);
+  }
+
+  async getParticipantRole(chatId: string, userId: string): Promise<string | null> {
+    const query = `
+      SELECT role FROM chat_participants
+      WHERE chat_id = $1 AND user_id = $2 AND left_at IS NULL
+      LIMIT 1
+    `;
+
+    const result = await readPool.query(query, [chatId, userId]);
+    return result.rows[0]?.role || null;
+  }
+
+  async transferOwnership(chatId: string, newOwnerId: string): Promise<void> {
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+
+      // Update chat owner
+      await client.query(
+        `UPDATE chats SET owner_id = $1 WHERE id = $2`,
+        [newOwnerId, chatId]
+      );
+
+      // Update new owner role
+      await client.query(
+        `UPDATE chat_participants SET role = $1 WHERE chat_id = $2 AND user_id = $3`,
+        [PARTICIPANT_ROLE.OWNER, chatId, newOwnerId]
+      );
+
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
   async update(chatId: string, data: Partial<Chat>): Promise<Chat> {

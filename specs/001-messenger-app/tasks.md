@@ -26,24 +26,24 @@ This is a web application with separated frontend/backend:
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Initialize backend Node.js project with TypeScript 5+ in backend/ with package.json
-- [ ] T002 Install backend dependencies: express@4.18+, socket.io@4.6+, @prisma/client@5+, bcrypt@5+, jsonwebtoken@9+, zod@3+, sharp@0.33+, helmet, cors, winston
-- [ ] T003 Configure TypeScript in backend/tsconfig.json with strict mode enabled
-- [ ] T004 [P] Initialize frontend React project with Vite 5+ in frontend/ with package.json
-- [ ] T005 [P] Install frontend dependencies: react@18+, zustand@4+, axios@1.6+, socket.io-client@4.6+, react-router-dom@6+, tailwindcss@3+
-- [ ] T006 [P] Configure TypeScript in frontend/tsconfig.json
-- [ ] T007 [P] Configure TailwindCSS in frontend/tailwind.config.js
-- [ ] T008 [P] Setup ESLint and Prettier for backend in backend/.eslintrc.json
-- [ ] T009 [P] Setup ESLint and Prettier for frontend in frontend/.eslintrc.json
-- [ ] T010 Create docker-compose.yml for local development (PostgreSQL 15, Redis 7, MinIO)
-- [ ] T011 Create backend/env.example with all required environment variables
-- [ ] T012 [P] Create frontend/.env.example with API and WebSocket URLs
-- [ ] T013 Initialize Prisma in backend/ with prisma init
-- [ ] T014 Create backend/Dockerfile for containerized deployment
-- [ ] T015 [P] Create frontend/Dockerfile with nginx configuration
-- [ ] T016 [P] Create frontend/nginx.conf for production serving
-- [ ] T017 [P] Create k8s/namespace.yaml for Kubernetes deployment
-- [ ] T018 Create README.md with project setup instructions
+- [X] T001 Initialize backend Node.js project with TypeScript 5+ in backend/ with package.json
+- [X] T002 Install backend dependencies: express@4.18+, socket.io@4.6+, @prisma/client@5+, bcrypt@5+, jsonwebtoken@9+, zod@3+, sharp@0.33+, helmet, cors, winston
+- [X] T003 Configure TypeScript in backend/tsconfig.json with strict mode enabled
+- [X] T004 [P] Initialize frontend React project with Vite 5+ in frontend/ with package.json
+- [X] T005 [P] Install frontend dependencies: react@18+, zustand@4+, axios@1.6+, socket.io-client@4.6+, react-router-dom@6+, tailwindcss@3+
+- [X] T006 [P] Configure TypeScript in frontend/tsconfig.json
+- [X] T007 [P] Configure TailwindCSS in frontend/tailwind.config.js
+- [X] T008 [P] Setup ESLint and Prettier for backend in backend/.eslintrc.json
+- [X] T009 [P] Setup ESLint and Prettier for frontend in frontend/.eslintrc.json
+- [X] T010 Create docker-compose.yml for local development (PostgreSQL 15, Redis 7, MinIO)
+- [X] T011 Create backend/env.example with all required environment variables
+- [X] T012 [P] Create frontend/.env.example with API and WebSocket URLs
+- [X] T013 Initialize Prisma in backend/ with prisma init
+- [X] T014 Create backend/Dockerfile for containerized deployment
+- [X] T015 [P] Create frontend/Dockerfile with nginx configuration
+- [X] T016 [P] Create frontend/nginx.conf for production serving
+- [X] T017 [P] Create k8s/namespace.yaml for Kubernetes deployment
+- [X] T018 Create README.md with project setup instructions
 
 ---
 
@@ -55,50 +55,50 @@ This is a web application with separated frontend/backend:
 
 ### Database & Infrastructure
 
-- [ ] T019 Define Prisma schema in backend/prisma/schema.prisma with all 9 entities (users, contacts, chats, chat_participants, messages, attachments, message_reactions, message_delivery, unread_messages)
-- [ ] T020 Create initial database migration in backend/database/migrations/001_initial_schema.sql
-- [ ] T021 Setup database configuration in backend/src/config/database.ts with connection pooling
-- [ ] T022 [P] Setup Redis configuration in backend/src/config/redis.ts for pub/sub and caching
-- [ ] T023 [P] Setup MinIO/S3 configuration in backend/src/config/storage.ts
-- [ ] T024 [P] Setup environment variables loader in backend/src/config/env.ts
-- [ ] T025 [P] Setup constants file in backend/src/config/constants.ts
+- [X] T019 Define Prisma schema in backend/prisma/schema.prisma with all 9 entities (users, contacts, chats, chat_participants, messages, attachments, message_reactions, message_delivery, unread_messages)
+- [X] T020 Create initial database migration in backend/database/migrations/001_initial_schema.sql
+- [X] T021 Setup database configuration in backend/src/config/database.ts with connection pooling
+- [X] T022 [P] Setup Redis configuration in backend/src/config/redis.ts for pub/sub and caching
+- [X] T023 [P] Setup MinIO/S3 configuration in backend/src/config/storage.ts
+- [X] T024 [P] Setup environment variables loader in backend/src/config/env.ts
+- [X] T025 [P] Setup constants file in backend/src/config/constants.ts
 
 ### Core Utilities & Middleware
 
-- [ ] T026 [P] Implement JWT utility functions in backend/src/utils/jwt.util.ts (generate, verify, refresh)
-- [ ] T027 [P] Implement password utility functions in backend/src/utils/password.util.ts (hash, compare with bcrypt)
-- [ ] T028 [P] Implement logger utility in backend/src/utils/logger.util.ts (Winston configuration)
-- [ ] T029 [P] Implement validation utility in backend/src/utils/validators.util.ts (Zod schemas)
-- [ ] T030 Implement authentication middleware in backend/src/middleware/auth.middleware.ts (JWT verification)
-- [ ] T031 [P] Implement error handling middleware in backend/src/middleware/error.middleware.ts
-- [ ] T032 [P] Implement rate limiting middleware in backend/src/middleware/rate-limit.middleware.ts (Redis-based)
-- [ ] T033 [P] Implement security middleware in backend/src/middleware/security.middleware.ts (Helmet, CORS)
-- [ ] T034 [P] Implement validation middleware in backend/src/middleware/validation.middleware.ts (Zod integration)
+- [X] T026 [P] Implement JWT utility functions in backend/src/utils/jwt.util.ts (generate, verify, refresh)
+- [X] T027 [P] Implement password utility functions in backend/src/utils/password.util.ts (hash, compare with bcrypt)
+- [X] T028 [P] Implement logger utility in backend/src/utils/logger.util.ts (Winston configuration)
+- [X] T029 [P] Implement validation utility in backend/src/utils/validators.util.ts (Zod schemas)
+- [X] T030 Implement authentication middleware in backend/src/middleware/auth.middleware.ts (JWT verification)
+- [X] T031 [P] Implement error handling middleware in backend/src/middleware/error.middleware.ts
+- [X] T032 [P] Implement rate limiting middleware in backend/src/middleware/rate-limit.middleware.ts (Redis-based)
+- [X] T033 [P] Implement security middleware in backend/src/middleware/security.middleware.ts (Helmet, CORS)
+- [X] T034 [P] Implement validation middleware in backend/src/middleware/validation.middleware.ts (Zod integration)
 
 ### Express App Setup
 
-- [ ] T035 Setup Express app in backend/src/app.ts with all middleware and routes
-- [ ] T036 Setup HTTP server in backend/src/server.ts with graceful shutdown
-- [ ] T037 [P] Setup health check route in backend/src/routes/health.routes.ts
-- [ ] T038 [P] Implement health check controller in backend/src/controllers/health.controller.ts
+- [X] T035 Setup Express app in backend/src/app.ts with all middleware and routes
+- [X] T036 Setup HTTP server in backend/src/server.ts with graceful shutdown
+- [X] T037 [P] Setup health check route in backend/src/routes/health.routes.ts
+- [X] T038 [P] Implement health check controller in backend/src/controllers/health.controller.ts
 
 ### WebSocket Infrastructure
 
-- [ ] T039 Setup Socket.IO server in backend/src/websocket/socket.manager.ts with Redis adapter
-- [ ] T040 Implement WebSocket authentication middleware in backend/src/websocket/middleware/socket-auth.middleware.ts
-- [ ] T041 Setup message delivery queue in backend/src/queues/message-delivery.queue.ts (Redis Streams)
+- [X] T039 Setup Socket.IO server in backend/src/websocket/socket.manager.ts with Redis adapter
+- [X] T040 Implement WebSocket authentication middleware in backend/src/websocket/middleware/socket-auth.middleware.ts
+- [X] T041 Setup message delivery queue in backend/src/queues/message-delivery.queue.ts (Redis Streams)
 
 ### Frontend Core
 
-- [ ] T042 [P] Setup API service in frontend/src/services/api.service.ts (Axios with interceptors)
-- [ ] T043 [P] Setup WebSocket service in frontend/src/services/websocket.service.ts (Socket.IO client)
-- [ ] T044 [P] Setup auth store in frontend/src/store/authStore.ts (Zustand)
-- [ ] T045 [P] Setup React Router configuration in frontend/src/App.tsx with protected routes
-- [ ] T046 [P] Create common UI components: Button in frontend/src/components/common/Button.tsx
-- [ ] T047 [P] Create common UI components: Input in frontend/src/components/common/Input.tsx
-- [ ] T048 [P] Create common UI components: Avatar in frontend/src/components/common/Avatar.tsx
-- [ ] T049 [P] Create common UI components: Modal in frontend/src/components/common/Modal.tsx
-- [ ] T050 [P] Setup global styles in frontend/src/index.css with TailwindCSS
+- [X] T042 [P] Setup API service in frontend/src/services/api.service.ts (Axios with interceptors)
+- [X] T043 [P] Setup WebSocket service in frontend/src/services/websocket.service.ts (Socket.IO client)
+- [X] T044 [P] Setup auth store in frontend/src/store/authStore.ts (Zustand)
+- [X] T045 [P] Setup React Router configuration in frontend/src/App.tsx with protected routes
+- [X] T046 [P] Create common UI components: Button in frontend/src/components/common/Button.tsx
+- [X] T047 [P] Create common UI components: Input in frontend/src/components/common/Input.tsx
+- [X] T048 [P] Create common UI components: Avatar in frontend/src/components/common/Avatar.tsx
+- [X] T049 [P] Create common UI components: Modal in frontend/src/components/common/Modal.tsx
+- [X] T050 [P] Setup global styles in frontend/src/index.css with TailwindCSS
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -112,29 +112,29 @@ This is a web application with separated frontend/backend:
 
 ### Backend Implementation for User Story 1
 
-- [ ] T051 [P] [US1] Create User repository in backend/src/repositories/user.repository.ts (CRUD operations)
-- [ ] T052 [US1] Implement AuthService in backend/src/services/auth.service.ts (register, login, refresh token, logout)
-- [ ] T053 [US1] Implement SessionService in backend/src/services/session.service.ts (Redis session management)
-- [ ] T054 [US1] Implement UserService in backend/src/services/user.service.ts (profile operations)
-- [ ] T055 [US1] Implement AuthController in backend/src/controllers/auth.controller.ts (register, login, refresh, logout endpoints)
-- [ ] T056 [US1] Implement UserController in backend/src/controllers/user.controller.ts (profile endpoints)
-- [ ] T057 [US1] Setup auth routes in backend/src/routes/auth.routes.ts (POST /auth/register, POST /auth/login, POST /auth/refresh, POST /auth/logout)
-- [ ] T058 [US1] Setup user routes in backend/src/routes/user.routes.ts (GET /users/me, PUT /users/me, PATCH /users/me/avatar, GET /users/:id)
-- [ ] T059 [US1] Add rate limiting for auth endpoints (5 attempts / 15 minutes)
-- [ ] T060 [US1] Add validation schemas for registration and login (Zod)
+- [X] T051 [P] [US1] Create User repository in backend/src/repositories/user.repository.ts (CRUD operations)
+- [X] T052 [US1] Implement AuthService in backend/src/services/auth.service.ts (register, login, refresh token, logout)
+- [X] T053 [US1] Implement SessionService in backend/src/services/session.service.ts (Redis session management)
+- [X] T054 [US1] Implement UserService in backend/src/services/user.service.ts (profile operations)
+- [X] T055 [US1] Implement AuthController in backend/src/controllers/auth.controller.ts (register, login, refresh, logout endpoints)
+- [X] T056 [US1] Implement UserController in backend/src/controllers/user.controller.ts (profile endpoints)
+- [X] T057 [US1] Setup auth routes in backend/src/routes/auth.routes.ts (POST /auth/register, POST /auth/login, POST /auth/refresh, POST /auth/logout)
+- [X] T058 [US1] Setup user routes in backend/src/routes/user.routes.ts (GET /users/me, PUT /users/me, PATCH /users/me/avatar, GET /users/:id)
+- [X] T059 [US1] Add rate limiting for auth endpoints (5 attempts / 15 minutes)
+- [X] T060 [US1] Add validation schemas for registration and login (Zod)
 
 ### Frontend Implementation for User Story 1
 
-- [ ] T061 [P] [US1] Create LoginForm component in frontend/src/components/auth/LoginForm.tsx
-- [ ] T062 [P] [US1] Create RegisterForm component in frontend/src/components/auth/RegisterForm.tsx
-- [ ] T063 [US1] Create LoginPage in frontend/src/pages/LoginPage.tsx
-- [ ] T064 [P] [US1] Create RegisterPage in frontend/src/pages/RegisterPage.tsx
-- [ ] T065 [P] [US1] Create ProfilePage in frontend/src/pages/ProfilePage.tsx
-- [ ] T066 [US1] Implement auth API calls in frontend/src/services/api.service.ts (register, login, logout, refresh)
-- [ ] T067 [US1] Implement auth state management in frontend/src/store/authStore.ts (login, logout, token refresh)
-- [ ] T068 [US1] Add JWT token interceptor to Axios in frontend/src/services/api.service.ts
-- [ ] T069 [US1] Add automatic token refresh logic in frontend/src/services/api.service.ts
-- [ ] T070 [US1] Add protected route wrapper in frontend/src/App.tsx
+- [X] T061 [P] [US1] Create LoginForm component in frontend/src/components/auth/LoginForm.tsx
+- [X] T062 [P] [US1] Create RegisterForm component in frontend/src/components/auth/RegisterForm.tsx
+- [X] T063 [US1] Create LoginPage in frontend/src/pages/LoginPage.tsx
+- [X] T064 [P] [US1] Create RegisterPage in frontend/src/pages/RegisterPage.tsx
+- [X] T065 [P] [US1] Create ProfilePage in frontend/src/pages/ProfilePage.tsx
+- [X] T066 [US1] Implement auth API calls in frontend/src/services/api.service.ts (register, login, logout, refresh)
+- [X] T067 [US1] Implement auth state management in frontend/src/store/authStore.ts (login, logout, token refresh)
+- [X] T068 [US1] Add JWT token interceptor to Axios in frontend/src/services/api.service.ts
+- [X] T069 [US1] Add automatic token refresh logic in frontend/src/services/api.service.ts
+- [X] T070 [US1] Add protected route wrapper in frontend/src/App.tsx
 
 **Checkpoint**: User Story 1 complete - users can register, login, and manage sessions
 
@@ -148,27 +148,27 @@ This is a web application with separated frontend/backend:
 
 ### Backend Implementation for User Story 2
 
-- [ ] T071 [P] [US2] Create Contact repository in backend/src/repositories/contact.repository.ts
-- [ ] T072 [US2] Implement contact search in UserService in backend/src/services/user.service.ts (searchUsers method)
-- [ ] T073 [US2] Implement ContactController in backend/src/controllers/contact.controller.ts (CRUD for contacts)
-- [ ] T074 [US2] Setup contact routes in backend/src/routes/contact.routes.ts (GET /contacts, POST /contacts, DELETE /contacts/:id, PUT /contacts/:id/accept, PUT /contacts/:id/reject, GET /contacts/pending)
-- [ ] T075 [US2] Setup user search route in backend/src/routes/user.routes.ts (GET /users/search)
-- [ ] T076 [US2] Add bidirectional contact creation logic in ContactController
-- [ ] T077 [US2] Add contact status validation (pending/accepted/blocked)
-- [ ] T078 [US2] Add rate limiting for contact requests (50 per day per user)
-- [ ] T079 [US2] Implement WebSocket events for contact status updates in backend/src/websocket/handlers/presence.handler.ts
+- [X] T071 [P] [US2] Create Contact repository in backend/src/repositories/contact.repository.ts
+- [X] T072 [US2] Implement contact search in UserService in backend/src/services/user.service.ts (searchUsers method)
+- [X] T073 [US2] Implement ContactController in backend/src/controllers/contact.controller.ts (CRUD for contacts)
+- [X] T074 [US2] Setup contact routes in backend/src/routes/contact.routes.ts (GET /contacts, POST /contacts, DELETE /contacts/:id, PUT /contacts/:id/accept, PUT /contacts/:id/reject, GET /contacts/pending)
+- [X] T075 [US2] Setup user search route in backend/src/routes/user.routes.ts (GET /users/search)
+- [X] T076 [US2] Add bidirectional contact creation logic in ContactController
+- [X] T077 [US2] Add contact status validation (pending/accepted/blocked)
+- [X] T078 [US2] Add rate limiting for contact requests (50 per day per user)
+- [X] T079 [US2] Implement WebSocket events for contact status updates in backend/src/websocket/handlers/presence.handler.ts
 
 ### Frontend Implementation for User Story 2
 
-- [ ] T080 [P] [US2] Create contact store in frontend/src/store/contactStore.ts (Zustand)
-- [ ] T081 [P] [US2] Create ContactList component in frontend/src/components/contacts/ContactList.tsx
-- [ ] T082 [P] [US2] Create ContactRequest component in frontend/src/components/contacts/ContactRequest.tsx
-- [ ] T083 [P] [US2] Create UserSearch component in frontend/src/components/contacts/UserSearch.tsx
-- [ ] T084 [US2] Create ContactsPage in frontend/src/pages/ContactsPage.tsx
-- [ ] T085 [US2] Implement contact API calls in frontend/src/services/api.service.ts (getContacts, sendRequest, accept, reject, remove, searchUsers)
-- [ ] T086 [US2] Add WebSocket listeners for contact status updates in frontend/src/services/websocket.service.ts
-- [ ] T087 [US2] Add online/offline status indicators in ContactList component
-- [ ] T088 [US2] Add contact sorting (online first, then alphabetical)
+- [X] T080 [P] [US2] Create contact store in frontend/src/store/contactStore.ts (Zustand)
+- [X] T081 [P] [US2] Create ContactList component in frontend/src/components/contacts/ContactList.tsx
+- [X] T082 [P] [US2] Create ContactRequest component in frontend/src/components/contacts/ContactRequest.tsx
+- [X] T083 [P] [US2] Create UserSearch component in frontend/src/components/contacts/UserSearch.tsx
+- [X] T084 [US2] Create ContactsPage in frontend/src/pages/ContactsPage.tsx
+- [X] T085 [US2] Implement contact API calls in frontend/src/services/api.service.ts (getContacts, sendRequest, accept, reject, remove, searchUsers)
+- [X] T086 [US2] Add WebSocket listeners for contact status updates in frontend/src/services/websocket.service.ts
+- [X] T087 [US2] Add online/offline status indicators in ContactList component
+- [X] T088 [US2] Add contact sorting (online first, then alphabetical)
 
 **Checkpoint**: User Story 2 complete - users can manage contacts and see online status
 
@@ -182,48 +182,48 @@ This is a web application with separated frontend/backend:
 
 ### Backend Implementation for User Story 3
 
-- [ ] T089 [P] [US3] Create Chat repository in backend/src/repositories/chat.repository.ts
-- [ ] T090 [P] [US3] Create Message repository in backend/src/repositories/message.repository.ts
-- [ ] T091 [US3] Implement MessageService in backend/src/services/message.service.ts (send, edit, delete, paginate)
-- [ ] T092 [US3] Implement StorageService in backend/src/services/storage.service.ts (image upload, Sharp processing, thumbnail generation)
-- [ ] T093 [US3] Implement ChatController in backend/src/controllers/chat.controller.ts (create direct chat, get chats)
-- [ ] T094 [US3] Implement MessageController in backend/src/controllers/message.controller.ts (send, get messages, edit, delete)
-- [ ] T095 [US3] Setup chat routes in backend/src/routes/chat.routes.ts (GET /chats, POST /chats/direct, GET /chats/:id, GET /chats/slug/:slug)
-- [ ] T096 [US3] Setup message routes in backend/src/routes/message.routes.ts (GET /chats/:id/messages, POST /chats/:id/messages, PUT /messages/:id, DELETE /messages/:id, POST /messages/:id/read)
-- [ ] T097 [US3] Setup attachment routes in backend/src/routes/message.routes.ts (POST /attachments/upload, GET /attachments/:id)
-- [ ] T098 [US3] Implement WebSocket message handler in backend/src/websocket/handlers/message.handler.ts (real-time message delivery)
-- [ ] T099 [US3] Implement message delivery queue processing in backend/src/queues/message-delivery.queue.ts
-- [ ] T100 [US3] Add message validation (max 10,000 chars, sanitize HTML)
-- [ ] T101 [US3] Add image validation (JPEG/PNG/GIF/WebP, max 10MB, max 5 per message)
-- [ ] T102 [US3] Implement image processing (original, medium 800px, thumbnail 300px)
-- [ ] T103 [US3] Add rate limiting for messaging (10 messages/second per user)
-- [ ] T104 [US3] Add rate limiting for image uploads (10 uploads/minute per user)
-- [ ] T105 [US3] Implement message persistence with ACID transactions
-- [ ] T106 [US3] Implement cursor-based pagination for messages (50 messages per page)
-- [ ] T107 [US3] Add delivery status tracking (sent/delivered/read) in message_delivery table
-- [ ] T108 [US3] Implement offline message queuing in Redis
-- [ ] T109 [US3] Implement reuse existing direct chat logic (prevent duplicates)
+- [X] T089 [P] [US3] Create Chat repository in backend/src/repositories/chat.repository.ts
+- [X] T090 [P] [US3] Create Message repository in backend/src/repositories/message.repository.ts
+- [X] T091 [US3] Implement MessageService in backend/src/services/message.service.ts (send, edit, delete, paginate)
+- [X] T092 [US3] Implement StorageService in backend/src/services/storage.service.ts (image upload, Sharp processing, thumbnail generation)
+- [X] T093 [US3] Implement ChatController in backend/src/controllers/chat.controller.ts (create direct chat, get chats)
+- [X] T094 [US3] Implement MessageController in backend/src/controllers/message.controller.ts (send, get messages, edit, delete)
+- [X] T095 [US3] Setup chat routes in backend/src/routes/chat.routes.ts (GET /chats, POST /chats/direct, GET /chats/:id, GET /chats/slug/:slug)
+- [X] T096 [US3] Setup message routes in backend/src/routes/message.routes.ts (GET /chats/:id/messages, POST /chats/:id/messages, PUT /messages/:id, DELETE /messages/:id, POST /messages/:id/read)
+- [X] T097 [US3] Setup attachment routes in backend/src/routes/message.routes.ts (POST /attachments/upload, GET /attachments/:id)
+- [X] T098 [US3] Implement WebSocket message handler in backend/src/websocket/handlers/message.handler.ts (real-time message delivery)
+- [X] T099 [US3] Implement message delivery queue processing in backend/src/queues/message-delivery.queue.ts
+- [X] T100 [US3] Add message validation (max 10,000 chars, sanitize HTML)
+- [X] T101 [US3] Add image validation (JPEG/PNG/GIF/WebP, max 10MB, max 5 per message)
+- [X] T102 [US3] Implement image processing (original, medium 800px, thumbnail 300px)
+- [X] T103 [US3] Add rate limiting for messaging (10 messages/second per user)
+- [X] T104 [US3] Add rate limiting for image uploads (10 uploads/minute per user)
+- [X] T105 [US3] Implement message persistence with ACID transactions
+- [X] T106 [US3] Implement cursor-based pagination for messages (50 messages per page)
+- [X] T107 [US3] Add delivery status tracking (sent/delivered/read) in message_delivery table
+- [X] T108 [US3] Implement offline message queuing in Redis
+- [X] T109 [US3] Prevent duplicate direct chats - check if direct chat exists before creating
 
 ### Frontend Implementation for User Story 3
 
-- [ ] T110 [P] [US3] Create chat store in frontend/src/store/chatStore.ts (Zustand with message history)
-- [ ] T111 [P] [US3] Create ChatWindow component in frontend/src/components/chat/ChatWindow.tsx
-- [ ] T112 [P] [US3] Create ChatHeader component in frontend/src/components/chat/ChatHeader.tsx
-- [ ] T113 [P] [US3] Create MessageList component in frontend/src/components/chat/MessageList.tsx
-- [ ] T114 [P] [US3] Create Message component in frontend/src/components/chat/Message.tsx (with formatting support)
-- [ ] T115 [P] [US3] Create MessageInput component in frontend/src/components/chat/MessageInput.tsx (with image upload)
-- [ ] T116 [US3] Create ChatPage in frontend/src/pages/ChatPage.tsx
-- [ ] T117 [US3] Implement chat API calls in frontend/src/services/api.service.ts (getChats, createDirectChat, getMessages, sendMessage)
-- [ ] T118 [US3] Implement image upload API call in frontend/src/services/api.service.ts
-- [ ] T119 [US3] Add WebSocket message listeners in frontend/src/services/websocket.service.ts (message:new event)
-- [ ] T120 [US3] Implement optimistic UI for message sending
-- [ ] T121 [US3] Implement infinite scroll for message history with useInfiniteScroll hook in frontend/src/hooks/useInfiniteScroll.ts
-- [ ] T122 [US3] Add text formatting toolbar (bold/italic) in MessageInput
-- [ ] T123 [US3] Add image preview before upload in MessageInput
-- [ ] T124 [US3] Add thumbnail display with full-size viewer in Message component
-- [ ] T125 [US3] Add delivery status indicators (sent/delivered/read) in Message component
-- [ ] T126 [US3] Add auto-scroll to newest message
-- [ ] T127 [US3] Add message timestamp display
+- [X] T110 [P] [US3] Create chat store in frontend/src/store/chatStore.ts (Zustand with message history)
+- [X] T111 [P] [US3] Create ChatWindow component in frontend/src/components/chat/ChatWindow.tsx
+- [X] T112 [P] [US3] Create ChatHeader component in frontend/src/components/chat/ChatHeader.tsx
+- [X] T113 [P] [US3] Create MessageList component in frontend/src/components/chat/MessageList.tsx
+- [X] T114 [P] [US3] Create Message component in frontend/src/components/chat/Message.tsx (with formatting support)
+- [X] T115 [P] [US3] Create MessageInput component in frontend/src/components/chat/MessageInput.tsx (with image upload)
+- [X] T116 [US3] Create ChatPage in frontend/src/pages/ChatPage.tsx
+- [X] T117 [US3] Implement chat API calls in frontend/src/services/api.service.ts (getChats, createDirectChat, getMessages, sendMessage)
+- [X] T118 [US3] Implement image upload API call in frontend/src/services/api.service.ts
+- [X] T119 [US3] Add WebSocket message listeners in frontend/src/services/websocket.service.ts (message:new event)
+- [X] T120 [US3] Implement optimistic UI for message sending
+- [X] T121 [US3] Implement infinite scroll for message history with useInfiniteScroll hook in frontend/src/hooks/useInfiniteScroll.ts
+- [X] T122 [US3] Add text formatting toolbar (bold/italic) in MessageInput
+- [X] T123 [US3] Add image preview before upload in MessageInput
+- [X] T124 [US3] Add thumbnail display with full-size viewer in Message component
+- [X] T125 [US3] Add delivery status indicators (sent/delivered/read) in Message component
+- [X] T126 [US3] Add auto-scroll to newest message
+- [X] T127 [US3] Add message timestamp display
 
 **Checkpoint**: User Story 3 complete - users can send text/image messages with reliable delivery
 
@@ -237,30 +237,30 @@ This is a web application with separated frontend/backend:
 
 ### Backend Implementation for User Story 4
 
-- [ ] T128 [US4] Extend ChatController for group operations in backend/src/controllers/chat.controller.ts (create group, update, delete, add/remove participants)
-- [ ] T129 [US4] Extend Chat repository for group queries in backend/src/repositories/chat.repository.ts
-- [ ] T130 [US4] Setup group chat routes in backend/src/routes/chat.routes.ts (POST /chats/group, PUT /chats/:id, DELETE /chats/:id, POST /chats/:id/participants, DELETE /chats/:id/participants/:userId, POST /chats/:id/leave)
-- [ ] T131 [US4] Add group participant limit validation (max 300)
-- [ ] T132 [US4] Add group ownership transfer logic when owner leaves
-- [ ] T133 [US4] Implement system notifications for group events (participant added/removed/left)
-- [ ] T134 [US4] Extend WebSocket message handler for group message delivery
-- [ ] T135 [US4] Add group permission checks (owner/admin for management operations)
-- [ ] T136 [US4] Implement group avatar upload in StorageService
+- [X] T128 [US4] Extend ChatController for group operations in backend/src/controllers/chat.controller.ts (create group, update, delete, add/remove participants)
+- [X] T129 [US4] Extend Chat repository for group queries in backend/src/repositories/chat.repository.ts
+- [X] T130 [US4] Setup group chat routes in backend/src/routes/chat.routes.ts (POST /chats/group, PUT /chats/:id, DELETE /chats/:id, POST /chats/:id/participants, DELETE /chats/:id/participants/:userId, POST /chats/:id/leave)
+- [X] T131 [US4] Add group participant limit validation (max 300)
+- [X] T132 [US4] Add group ownership transfer logic when owner leaves
+- [X] T133 [US4] Implement system notifications for group events (participant added/removed/left)
+- [X] T134 [US4] Extend WebSocket message handler for group message delivery
+- [X] T135 [US4] Add group permission checks (owner/admin for management operations)
+- [X] T136 [US4] Implement group avatar upload in StorageService
 
 ### Frontend Implementation for User Story 4
 
-- [ ] T137 [P] [US4] Create GroupCreate component in frontend/src/components/groups/GroupCreate.tsx
-- [ ] T138 [P] [US4] Create GroupSettings component in frontend/src/components/groups/GroupSettings.tsx
-- [ ] T139 [P] [US4] Create ParticipantList component in frontend/src/components/groups/ParticipantList.tsx
-- [ ] T140 [US4] Extend chat store for group operations in frontend/src/store/chatStore.ts
-- [ ] T141 [US4] Implement group API calls in frontend/src/services/api.service.ts (createGroup, updateGroup, deleteGroup, addParticipant, removeParticipant, leaveGroup)
-- [ ] T142 [US4] Add group creation UI in ChatPage with participant selection
-- [ ] T143 [US4] Add group settings modal with edit/delete/manage participants
-- [ ] T144 [US4] Add system message display in MessageList (participant events)
-- [ ] T145 [US4] Add participant count badge in ChatHeader
-- [ ] T146 [US4] Add confirmation dialogs for leave/delete group operations
+- [X] T137 [P] [US4] Create GroupCreate component in frontend/src/components/groups/GroupCreate.tsx
+- [X] T138 [P] [US4] Create GroupSettings component in frontend/src/components/groups/GroupSettings.tsx
+- [X] T139 [P] [US4] Create ParticipantList component in frontend/src/components/groups/ParticipantList.tsx
+- [X] T140 [US4] Extend chat store for group operations in frontend/src/store/chatStore.ts
+- [X] T141 [US4] Implement group API calls in frontend/src/services/api.service.ts (createGroup, updateGroup, deleteGroup, addParticipant, removeParticipant, leaveGroup)
+- [X] T142 [US4] Add group creation UI in ChatPage with participant selection
+- [X] T143 [US4] Add group settings modal with edit/delete/manage participants
+- [X] T144 [US4] Add system message display in MessageList (participant events)
+- [X] T145 [US4] Add participant count badge in ChatHeader
+- [X] T146 [US4] Add confirmation dialogs for leave/delete group operations
 
-**Checkpoint**: User Story 4 complete - group chats fully functional
+**Checkpoint**: ✅ User Story 4 complete - group chats fully functional
 
 ---
 
@@ -272,28 +272,28 @@ This is a web application with separated frontend/backend:
 
 ### Backend Implementation for User Story 5
 
-- [ ] T147 [US5] Extend MessageService for edit/delete operations in backend/src/services/message.service.ts
-- [ ] T148 [US5] Extend MessageController for reactions in backend/src/controllers/message.controller.ts
-- [ ] T149 [US5] Setup reaction routes in backend/src/routes/message.routes.ts (POST /messages/:id/reactions, DELETE /messages/:id/reactions/:reactionId)
-- [ ] T150 [US5] Implement soft delete for messages (set is_deleted=true, content="[Deleted]")
-- [ ] T151 [US5] Add edited timestamp and flag to messages
-- [ ] T152 [US5] Implement reply-to functionality (reply_to_id foreign key)
-- [ ] T153 [US5] Implement WebSocket events for edit/delete/reactions in message handler
-- [ ] T154 [US5] Add permission checks (only sender can edit/delete own messages)
+- [X] T147 [US5] Extend MessageService for edit/delete operations in backend/src/services/message.service.ts
+- [X] T148 [US5] Extend MessageController for reactions in backend/src/controllers/message.controller.ts
+- [X] T149 [US5] Setup reaction routes in backend/src/routes/message.routes.ts (POST /messages/:id/reactions, DELETE /messages/:id/reactions/:reactionId)
+- [X] T150 [US5] Implement soft delete for messages (set is_deleted=true, content="[Deleted]")
+- [X] T151 [US5] Add edited timestamp and flag to messages
+- [X] T152 [US5] Implement reply-to functionality (reply_to_id foreign key)
+- [X] T153 [US5] Implement WebSocket events for edit/delete/reactions in message handler
+- [X] T154 [US5] Add permission checks (only sender can edit/delete own messages)
 
 ### Frontend Implementation for User Story 5
 
-- [ ] T155 [P] [US5] Add message action menu in Message component (edit, delete, react, reply)
-- [ ] T156 [US5] Add inline edit mode in Message component
-- [ ] T157 [US5] Add emoji picker for reactions in Message component
-- [ ] T158 [US5] Add reaction display with count under messages
-- [ ] T159 [US5] Add reply preview in MessageInput when replying
-- [ ] T160 [US5] Add quoted message display in Message component for replies
-- [ ] T161 [US5] Add edited indicator to edited messages
-- [ ] T162 [US5] Implement edit/delete API calls in frontend/src/services/api.service.ts
-- [ ] T163 [US5] Implement reaction API calls in frontend/src/services/api.service.ts
-- [ ] T164 [US5] Add WebSocket listeners for edit/delete/reaction events
-- [ ] T165 [US5] Add hover tooltip showing users who reacted
+- [X] T155 [P] [US5] Add message action menu in Message component (edit, delete, react, reply)
+- [X] T156 [US5] Add inline edit mode in Message component
+- [X] T157 [US5] Add emoji picker for reactions in Message component
+- [X] T158 [US5] Add reaction display with count under messages
+- [X] T159 [US5] Add reply preview in MessageInput when replying
+- [X] T160 [US5] Add quoted message display in Message component for replies
+- [X] T161 [US5] Add edited indicator to edited messages
+- [X] T162 [US5] Implement edit/delete API calls in frontend/src/services/api.service.ts
+- [X] T163 [US5] Implement reaction API calls in frontend/src/services/api.service.ts
+- [X] T164 [US5] Add WebSocket listeners for edit/delete/reaction events
+- [X] T165 [US5] Add hover tooltip showing users who reacted
 
 **Checkpoint**: User Story 5 complete - message management features working
 
@@ -307,27 +307,27 @@ This is a web application with separated frontend/backend:
 
 ### Backend Implementation for User Story 6
 
-- [ ] T166 [US6] Implement presence tracking in WebSocket socket manager in backend/src/websocket/socket.manager.ts
-- [ ] T167 [US6] Implement presence handler in backend/src/websocket/handlers/presence.handler.ts (connect, disconnect, status change)
-- [ ] T168 [US6] Implement typing handler in backend/src/websocket/handlers/typing.handler.ts (typing:start, typing:stop)
-- [ ] T169 [US6] Store online users in Redis with TTL
-- [ ] T170 [US6] Update last_seen timestamp on disconnect
-- [ ] T171 [US6] Broadcast status changes to contacts via WebSocket
-- [ ] T172 [US6] Broadcast typing events to chat participants
-- [ ] T173 [US6] Implement typing timeout (3 seconds)
+- [X] T166 [US6] Implement presence tracking in WebSocket socket manager in backend/src/websocket/socket.manager.ts
+- [X] T167 [US6] Implement presence handler in backend/src/websocket/handlers/presence.handler.ts (connect, disconnect, status change)
+- [X] T168 [US6] Implement typing handler in backend/src/websocket/handlers/typing.handler.ts (typing:start, typing:stop)
+- [X] T169 [US6] Store online users in Redis with TTL
+- [X] T170 [US6] Update last_seen timestamp on disconnect
+- [X] T171 [US6] Broadcast status changes to contacts via WebSocket
+- [X] T172 [US6] Broadcast typing events to chat participants
+- [X] T173 [US6] Implement typing timeout (3 seconds)
 
 ### Frontend Implementation for User Story 6
 
-- [ ] T174 [P] [US6] Create TypingIndicator component in frontend/src/components/chat/TypingIndicator.tsx
-- [ ] T175 [US6] Add WebSocket listeners for presence events in frontend/src/services/websocket.service.ts (user:status)
-- [ ] T176 [US6] Add WebSocket listeners for typing events in frontend/src/services/websocket.service.ts (typing:start, typing:stop)
-- [ ] T177 [US6] Emit typing:start event on MessageInput keypress
-- [ ] T178 [US6] Emit typing:stop event after 3 seconds of inactivity
-- [ ] T179 [US6] Display typing indicator in ChatWindow
-- [ ] T180 [US6] Update contact status in real-time in ContactList
-- [ ] T181 [US6] Add status indicator colors (green=online, gray=offline, yellow=away)
-- [ ] T182 [US6] Display last seen timestamp for offline users
-- [ ] T183 [US6] Handle multiple typing users in group chats
+- [X] T174 [P] [US6] Create TypingIndicator component in frontend/src/components/chat/TypingIndicator.tsx
+- [X] T175 [US6] Add WebSocket listeners for presence events in frontend/src/services/websocket.service.ts (user:status)
+- [X] T176 [US6] Add WebSocket listeners for typing events in frontend/src/services/websocket.service.ts (typing:start, typing:stop)
+- [X] T177 [US6] Emit typing:start event on MessageInput keypress
+- [X] T178 [US6] Emit typing:stop event after 3 seconds of inactivity
+- [X] T179 [US6] Display typing indicator in ChatWindow
+- [X] T180 [US6] Update contact status in real-time in ContactList
+- [X] T181 [US6] Add status indicator colors (green=online, gray=offline, yellow=away)
+- [X] T182 [US6] Display last seen timestamp for offline users
+- [X] T183 [US6] Handle multiple typing users in group chats
 
 **Checkpoint**: User Story 6 complete - real-time presence and typing indicators working
 
@@ -341,20 +341,20 @@ This is a web application with separated frontend/backend:
 
 ### Backend Implementation for User Story 7
 
-- [ ] T184 [US7] Implement read receipt handler in backend/src/websocket/handlers/read-receipt.handler.ts
-- [ ] T185 [US7] Update message_delivery table on read events
-- [ ] T186 [US7] Broadcast read receipts to message sender
-- [ ] T187 [US7] Calculate read counts for group messages
-- [ ] T188 [US7] Implement bulk mark as read for chat opening
+- [X] T184 [US7] Implement read receipt handler in backend/src/websocket/handlers/read-receipt.handler.ts
+- [X] T185 [US7] Update message_delivery table on read events
+- [X] T186 [US7] Broadcast read receipts to message sender
+- [X] T187 [US7] Calculate read counts for group messages
+- [X] T188 [US7] Implement bulk mark as read for chat opening
 
 ### Frontend Implementation for User Story 7
 
-- [ ] T189 [US7] Emit message read events when chat is opened and messages are visible
-- [ ] T190 [US7] Add WebSocket listener for read receipt events in frontend/src/services/websocket.service.ts
-- [ ] T191 [US7] Update message delivery status in chat store
-- [ ] T192 [US7] Display read checkmarks in direct chats
-- [ ] T193 [US7] Display read count in group chats ("Read by X of Y")
-- [ ] T194 [US7] Add intersection observer to mark messages as read when visible
+- [X] T189 [US7] Emit message read events when chat is opened and messages are visible
+- [X] T190 [US7] Add WebSocket listener for read receipt events in frontend/src/services/websocket.service.ts
+- [X] T191 [US7] Update message delivery status in chat store
+- [X] T192 [US7] Display read checkmarks in direct chats
+- [X] T193 [US7] Display read count in group chats ("Read by X of Y")
+- [X] T194 [US7] Add intersection observer to mark messages as read when visible
 
 **Checkpoint**: User Story 7 complete - read receipts functional
 

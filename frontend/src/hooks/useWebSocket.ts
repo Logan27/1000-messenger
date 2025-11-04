@@ -25,6 +25,7 @@ interface Message {
 interface MessageReadData {
   messageId: string;
   readBy: string;
+  readCount?: { total: number; read: number };
 }
 
 interface ReactionData {
@@ -83,6 +84,13 @@ export const useWebSocket = () => {
     // Listen for user status changes
     wsService.on('user:status', _data => {
       // Update user status in store
+    });
+
+    // Listen for read receipts
+    wsService.on('message:read', (data: MessageReadData) => {
+      // Update message delivery status
+      const { updateMessageDeliveryStatus } = useChatStore.getState();
+      updateMessageDeliveryStatus(data.messageId, 'read', data.readCount);
     });
 
     return () => {

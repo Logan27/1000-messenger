@@ -35,19 +35,36 @@ const MessageListComponent: React.FC<MessageListProps> = ({ messages, messageId 
 
   return (
     <div className="space-y-4">
-      {messages.map(message => (
-        <div
-          key={message.id}
-          ref={message.id === messageId ? highlightedMessageRef : null}
-          className={message.id === messageId ? 'ring-2 ring-blue-500 rounded-lg p-2' : ''}
-        >
-          <Message
-            message={message}
-            senderName="User" // This would come from user data
-            senderAvatar={undefined}
-          />
-        </div>
-      ))}
+      {messages.map(message => {
+        // System messages get special rendering
+        if (message.contentType === 'system') {
+          return (
+            <div
+              key={message.id}
+              className="flex justify-center py-2"
+            >
+              <div className="bg-gray-100 text-gray-600 text-sm px-4 py-2 rounded-full">
+                {message.content}
+              </div>
+            </div>
+          );
+        }
+
+        // Regular messages
+        return (
+          <div
+            key={message.id}
+            ref={message.id === messageId ? highlightedMessageRef : null}
+            className={message.id === messageId ? 'ring-2 ring-blue-500 rounded-lg p-2' : ''}
+          >
+            <Message
+              message={message}
+              senderName="User" // This would come from user data
+              senderAvatar={undefined}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 };

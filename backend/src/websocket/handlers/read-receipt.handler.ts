@@ -30,8 +30,8 @@ export class ReadReceiptHandler {
 
     socket.on('chat:mark-all-read', async (data: { chatId: string }) => {
       try {
-        // This would typically mark all messages in a chat as read
-        // Implementation depends on your specific requirements
+        await this.messageService.bulkMarkAsRead(data.chatId, userId);
+
         socket.emit('chat:mark-all-read:success', {
           chatId: data.chatId,
           readBy: userId,

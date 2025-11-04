@@ -9,6 +9,7 @@ import { messageRoutes } from './routes/message.routes';
 import { contactRoutes } from './routes/contact.routes';
 import { healthRoutes } from './routes/health.routes';
 import { callRoutes } from './routes/call.routes';
+import { attachmentRoutes } from './routes/attachment.routes';
 import { config } from './config/env';
 import { logger } from './utils/logger.util';
 
@@ -41,6 +42,7 @@ export function createApp() {
   app.use('/api/messages', messageRoutes);
   app.use('/api/contacts', contactRoutes);
   app.use('/api/calls', callRoutes);
+  app.use('/api/attachments', attachmentRoutes);
 
   // 404 handler
   app.use(notFoundHandler);

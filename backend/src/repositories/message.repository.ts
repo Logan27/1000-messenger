@@ -3,7 +3,7 @@ import { pool, readPool } from '../config/database';
 export interface Message {
   id: string;
   chatId: string;
-  senderId: string;
+  senderId: string | null;
   content: string;
   contentType: 'text' | 'image' | 'system';
   metadata: Record<string, any>;
@@ -249,6 +249,106 @@ export class MessageRepository {
     const result = await readPool.query(query, params);
 
     return result.rows.map(row => this.mapRow(row));
+  }
+
+  async findAttachmentById(attachmentId: string) {
+    const query = `
+      SELECT * FROM attachments WHERE id = $1
+    `;
+    const result = await readPool.query(query, [attachmentId]);
+    return result.rows[0] || null;
+  }
+
+  // Transaction support methods (T105 - ACID compliance)
+  async beginTransaction() {
+    const client = await pool.connect();
+    await client.query('BEGIN');
+    return client;
+  }
+
+  async commitTransaction(client: any) {
+    await client.query('COMMIT');
+    client.release();
+  }
+
+  async rollbackTransaction(client: any) {
+    await client.query('ROLLBACK');
+    client.release();
+  }
+
+  async createWithClient(client: any, data: Partial<Message>): Promise<Message> {
+    const query = `
+      INSERT INTO messages (
+        id, chat_id, sender_id, content, content_type, 
+        metadata, reply_to_id, created_at
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
+      RETURNING *
+    `;
+
+    const values = [
+      data.id,
+      data.chatId,
+      data.senderId,
+      data.content,
+      data.contentType || 'text',
+      JSON.stringify(data.metadata || {}),
+      data.replyToId || null,
+    ];
+
+    const result = await client.query(query, values);
+    return this.mapRow(result.rows[0]);
+  }
+
+  async createDeliveryRecordsWithClient(client: any, messageId: string, userIds: string[]): Promise<void> {
+    if (userIds.length === 0) {
+      return;
+    }
+
+    const values = userIds
+      .map((_userId, idx) => {
+        const base = idx * 3;
+        return `($${base + 1}, $${base + 2}, $${base + 3})`;
+      })
+      .join(', ');
+
+    const query = `
+      INSERT INTO message_delivery (message_id, user_id, status)
+      VALUES ${values}
+    `;
+
+    const params = userIds.flatMap(userId => [messageId, userId, 'sent']);
+    await client.query(query, params);
+  }
+
+  async bulkMarkAsRead(chatId: string, userId: string): Promise<void> {
+    const query = `
+      UPDATE message_delivery md
+      SET status = 'read', read_at = CURRENT_TIMESTAMP
+      FROM messages m
+      WHERE md.message_id = m.id
+        AND m.chat_id = $1
+        AND md.user_id = $2
+        AND md.status != 'read'
+    `;
+
+    await pool.query(query, [chatId, userId]);
+  }
+
+  async getReadCount(messageId: string): Promise<{ total: number; read: number }> {
+    const query = `
+      SELECT 
+        COUNT(*) as total,
+        SUM(CASE WHEN status = 'read' THEN 1 ELSE 0 END) as read
+      FROM message_delivery
+      WHERE message_id = $1
+    `;
+
+    const result = await readPool.query(query, [messageId]);
+    return {
+      total: parseInt(result.rows[0]?.total || '0', 10),
+      read: parseInt(result.rows[0]?.read || '0', 10),
+    };
   }
 
   private mapRow(row: any): Message {
