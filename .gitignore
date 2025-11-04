@@ -3,6 +3,9 @@ node_modules/
 */node_modules/
 **/node_modules/
 
+.claude/
+merge-log-*.txt
+
 # Build outputs
 dist/
 build/
