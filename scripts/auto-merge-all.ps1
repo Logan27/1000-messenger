@@ -290,15 +290,21 @@ try {
 
     # Switch to main
     Write-Status "Switching to main branch..."
+    $ErrorActionPreference = "Continue"
     git checkout main 2>&1 | Out-Null
+    $ErrorActionPreference = "Stop"
 
     # Pull latest changes
     Write-Status "Pulling latest changes from origin/main..."
+    $ErrorActionPreference = "Continue"
     git pull origin main 2>&1 | Out-Null
+    $ErrorActionPreference = "Stop"
 
     # Fetch all remote branches
     Write-Status "Fetching all remote branches..."
+    $ErrorActionPreference = "Continue"
     git fetch --all --prune 2>&1 | Out-Null
+    $ErrorActionPreference = "Stop"
 
     # Get all remote branches
     $remoteBranches = git branch -r | Where-Object {
