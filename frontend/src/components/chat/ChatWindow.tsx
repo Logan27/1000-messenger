@@ -21,21 +21,22 @@ interface ReplyMessage {
 
 export const ChatWindow: React.FC = () => {
   const { chatId, slug, messageId } = useParams<{ chatId?: string; slug?: string; messageId?: string }>();
-  const { 
-    activeChat, 
-    messages, 
-    typingUsers, 
-    messageCursors, 
-    hasMoreMessages, 
-    isLoadingMessages, 
+  const {
+    activeChat,
+    messages,
+    typingUsers,
+    messageCursors,
+    hasMoreMessages,
+    isLoadingMessages,
     setActiveChat,
     prependMessages,
-    setLoadingMessages 
+    setLoadingMessages
   } = useChatStore();
   const { startTyping, stopTyping } = useWebSocket();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const [replyTo, setReplyTo] = useState<ReplyMessage | undefined>(undefined);
+  const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
 
   // Determine the effective chat ID from URL params or active chat state
   const effectiveChatId = chatId || activeChat;
@@ -128,8 +129,35 @@ export const ChatWindow: React.FC = () => {
   }, [effectiveChatId, loadMessages]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [currentMessages, scrollToBottom]);
+    // Only auto-scroll if not navigating to a specific message
+    if (!messageId) {
+      scrollToBottom();
+    }
+  }, [currentMessages, scrollToBottom, messageId]);
+
+  // Handle deep linking to specific message (T205)
+  useEffect(() => {
+    if (messageId && currentMessages.length > 0) {
+      // Wait a bit for DOM to update
+      const timer = setTimeout(() => {
+        const messageElement = document.getElementById(`message-${messageId}`);
+        if (messageElement) {
+          // Scroll to the message
+          messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+          // Highlight the message
+          setHighlightedMessageId(messageId);
+
+          // Remove highlight after 3 seconds
+          setTimeout(() => {
+            setHighlightedMessageId(null);
+          }, 3000);
+        }
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }
+  }, [messageId, currentMessages]);
 
   const handleSendMessage = async (content: string, files?: File[], replyToId?: string) => {
     if (!effectiveChatId) return;
@@ -235,7 +263,7 @@ export const ChatWindow: React.FC = () => {
             <span className="text-gray-500">Loading more messages...</span>
           </div>
         )}
-        <MessageList messages={currentMessages} messageId={messageId} />
+        <MessageList messages={currentMessages} highlightedMessageId={highlightedMessageId} />
         <div ref={messagesEndRef} />
       </div>
 

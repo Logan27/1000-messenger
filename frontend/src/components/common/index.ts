@@ -12,3 +12,5 @@ export type { InputProps, InputSize } from './Input';
 
 export { SearchBar } from './SearchBar';
 export type { SearchBarProps } from './SearchBar';
+
+export { Navigation } from './Navigation';
