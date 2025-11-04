@@ -9,3 +9,6 @@ export type { AvatarProps } from './Avatar';
 
 export { Input } from './Input';
 export type { InputProps, InputSize } from './Input';
+
+export { SearchBar } from './SearchBar';
+export type { SearchBarProps } from './SearchBar';

@@ -30,6 +30,9 @@ const messageController = new MessageController(messageService);
 // All routes require authentication
 router.use(authMiddleware.authenticate);
 
+// Search route - must come before /:chatId to avoid route conflicts
+router.get('/search', messageController.searchMessages);
+
 // Message routes
 router.post('/:chatId', messageRateLimit, validate(messageSchema), messageController.sendMessage);
 

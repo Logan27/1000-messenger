@@ -121,4 +121,31 @@ export class MessageController {
       next(error);
     }
   };
+
+  searchMessages = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user!.userId;
+      const { q: searchQuery } = req.query;
+      const chatId = req.query.chatId as string | undefined;
+      const cursor = req.query.cursor as string | undefined;
+      const limit = parseInt(req.query.limit as string) || 50;
+
+      if (!searchQuery || typeof searchQuery !== 'string') {
+        res.status(400).json({ error: 'Search query is required' });
+        return;
+      }
+
+      const result = await this.messageService.searchMessages(
+        userId,
+        searchQuery,
+        chatId,
+        cursor,
+        limit
+      );
+
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
