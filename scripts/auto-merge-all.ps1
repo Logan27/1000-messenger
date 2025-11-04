@@ -172,7 +172,9 @@ function Merge-Branch {
 
     # Fetch the latest changes
     Write-Status "Fetching origin/$Branch..."
+    $ErrorActionPreference = "Continue"
     git fetch origin $Branch 2>&1 | Out-Null
+    $ErrorActionPreference = "Stop"
 
     # Get commit info
     $branchCommit = git rev-parse "origin/$Branch"
