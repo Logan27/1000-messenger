@@ -15,6 +15,22 @@ export interface Message {
   createdAt: Date;
 }
 
+export interface MessageSearchResult {
+  id: string;
+  chatId: string;
+  chatName: string | null;
+  senderId: string | null;
+  senderUsername: string | null;
+  senderDisplayName: string | null;
+  senderAvatarUrl: string | null;
+  content: string;
+  contentType: 'text' | 'image' | 'system';
+  metadata: Record<string, any>;
+  isEdited: boolean;
+  editedAt?: Date;
+  createdAt: Date;
+}
+
 export class MessageRepository {
   async create(data: Partial<Message>): Promise<Message> {
     const query = `
@@ -229,26 +245,80 @@ export class MessageRepository {
     return result.rows;
   }
 
-  async searchMessages(userId: string, searchQuery: string, chatId?: string) {
+  async searchMessages(
+    userId: string,
+    searchQuery: string,
+    limit: number,
+    cursor?: string,
+    chatId?: string
+  ): Promise<MessageSearchResult[]> {
+    const params: any[] = [userId, searchQuery, limit];
+    let paramCount = 4;
+    
+    let cursorCondition = '';
+    if (cursor) {
+      cursorCondition = `AND m.created_at < $${paramCount}`;
+      params.push(cursor);
+      paramCount++;
+    }
+    
+    let chatIdCondition = '';
+    if (chatId) {
+      chatIdCondition = `AND m.chat_id = $${paramCount}`;
+      params.push(chatId);
+      paramCount++;
+    }
+
     const query = `
-      SELECT m.*, c.name as chat_name, u.username as sender_username
+      SELECT 
+        m.id,
+        m.chat_id,
+        c.name as chat_name,
+        m.sender_id,
+        u.username as sender_username,
+        u.display_name as sender_display_name,
+        u.avatar_url as sender_avatar_url,
+        m.content,
+        m.content_type,
+        m.metadata,
+        m.is_edited,
+        m.edited_at,
+        m.created_at
       FROM messages m
       JOIN chats c ON m.chat_id = c.id
-      JOIN users u ON m.sender_id = u.id
+      LEFT JOIN users u ON m.sender_id = u.id
       JOIN chat_participants cp ON c.id = cp.chat_id
       WHERE cp.user_id = $1
         AND cp.left_at IS NULL
         AND m.is_deleted = FALSE
         AND to_tsvector('english', m.content) @@ plainto_tsquery('english', $2)
-        ${chatId ? 'AND m.chat_id = $3' : ''}
+        ${cursorCondition}
+        ${chatIdCondition}
       ORDER BY m.created_at DESC
-      LIMIT 100
+      LIMIT $3
     `;
 
-    const params = chatId ? [userId, searchQuery, chatId] : [userId, searchQuery];
     const result = await readPool.query(query, params);
 
-    return result.rows.map(row => this.mapRow(row));
+    return result.rows.map(row => this.mapSearchResultRow(row));
+  }
+
+  private mapSearchResultRow(row: any): MessageSearchResult {
+    return {
+      id: row.id,
+      chatId: row.chat_id,
+      chatName: row.chat_name,
+      senderId: row.sender_id,
+      senderUsername: row.sender_username,
+      senderDisplayName: row.sender_display_name,
+      senderAvatarUrl: row.sender_avatar_url,
+      content: row.content,
+      contentType: row.content_type,
+      metadata: row.metadata,
+      isEdited: row.is_edited,
+      editedAt: row.edited_at,
+      createdAt: row.created_at,
+    };
   }
 
   async findAttachmentById(attachmentId: string) {

@@ -180,13 +180,15 @@ export class MessageService {
     // Update delivery status to delivered
     await this.messageRepo.updateDeliveryStatus(messageId, userId, 'delivered');
 
-    // Notify sender about delivery
-    this.socketManager.sendToUser(message.senderId, 'message:delivered', {
-      messageId,
-      chatId: message.chatId,
-      deliveredTo: userId,
-      deliveredAt: new Date(),
-    });
+    // Notify sender about delivery (if there is a sender)
+    if (message.senderId) {
+      this.socketManager.sendToUser(message.senderId, 'message:delivered', {
+        messageId,
+        chatId: message.chatId,
+        deliveredTo: userId,
+        deliveredAt: new Date(),
+      });
+    }
   }
 
   async markAsRead(messageId: string, userId: string) {
@@ -281,5 +283,37 @@ export class MessageService {
       return null;
     }
     return attachment;
+  }
+
+  async searchMessages(
+    userId: string,
+    searchQuery: string,
+    chatId?: string,
+    cursor?: string,
+    limit: number = 50
+  ) {
+    const trimmedQuery = searchQuery.trim();
+    
+    if (!trimmedQuery) {
+      throw new Error('Search query cannot be empty');
+    }
+
+    const clampedLimit = Math.min(limit, LIMITS.MAX_SEARCH_RESULTS);
+
+    const results = await this.messageRepo.searchMessages(
+      userId,
+      trimmedQuery,
+      clampedLimit,
+      cursor,
+      chatId
+    );
+
+    return {
+      data: results,
+      nextCursor: results.length > 0 
+        ? results[results.length - 1]!.createdAt.toISOString()
+        : null,
+      hasMore: results.length === clampedLimit,
+    };
   }
 }
