@@ -370,9 +370,12 @@ try {
     # Push changes
     if (-not $NoPush -and $Script:MergedCount -gt 0) {
         Write-Status "Pushing changes to origin/main..."
+        $ErrorActionPreference = "Continue"
         git push origin main 2>&1 | Out-Null
+        $pushExitCode = $LASTEXITCODE
+        $ErrorActionPreference = "Stop"
 
-        if ($LASTEXITCODE -eq 0) {
+        if ($pushExitCode -eq 0) {
             Write-Success "Successfully pushed to origin/main"
         } else {
             Write-Error "Failed to push to origin/main"
