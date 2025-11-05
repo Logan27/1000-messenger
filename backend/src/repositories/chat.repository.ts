@@ -307,6 +307,11 @@ export class ChatRepository {
       values.push(data.name);
     }
 
+    if (data.slug !== undefined) {
+      fields.push(`slug = $${paramCount++}`);
+      values.push(data.slug);
+    }
+
     if (data.avatarUrl !== undefined) {
       fields.push(`avatar_url = $${paramCount++}`);
       values.push(data.avatarUrl);
@@ -316,7 +321,7 @@ export class ChatRepository {
     values.push(chatId);
 
     const query = `
-      UPDATE chats 
+      UPDATE chats
       SET ${fields.join(', ')}
       WHERE id = $${paramCount}
       RETURNING *

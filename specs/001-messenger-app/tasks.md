@@ -368,25 +368,25 @@ This is a web application with separated frontend/backend:
 
 ### Backend Implementation for User Story 8
 
-- [ ] T195 [US8] Implement full-text search in MessageService using PostgreSQL tsvector
-- [ ] T196 [US8] Implement MessageController search method in backend/src/controllers/message.controller.ts
-- [ ] T197 [US8] Setup search route in backend/src/routes/message.routes.ts (GET /messages/search)
-- [ ] T198 [US8] Add search result pagination (max 100 results)
-- [ ] T199 [US8] Add chat filter for search (optional chatId parameter)
-- [ ] T200 [US8] Add search highlighting in results
-- [ ] T201 [US8] Optimize search performance with GIN index on messages content
+- [X] T195 [US8] Implement full-text search in MessageService using PostgreSQL tsvector
+- [X] T196 [US8] Implement MessageController search method in backend/src/controllers/message.controller.ts
+- [X] T197 [US8] Setup search route in backend/src/routes/message.routes.ts (GET /messages/search)
+- [X] T198 [US8] Add search result pagination (max 100 results)
+- [X] T199 [US8] Add chat filter for search (optional chatId parameter)
+- [X] T200 [US8] Add search highlighting in results
+- [X] T201 [US8] Optimize search performance with GIN index on messages content
 
 ### Frontend Implementation for User Story 8
 
-- [ ] T202 [P] [US8] Create search bar component in frontend/src/components/common/SearchBar.tsx
-- [ ] T203 [US8] Create search results view in ChatPage
-- [ ] T204 [US8] Implement message search API call in frontend/src/services/api.service.ts
-- [ ] T205 [US8] Add search result highlighting
-- [ ] T206 [US8] Add navigation to message from search result (scroll and highlight)
-- [ ] T207 [US8] Add chat filter dropdown in search
-- [ ] T208 [US8] Integrate user search from User Story 2 into global search
+- [X] T202 [P] [US8] Create search bar component in frontend/src/components/common/SearchBar.tsx
+- [X] T203 [US8] Create search results view in ChatPage
+- [X] T204 [US8] Implement message search API call in frontend/src/services/api.service.ts
+- [X] T205 [US8] Add search result highlighting
+- [X] T206 [US8] Add navigation to message from search result (scroll and highlight)
+- [X] T207 [US8] Add chat filter dropdown in search
+- [X] T208 [US8] Integrate user search from User Story 2 into global search
 
-**Checkpoint**: User Story 8 complete - search functionality working
+**Checkpoint**: ✅ User Story 8 complete - search functionality working
 
 ---
 
@@ -398,22 +398,22 @@ This is a web application with separated frontend/backend:
 
 ### Backend Implementation for User Story 9
 
-- [ ] T209 [US9] Extend UserService with profile update methods in backend/src/services/user.service.ts
-- [ ] T210 [US9] Extend UserController with avatar upload in backend/src/controllers/user.controller.ts
-- [ ] T211 [US9] Implement avatar image processing in StorageService (same as message images)
-- [ ] T212 [US9] Broadcast profile updates to contacts via WebSocket
+- [X] T209 [US9] Extend UserService with profile update methods in backend/src/services/user.service.ts
+- [X] T210 [US9] Extend UserController with avatar upload in backend/src/controllers/user.controller.ts
+- [X] T211 [US9] Implement avatar image processing in StorageService (same as message images)
+- [X] T212 [US9] Broadcast profile updates to contacts via WebSocket
 
 ### Frontend Implementation for User Story 9
 
-- [ ] T213 [US9] Extend ProfilePage with edit form in frontend/src/pages/ProfilePage.tsx
-- [ ] T214 [US9] Add avatar upload component in ProfilePage
-- [ ] T215 [US9] Add display name editor in ProfilePage
-- [ ] T216 [US9] Add status selector (online/away/offline) in ProfilePage
-- [ ] T217 [US9] Implement profile update API calls in frontend/src/services/api.service.ts
-- [ ] T218 [US9] Add WebSocket listener for profile update events
-- [ ] T219 [US9] Update UI when profile changes (avatar, display name in all views)
+- [X] T213 [US9] Extend ProfilePage with edit form in frontend/src/pages/ProfilePage.tsx
+- [X] T214 [US9] Add avatar upload component in ProfilePage
+- [X] T215 [US9] Add display name editor in ProfilePage
+- [X] T216 [US9] Add status selector (online/away/offline) in ProfilePage
+- [X] T217 [US9] Implement profile update API calls in frontend/src/services/api.service.ts
+- [X] T218 [US9] Add WebSocket listener for profile update events
+- [X] T219 [US9] Update UI when profile changes (avatar, display name in all views)
 
-**Checkpoint**: User Story 9 complete - profile management working
+**Checkpoint**: ✅ User Story 9 complete - profile management working
 
 ---
 
@@ -425,19 +425,19 @@ This is a web application with separated frontend/backend:
 
 ### Backend Implementation for User Story 10
 
-- [ ] T220 [US10] Add slug generation for group chats in ChatController
-- [ ] T221 [US10] Implement slug-based chat lookup in Chat repository
-- [ ] T222 [US10] Add access control checks for deep links (membership verification)
+- [X] T220 [US10] Add slug generation for group chats in ChatController
+- [X] T221 [US10] Implement slug-based chat lookup in Chat repository
+- [X] T222 [US10] Add access control checks for deep links (membership verification)
 
 ### Frontend Implementation for User Story 10
 
-- [ ] T223 [US10] Setup route parameters in App.tsx for /chat/:chatId, /chat/:slug, /chat/:chatId/message/:messageId, /user/:userId
-- [ ] T224 [US10] Implement deep link navigation in ChatPage
-- [ ] T225 [US10] Implement scroll-to-message with highlighting
-- [ ] T226 [US10] Add URL copying functionality in ChatHeader
-- [ ] T227 [US10] Add share message link option in message menu
-- [ ] T228 [US10] Implement user profile deep links
-- [ ] T229 [US10] Add authentication redirect for unauthorized deep link access
+- [X] T223 [US10] Setup route parameters in App.tsx for /chat/:chatId, /chat/:slug, /chat/:chatId/message/:messageId, /user/:userId
+- [X] T224 [US10] Implement deep link navigation in ChatPage
+- [X] T225 [US10] Implement scroll-to-message with highlighting
+- [X] T226 [US10] Add URL copying functionality in ChatHeader
+- [X] T227 [US10] Add share message link option in message menu
+- [X] T228 [US10] Implement user profile deep links
+- [X] T229 [US10] Add authentication redirect for unauthorized deep link access
 
 **Checkpoint**: User Story 10 complete - deep linking functional
 
@@ -451,13 +451,13 @@ This is a web application with separated frontend/backend:
 
 ### Frontend Implementation for User Story 11
 
-- [ ] T230 [US11] Request notification permission on login in frontend/src/services/websocket.service.ts
-- [ ] T231 [US11] Implement notification display on message received while tab inactive
-- [ ] T232 [US11] Add click handler to open chat from notification
-- [ ] T233 [US11] Add do-not-disturb toggle in ProfilePage
-- [ ] T234 [US11] Store DND preference in authStore
-- [ ] T235 [US11] Respect DND setting when showing notifications
-- [ ] T236 [US11] Add notification sound (optional, respecting browser settings)
+- [X] T230 [US11] Request notification permission on login in frontend/src/services/websocket.service.ts
+- [X] T231 [US11] Implement notification display on message received while tab inactive
+- [X] T232 [US11] Add click handler to open chat from notification
+- [X] T233 [US11] Add do-not-disturb toggle in ProfilePage
+- [X] T234 [US11] Store DND preference in authStore
+- [X] T235 [US11] Respect DND setting when showing notifications
+- [X] T236 [US11] Add notification sound (optional, respecting browser settings)
 
 **Checkpoint**: User Story 11 complete - browser notifications working
 

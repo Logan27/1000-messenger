@@ -291,7 +291,10 @@ export class MessageRepository {
       WHERE cp.user_id = $1
         AND cp.left_at IS NULL
         AND m.is_deleted = FALSE
-        AND to_tsvector('english', m.content) @@ plainto_tsquery('english', $2)
+        AND (
+          m.content_tsvector @@ plainto_tsquery('english', $2)
+          OR m.content ILIKE '%' || $2 || '%'
+        )
         ${cursorCondition}
         ${chatIdCondition}
       ORDER BY m.created_at DESC

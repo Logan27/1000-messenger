@@ -32,7 +32,7 @@ interface UserProfile {
  * Allows users to view and update their profile information
  */
 export const ProfilePage = () => {
-  const { logout } = useAuthStore();
+  const { logout, dndEnabled, setDndEnabled } = useAuthStore();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -236,6 +236,36 @@ export const ProfilePage = () => {
                 <option value="away">🟡 Away</option>
                 <option value="offline">⚫ Offline</option>
               </select>
+            </div>
+
+            {/* Do Not Disturb Toggle (T233) */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <label htmlFor="dnd-toggle" className="block text-sm font-medium text-gray-700">
+                    Do Not Disturb
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Disable browser notifications for new messages
+                  </p>
+                </div>
+                <button
+                  id="dnd-toggle"
+                  type="button"
+                  role="switch"
+                  aria-checked={dndEnabled}
+                  onClick={() => setDndEnabled(!dndEnabled)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    dndEnabled ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      dndEnabled ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
 
             {/* Action Buttons */}

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { MessageService } from '../services/message.service';
+import { validateMessageContent, sanitizeMessageContent } from '../utils/validation.util';
 
 export class MessageController {
   constructor(private messageService: MessageService) {}
@@ -10,15 +11,14 @@ export class MessageController {
       const userId = req.user!.userId;
       const { content, contentType, metadata, replyToId } = req.body;
 
-      if (!content || content.trim().length === 0) {
-        res.status(400).json({ error: 'Message content is required' });
-        return;
-      }
+      // Validate and sanitize content (T100)
+      validateMessageContent(content);
+      const sanitizedContent = sanitizeMessageContent(content.trim());
 
       const message = await this.messageService.sendMessage({
         chatId: chatId!,
         senderId: userId,
-        content: content.trim(),
+        content: sanitizedContent,
         contentType,
         metadata,
         replyToId,
@@ -51,12 +51,11 @@ export class MessageController {
       const userId = req.user!.userId;
       const { content } = req.body;
 
-      if (!content || content.trim().length === 0) {
-        res.status(400).json({ error: 'Message content is required' });
-        return;
-      }
+      // Validate and sanitize content (T100)
+      validateMessageContent(content);
+      const sanitizedContent = sanitizeMessageContent(content.trim());
 
-      const message = await this.messageService.editMessage(messageId!, userId, content.trim());
+      const message = await this.messageService.editMessage(messageId!, userId, sanitizedContent);
 
       res.json({ message });
     } catch (error) {
@@ -117,6 +116,33 @@ export class MessageController {
       await this.messageService.removeReaction(reactionId!, userId);
 
       res.json({ message: 'Reaction removed successfully' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  searchMessages = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user!.userId;
+      const { q: searchQuery } = req.query;
+      const chatId = req.query.chatId as string | undefined;
+      const cursor = req.query.cursor as string | undefined;
+      const limit = parseInt(req.query.limit as string) || 50;
+
+      if (!searchQuery || typeof searchQuery !== 'string') {
+        res.status(400).json({ error: 'Search query is required' });
+        return;
+      }
+
+      const result = await this.messageService.searchMessages(
+        userId,
+        searchQuery,
+        chatId,
+        cursor,
+        limit
+      );
+
+      res.json(result);
     } catch (error) {
       next(error);
     }
