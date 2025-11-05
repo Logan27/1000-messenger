@@ -368,25 +368,25 @@ This is a web application with separated frontend/backend:
 
 ### Backend Implementation for User Story 8
 
-- [ ] T195 [US8] Implement full-text search in MessageService using PostgreSQL tsvector
-- [ ] T196 [US8] Implement MessageController search method in backend/src/controllers/message.controller.ts
-- [ ] T197 [US8] Setup search route in backend/src/routes/message.routes.ts (GET /messages/search)
-- [ ] T198 [US8] Add search result pagination (max 100 results)
-- [ ] T199 [US8] Add chat filter for search (optional chatId parameter)
-- [ ] T200 [US8] Add search highlighting in results
-- [ ] T201 [US8] Optimize search performance with GIN index on messages content
+- [X] T195 [US8] Implement full-text search in MessageService using PostgreSQL tsvector
+- [X] T196 [US8] Implement MessageController search method in backend/src/controllers/message.controller.ts
+- [X] T197 [US8] Setup search route in backend/src/routes/message.routes.ts (GET /messages/search)
+- [X] T198 [US8] Add search result pagination (max 100 results)
+- [X] T199 [US8] Add chat filter for search (optional chatId parameter)
+- [X] T200 [US8] Add search highlighting in results
+- [X] T201 [US8] Optimize search performance with GIN index on messages content
 
 ### Frontend Implementation for User Story 8
 
-- [ ] T202 [P] [US8] Create search bar component in frontend/src/components/common/SearchBar.tsx
-- [ ] T203 [US8] Create search results view in ChatPage
-- [ ] T204 [US8] Implement message search API call in frontend/src/services/api.service.ts
-- [ ] T205 [US8] Add search result highlighting
-- [ ] T206 [US8] Add navigation to message from search result (scroll and highlight)
-- [ ] T207 [US8] Add chat filter dropdown in search
-- [ ] T208 [US8] Integrate user search from User Story 2 into global search
+- [X] T202 [P] [US8] Create search bar component in frontend/src/components/common/SearchBar.tsx
+- [X] T203 [US8] Create search results view in ChatPage
+- [X] T204 [US8] Implement message search API call in frontend/src/services/api.service.ts
+- [X] T205 [US8] Add search result highlighting
+- [X] T206 [US8] Add navigation to message from search result (scroll and highlight)
+- [X] T207 [US8] Add chat filter dropdown in search
+- [X] T208 [US8] Integrate user search from User Story 2 into global search
 
-**Checkpoint**: User Story 8 complete - search functionality working
+**Checkpoint**: ✅ User Story 8 complete - search functionality working
 
 ---
 

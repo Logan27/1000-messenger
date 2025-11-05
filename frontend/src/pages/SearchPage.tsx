@@ -2,11 +2,15 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SearchBar } from '../components/common';
 import { MessageSearchResults } from '../components/search/MessageSearchResults';
+import { UserSearch } from '../components/contacts/UserSearch';
 import { apiService, Message, Chat } from '../services/api.service';
 import { useChatStore } from '../store/chatStore';
 
+type SearchTab = 'messages' | 'users';
+
 export const SearchPage: React.FC = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<SearchTab>('messages');
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -133,7 +137,7 @@ export const SearchPage: React.FC = () => {
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">Search Messages</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Search</h1>
             <button
               onClick={() => navigate(-1)}
               className="text-gray-600 hover:text-gray-900 transition-colors"
@@ -154,35 +158,63 @@ export const SearchPage: React.FC = () => {
             </button>
           </div>
 
-          {/* Search Bar */}
-          <SearchBar
-            placeholder="Search messages..."
-            onSearch={handleSearch}
-            onClear={handleClear}
-            debounceMs={400}
-            minLength={2}
-            autoFocus
-          />
+          {/* Tabs */}
+          <div className="flex space-x-4 border-b border-gray-200 mb-4">
+            <button
+              onClick={() => setActiveTab('messages')}
+              className={`pb-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'messages'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Messages
+            </button>
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`pb-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'users'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Users
+            </button>
+          </div>
 
-          {/* Chat Filter Dropdown */}
-          {chats.length > 0 && (
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Filter by chat
-              </label>
-              <select
-                value={selectedChatFilter}
-                onChange={(e) => handleChatFilterChange(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">All chats</option>
-                {chats.map((chat) => (
-                  <option key={chat.id} value={chat.id}>
-                    {chat.name || 'Direct Message'}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {/* Search Bar - Only for Messages tab */}
+          {activeTab === 'messages' && (
+            <>
+              <SearchBar
+                placeholder="Search messages..."
+                onSearch={handleSearch}
+                onClear={handleClear}
+                debounceMs={400}
+                minLength={2}
+                autoFocus
+              />
+
+              {/* Chat Filter Dropdown */}
+              {chats.length > 0 && (
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Filter by chat
+                  </label>
+                  <select
+                    value={selectedChatFilter}
+                    onChange={(e) => handleChatFilterChange(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">All chats</option>
+                    {chats.map((chat) => (
+                      <option key={chat.id} value={chat.id}>
+                        {chat.name || 'Direct Message'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -218,7 +250,11 @@ export const SearchPage: React.FC = () => {
       {/* Search Results */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
         <div className="max-w-4xl mx-auto">
-          {!searchQuery ? (
+          {activeTab === 'users' ? (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <UserSearch />
+            </div>
+          ) : !searchQuery ? (
             <div className="flex flex-col items-center justify-center p-12 text-gray-500">
               <svg
                 className="w-20 h-20 mb-4 text-gray-300"
