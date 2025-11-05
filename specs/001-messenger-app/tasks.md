@@ -469,17 +469,17 @@ This is a web application with separated frontend/backend:
 
 ### Infrastructure & Deployment
 
-- [ ] T237 [P] Create Kubernetes manifests in k8s/backend-deployment.yaml
-- [ ] T238 [P] Create Kubernetes manifests in k8s/postgres-statefulset.yaml
-- [ ] T239 [P] Create Kubernetes manifests in k8s/redis-statefulset.yaml
-- [ ] T240 [P] Create Kubernetes Ingress in k8s/ingress.yaml
-- [ ] T241 Create docker-compose.prod.yml for production deployment
-- [ ] T242 [P] Setup CI/CD pipeline configuration
+- [X] T237 [P] Create Kubernetes manifests in k8s/backend-deployment.yaml
+- [X] T238 [P] Create Kubernetes manifests in k8s/postgres-statefulset.yaml
+- [X] T239 [P] Create Kubernetes manifests in k8s/redis-statefulset.yaml
+- [X] T240 [P] Create Kubernetes Ingress in k8s/ingress.yaml
+- [X] T241 Create docker-compose.prod.yml for production deployment
+- [X] T242 [P] Setup CI/CD pipeline configuration
 
 ### Monitoring & Observability
 
 - [ ] T243 [P] Add Prometheus metrics endpoints in backend
-- [ ] T244 [P] Add structured logging to all services
+- [X] T244 [P] Add structured logging to all services
 - [ ] T245 [P] Create performance monitoring dashboard configuration
 - [ ] T246 [P] Setup error tracking integration
 
@@ -502,12 +502,12 @@ This is a web application with separated frontend/backend:
 ### Documentation & Testing
 
 - [ ] T257 [P] Create API documentation with Swagger/OpenAPI UI
-- [ ] T258 [P] Write deployment documentation in docs/deployment.md
-- [ ] T259 [P] Create troubleshooting guide in docs/troubleshooting.md
-- [ ] T260 [P] Document WebSocket events in docs/websocket-events.md
+- [X] T258 [P] Write deployment documentation in docs/deployment.md
+- [X] T259 [P] Create troubleshooting guide in docs/troubleshooting.md
+- [X] T260 [P] Document WebSocket events in docs/websocket-events.md
 - [ ] T261 Create load testing script in tools/performance-test/load-test.ts
 - [ ] T262 Run load test validation (1000 concurrent users, 50 msg/sec)
-- [ ] T263 Create quickstart.md with end-to-end validation scenarios
+- [X] T263 Create quickstart.md with end-to-end validation scenarios
 - [ ] T264 Run quickstart.md validation
 
 ---
