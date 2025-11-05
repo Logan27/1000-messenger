@@ -91,12 +91,29 @@ export const ChatWindow: React.FC = () => {
     threshold: 100,
   });
 
-  // Handle deep linking: Update active chat when URL params change
+  // Handle deep linking: Update active chat when URL params change (T224)
   useEffect(() => {
-    if (chatId && chatId !== activeChat) {
-      setActiveChat(chatId);
-    }
-  }, [chatId, activeChat, setActiveChat]);
+    const loadChatFromParams = async () => {
+      // Handle slug-based navigation
+      if (slug) {
+        try {
+          const response = await apiService.getChatBySlug(slug);
+          const chat = response.chat;
+          if (chat && chat.id !== activeChat) {
+            setActiveChat(chat.id);
+          }
+        } catch (error) {
+          console.error('Failed to load chat by slug:', error);
+        }
+      }
+      // Handle ID-based navigation
+      else if (chatId && chatId !== activeChat) {
+        setActiveChat(chatId);
+      }
+    };
+
+    loadChatFromParams();
+  }, [chatId, slug, activeChat, setActiveChat]);
 
   // Listen for reply events from Message component
   useEffect(() => {

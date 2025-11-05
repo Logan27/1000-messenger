@@ -2,6 +2,24 @@ import { ChatRepository } from '../repositories/chat.repository';
 import { PARTICIPANT_ROLE, LIMITS, CHAT_TYPE } from '../config/constants';
 import { v4 as uuidv4 } from 'uuid';
 
+/**
+ * Generate a URL-friendly slug from a chat name
+ * T220: Slug generation for deep linking
+ */
+function generateSlug(name: string, chatId: string): string {
+  // Convert to lowercase and replace spaces/special chars with hyphens
+  const baseSlug = name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+
+  // Add first 8 chars of chatId to ensure uniqueness
+  const uniqueSuffix = chatId.substring(0, 8);
+
+  return `${baseSlug}-${uniqueSuffix}`;
+}
+
 export class ChatService {
   constructor(private chatRepo: ChatRepository) {}
 
@@ -92,12 +110,15 @@ export class ChatService {
       throw new Error(`Maximum ${LIMITS.GROUP_MAX_PARTICIPANTS} participants allowed`);
     }
 
-    // Create group chat
+    // Create group chat with slug (T220)
     const chatId = uuidv4();
+    const slug = generateSlug(name, chatId);
+
     const chat = await this.chatRepo.create({
       id: chatId,
       type: CHAT_TYPE.GROUP,
       name,
+      slug,
       ownerId: userId,
     });
 
@@ -122,7 +143,7 @@ export class ChatService {
 
   async updateChat(chatId: string, userId: string, data: { name?: string; avatarUrl?: string }): Promise<any> {
     const chat = await this.chatRepo.findById(chatId);
-    
+
     if (!chat) {
       throw new Error('Chat not found');
     }
@@ -138,8 +159,13 @@ export class ChatService {
       throw new Error('Unauthorized: Only owner or admin can update group');
     }
 
-    // Update chat
-    const updatedChat = await this.chatRepo.update(chatId, data);
+    // Update chat with new slug if name changed (T220)
+    const updateData = { ...data };
+    if (data.name) {
+      updateData.slug = generateSlug(data.name, chatId);
+    }
+
+    const updatedChat = await this.chatRepo.update(chatId, updateData as any);
     const participants = await this.chatRepo.getChatParticipants(chatId);
 
     return {

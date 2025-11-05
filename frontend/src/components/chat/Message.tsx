@@ -380,6 +380,21 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
               >
                 Reply
               </button>
+              {/* Copy message link (T227) */}
+              {message.chatId && (
+                <button
+                  onClick={() => {
+                    const url = `${window.location.origin}/chat/${message.chatId}/message/${message.id}`;
+                    navigator.clipboard.writeText(url);
+                    setShowActionMenu(false);
+                    // TODO: Show toast notification
+                    console.log('Message link copied to clipboard');
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                >
+                  Copy link
+                </button>
+              )}
               {isOwnMessage && (
                 <>
                   <button

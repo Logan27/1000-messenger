@@ -425,19 +425,19 @@ This is a web application with separated frontend/backend:
 
 ### Backend Implementation for User Story 10
 
-- [ ] T220 [US10] Add slug generation for group chats in ChatController
-- [ ] T221 [US10] Implement slug-based chat lookup in Chat repository
-- [ ] T222 [US10] Add access control checks for deep links (membership verification)
+- [X] T220 [US10] Add slug generation for group chats in ChatController
+- [X] T221 [US10] Implement slug-based chat lookup in Chat repository
+- [X] T222 [US10] Add access control checks for deep links (membership verification)
 
 ### Frontend Implementation for User Story 10
 
-- [ ] T223 [US10] Setup route parameters in App.tsx for /chat/:chatId, /chat/:slug, /chat/:chatId/message/:messageId, /user/:userId
-- [ ] T224 [US10] Implement deep link navigation in ChatPage
-- [ ] T225 [US10] Implement scroll-to-message with highlighting
-- [ ] T226 [US10] Add URL copying functionality in ChatHeader
-- [ ] T227 [US10] Add share message link option in message menu
-- [ ] T228 [US10] Implement user profile deep links
-- [ ] T229 [US10] Add authentication redirect for unauthorized deep link access
+- [X] T223 [US10] Setup route parameters in App.tsx for /chat/:chatId, /chat/:slug, /chat/:chatId/message/:messageId, /user/:userId
+- [X] T224 [US10] Implement deep link navigation in ChatPage
+- [X] T225 [US10] Implement scroll-to-message with highlighting
+- [X] T226 [US10] Add URL copying functionality in ChatHeader
+- [X] T227 [US10] Add share message link option in message menu
+- [X] T228 [US10] Implement user profile deep links
+- [X] T229 [US10] Add authentication redirect for unauthorized deep link access
 
 **Checkpoint**: User Story 10 complete - deep linking functional
 
