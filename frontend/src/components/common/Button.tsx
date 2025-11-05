@@ -14,20 +14,20 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: 'bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 disabled:bg-primary-300',
-  secondary: 'bg-secondary-500 text-white hover:bg-secondary-600 active:bg-secondary-700 disabled:bg-secondary-300',
-  success: 'bg-success-500 text-white hover:bg-success-600 active:bg-success-700 disabled:bg-success-300',
-  error: 'bg-error-500 text-white hover:bg-error-600 active:bg-error-700 disabled:bg-error-300',
-  warning: 'bg-warning-500 text-white hover:bg-warning-600 active:bg-warning-700 disabled:bg-warning-300',
-  info: 'bg-info-500 text-white hover:bg-info-600 active:bg-info-700 disabled:bg-info-300',
+  primary: 'bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 disabled:bg-primary-300 shadow-soft hover:shadow-medium',
+  secondary: 'bg-secondary-200 text-secondary-900 hover:bg-secondary-300 active:bg-secondary-400 disabled:bg-secondary-100 disabled:text-secondary-400',
+  success: 'bg-success-500 text-white hover:bg-success-600 active:bg-success-700 disabled:bg-success-300 shadow-soft',
+  error: 'bg-error-500 text-white hover:bg-error-600 active:bg-error-700 disabled:bg-error-300 shadow-soft',
+  warning: 'bg-warning-500 text-white hover:bg-warning-600 active:bg-warning-700 disabled:bg-warning-300 shadow-soft',
+  info: 'bg-info-500 text-white hover:bg-info-600 active:bg-info-700 disabled:bg-info-300 shadow-soft',
   ghost: 'bg-transparent text-secondary-700 hover:bg-secondary-100 active:bg-secondary-200 disabled:text-secondary-400',
   outline: 'bg-transparent border-2 border-primary-500 text-primary-500 hover:bg-primary-50 active:bg-primary-100 disabled:border-primary-300 disabled:text-primary-300',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
   sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-base',
-  lg: 'px-6 py-3 text-lg',
+  md: 'px-6 py-2.5 text-base',
+  lg: 'px-8 py-3 text-lg',
 };
 
 export const Button: React.FC<ButtonProps> = ({
@@ -45,7 +45,7 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const isDisabled = disabled || loading;
 
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:cursor-not-allowed';
+  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400 disabled:cursor-not-allowed disabled:opacity-60';
   
   const widthClass = fullWidth ? 'w-full' : '';
   

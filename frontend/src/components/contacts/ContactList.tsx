@@ -69,16 +69,16 @@ export const ContactList: React.FC<ContactListProps> = ({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary-500 border-t-transparent"></div>
       </div>
     );
   }
 
   if (contacts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 text-gray-500">
+      <div className="flex flex-col items-center justify-center p-8 text-secondary-500">
         <svg
-          className="w-16 h-16 mb-4 text-gray-300"
+          className="w-16 h-16 mb-4 text-secondary-300"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -101,8 +101,8 @@ export const ContactList: React.FC<ContactListProps> = ({
         <button
           key={contact.id}
           onClick={() => onContactClick(contact.id)}
-          className={`w-full flex items-center space-x-3 p-3 hover:bg-gray-50 transition-colors ${
-            selectedContactId === contact.id ? 'bg-blue-50 hover:bg-blue-100' : ''
+          className={`w-full flex items-center space-x-3 p-3 hover:bg-secondary-50 transition-all duration-200 ${
+            selectedContactId === contact.id ? 'bg-primary-50 hover:bg-primary-100' : ''
           } ${contact.isBlocked ? 'opacity-50' : ''}`}
           disabled={contact.isBlocked}
         >
@@ -111,31 +111,26 @@ export const ContactList: React.FC<ContactListProps> = ({
               avatarUrl={contact.avatarUrl}
               name={contact.displayName || contact.username}
               size="md"
-            />
-            <span
-              className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${getStatusColor(
-                contact.status
-              )}`}
-              aria-label={`Status: ${contact.status}`}
+              status={contact.status}
             />
           </div>
-          
+
           <div className="flex-1 min-w-0 text-left">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-900 truncate">
+              <p className="text-sm font-medium text-secondary-900 truncate">
                 {contact.displayName || contact.username}
               </p>
               {contact.status === 'offline' && contact.lastSeen && (
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-secondary-500">
                   {formatLastSeen(contact.lastSeen)}
                 </span>
               )}
             </div>
-            
+
             <div className="flex items-center space-x-2">
-              <p className="text-xs text-gray-500 truncate">@{contact.username}</p>
+              <p className="text-xs text-secondary-500 truncate">@{contact.username}</p>
               {contact.isBlocked && (
-                <span className="text-xs text-red-600 font-medium">Blocked</span>
+                <span className="text-xs text-error-600 font-medium">Blocked</span>
               )}
             </div>
           </div>

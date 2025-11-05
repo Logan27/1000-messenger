@@ -8,9 +8,9 @@ import { Navigation } from '../common/Navigation';
 
 export const ChatLayout = () => {
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col bg-secondary-50">
       <Navigation />
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden bg-white">
         <Routes>
           {/* Main chat view */}
           <Route path="/" element={<ChatWindow />} />

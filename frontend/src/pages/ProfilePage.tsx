@@ -132,18 +132,21 @@ export const ProfilePage = () => {
 
   if (isLoading && !profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-gray-600">Loading profile...</div>
+      <div className="min-h-screen flex items-center justify-center bg-secondary-50">
+        <div className="flex items-center gap-2">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary-500 border-t-transparent"></div>
+          <span className="text-secondary-600">Loading profile...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-secondary-50 py-8">
       <div className="max-w-2xl mx-auto px-4">
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className="bg-white rounded-2xl shadow-telegram p-8">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-gray-800">My Profile</h1>
+            <h1 className="text-2xl font-bold text-secondary-900">My Profile</h1>
             <Button
               variant="secondary"
               size="sm"
@@ -157,19 +160,19 @@ export const ProfilePage = () => {
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+            <div className="mb-4 p-4 bg-error-50 border border-error-200 text-error-700 rounded-xl text-sm animate-slide-down">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
+            <div className="mb-4 p-4 bg-success-50 border border-success-200 text-success-700 rounded-xl text-sm animate-slide-down">
               {success}
             </div>
           )}
 
           <form onSubmit={handleSubmit}>
-            {/* Avatar Section */}
+            {/* Avatar Section - Telegram style */}
             <div className="flex flex-col items-center mb-6">
               <Avatar
                 avatarUrl={avatarPreview || profile?.avatarUrl}
@@ -177,11 +180,11 @@ export const ProfilePage = () => {
                 size="xl"
                 className="mb-4"
               />
-              
+
               {isEditing && (
                 <div>
                   <label className="cursor-pointer">
-                    <span className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                    <span className="text-sm text-primary-600 hover:text-primary-700 font-medium">
                       Change Avatar
                     </span>
                     <input
@@ -197,15 +200,15 @@ export const ProfilePage = () => {
               )}
             </div>
 
-            {/* Username (read-only) */}
+            {/* Username (read-only) - Telegram style */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-secondary-700 mb-1">
                 Username
               </label>
-              <div className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-600">
+              <div className="px-4 py-3 bg-secondary-100 border border-secondary-200 rounded-xl text-secondary-700">
                 {profile?.username}
               </div>
-              <p className="text-xs text-gray-500 mt-1">Username cannot be changed</p>
+              <p className="text-xs text-secondary-500 mt-1">Username cannot be changed</p>
             </div>
 
             {/* Display Name */}
@@ -221,16 +224,16 @@ export const ProfilePage = () => {
               disabled={!isEditing || isLoading}
             />
 
-            {/* Status */}
+            {/* Status - Telegram style */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-secondary-700 mb-1">
                 Status
               </label>
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value as 'online' | 'away' | 'offline')}
                 disabled={!isEditing || isLoading}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 disabled:bg-secondary-100 disabled:cursor-not-allowed transition-all duration-200"
               >
                 <option value="online">🟢 Online</option>
                 <option value="away">🟡 Away</option>
@@ -238,14 +241,14 @@ export const ProfilePage = () => {
               </select>
             </div>
 
-            {/* Do Not Disturb Toggle (T233) */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            {/* Do Not Disturb Toggle (T233) - Telegram style */}
+            <div className="mb-6 p-4 bg-secondary-50 rounded-xl border border-secondary-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <label htmlFor="dnd-toggle" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="dnd-toggle" className="block text-sm font-medium text-secondary-900">
                     Do Not Disturb
                   </label>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-secondary-500 mt-1">
                     Disable browser notifications for new messages
                   </p>
                 </div>
@@ -255,12 +258,12 @@ export const ProfilePage = () => {
                   role="switch"
                   aria-checked={dndEnabled}
                   onClick={() => setDndEnabled(!dndEnabled)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                    dndEnabled ? 'bg-blue-600' : 'bg-gray-300'
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 ${
+                    dndEnabled ? 'bg-primary-500' : 'bg-secondary-300'
                   }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-soft transition-transform ${
                       dndEnabled ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />

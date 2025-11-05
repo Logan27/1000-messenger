@@ -66,7 +66,7 @@ const SimpleMessageList: React.FC<MessageListProps> = ({ messages, highlightedMe
       {messages.map(message => {
         const isHighlighted = message.id === highlightedMessageId;
 
-        // System messages get special rendering
+        // System messages get special rendering - Telegram style
         if (message.contentType === 'system') {
           return (
             <div
@@ -74,21 +74,21 @@ const SimpleMessageList: React.FC<MessageListProps> = ({ messages, highlightedMe
               id={`message-${message.id}`}
               className="flex justify-center py-2"
             >
-              <div className="bg-gray-100 text-gray-600 text-sm px-4 py-2 rounded-full">
+              <div className="bg-secondary-100 text-secondary-600 text-sm px-4 py-2 rounded-full shadow-soft">
                 {message.content}
               </div>
             </div>
           );
         }
 
-        // Regular messages
+        // Regular messages - Telegram style
         return (
           <div
             key={message.id}
             id={`message-${message.id}`}
             className={`transition-all duration-300 ${
               isHighlighted
-                ? 'ring-2 ring-blue-500 rounded-lg p-2 bg-blue-50'
+                ? 'ring-2 ring-primary-400 rounded-xl p-2 bg-primary-50'
                 : ''
             }`}
           >
@@ -130,7 +130,7 @@ const VirtualizedMessageList: React.FC<MessageListProps> = ({ messages, highligh
 
     const isHighlighted = message.id === highlightedMessageId;
 
-    // System messages
+    // System messages - Telegram style
     if (message.contentType === 'system') {
       return (
         <div style={style} {...ariaAttributes}>
@@ -138,7 +138,7 @@ const VirtualizedMessageList: React.FC<MessageListProps> = ({ messages, highligh
             id={`message-${message.id}`}
             className="flex justify-center py-2"
           >
-            <div className="bg-gray-100 text-gray-600 text-sm px-4 py-2 rounded-full">
+            <div className="bg-secondary-100 text-secondary-600 text-sm px-4 py-2 rounded-full shadow-soft">
               {message.content}
             </div>
           </div>
@@ -146,14 +146,14 @@ const VirtualizedMessageList: React.FC<MessageListProps> = ({ messages, highligh
       );
     }
 
-    // Regular messages
+    // Regular messages - Telegram style
     return (
       <div style={style} {...ariaAttributes}>
         <div
           id={`message-${message.id}`}
           className={`px-4 py-2 transition-all duration-300 ${
             isHighlighted
-              ? 'ring-2 ring-blue-500 rounded-lg bg-blue-50'
+              ? 'ring-2 ring-primary-400 rounded-xl bg-primary-50'
               : ''
           }`}
         >
