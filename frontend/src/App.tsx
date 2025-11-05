@@ -20,7 +20,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-secondary-100">
         <Routes>
           {/* Public routes - redirect to home if already authenticated */}
           <Route
