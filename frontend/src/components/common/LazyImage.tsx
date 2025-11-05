@@ -85,10 +85,10 @@ export const LazyImage: React.FC<LazyImageProps> = ({
   if (hasError) {
     return (
       <div
-        className={`bg-gray-200 flex items-center justify-center ${className}`}
+        className={`bg-secondary-200 flex items-center justify-center ${className}`}
         style={{ minHeight: '200px' }}
       >
-        <span className="text-gray-500 text-sm">Failed to load image</span>
+        <span className="text-secondary-500 text-sm">Failed to load image</span>
       </div>
     );
   }
@@ -106,7 +106,7 @@ export const LazyImage: React.FC<LazyImageProps> = ({
 
       {/* Loading spinner overlay */}
       {isLoading && !placeholderSrc && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75">
+        <div className="absolute inset-0 flex items-center justify-center bg-secondary-100 bg-opacity-75">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       )}

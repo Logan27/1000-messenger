@@ -43,7 +43,7 @@ export const MessageSearchResults: React.FC<MessageSearchResultsProps> = ({
           part.toLowerCase() === query.toLowerCase() ? (
             <mark
               key={index}
-              className="bg-yellow-200 text-gray-900 font-medium rounded px-0.5"
+              className="bg-yellow-200 text-secondary-900 font-medium rounded px-0.5"
             >
               {part}
             </mark>
@@ -67,14 +67,14 @@ export const MessageSearchResults: React.FC<MessageSearchResultsProps> = ({
     return (
       <div className="flex flex-col items-center justify-center p-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-        <p className="text-gray-600">Searching...</p>
+        <p className="text-secondary-600">Searching...</p>
       </div>
     );
   }
 
   if (results.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-gray-500">
+      <div className="flex flex-col items-center justify-center p-12 text-secondary-500">
         <svg
           className="w-16 h-16 mb-4 text-gray-300"
           fill="none"
@@ -104,7 +104,7 @@ export const MessageSearchResults: React.FC<MessageSearchResultsProps> = ({
         <button
           key={message.id}
           onClick={() => onResultClick(message)}
-          className="w-full text-left p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full text-left p-4 bg-white border border-secondary-200 rounded-xl hover:bg-secondary-50 hover:border-blue-300 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <div className="flex items-start space-x-3">
             {/* Avatar */}
@@ -120,16 +120,16 @@ export const MessageSearchResults: React.FC<MessageSearchResultsProps> = ({
             <div className="flex-1 min-w-0">
               {/* Header: Sender and Timestamp */}
               <div className="flex items-center justify-between mb-1">
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p className="text-sm font-medium text-secondary-900 truncate">
                   {message.sender?.displayName || message.sender?.username || 'Unknown User'}
                 </p>
-                <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
+                <span className="text-xs text-secondary-500 ml-2 flex-shrink-0">
                   {formatTimestamp(message.createdAt)}
                 </span>
               </div>
 
               {/* Message Content with Highlighting */}
-              <p className="text-sm text-gray-700 line-clamp-2">
+              <p className="text-sm text-secondary-700 line-clamp-2">
                 {highlightText(message.content, searchQuery)}
               </p>
 
@@ -148,7 +148,7 @@ export const MessageSearchResults: React.FC<MessageSearchResultsProps> = ({
                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                   />
                 </svg>
-                <span className="text-xs text-gray-500 truncate">
+                <span className="text-xs text-secondary-500 truncate">
                   {/* Chat name would be displayed here if available */}
                   Chat
                 </span>

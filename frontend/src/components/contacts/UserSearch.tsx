@@ -118,7 +118,7 @@ export const UserSearch: React.FC<UserSearchProps> = ({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
-          className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-2 pl-10 border border-secondary-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
         <svg
           className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -142,7 +142,7 @@ export const UserSearch: React.FC<UserSearchProps> = ({
 
       {/* Error Message */}
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+        <div className="p-3 bg-error-50 border border-error-200 rounded-xl text-sm text-error-600">
           {error}
         </div>
       )}
@@ -151,7 +151,7 @@ export const UserSearch: React.FC<UserSearchProps> = ({
       {query.length >= minSearchLength && (
         <div className="space-y-2">
           {results.length === 0 && !isSearching && (
-            <p className="text-center text-gray-500 py-8">
+            <p className="text-center text-secondary-500 py-8">
               No users found matching "{query}"
             </p>
           )}
@@ -159,7 +159,7 @@ export const UserSearch: React.FC<UserSearchProps> = ({
           {results.map((user) => (
             <div
               key={user.id}
-              className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-between p-3 bg-white border border-secondary-200 rounded-xl hover:bg-secondary-50 transition-colors"
             >
               <div className="flex items-center space-x-3 flex-1 min-w-0">
                 <Avatar
@@ -168,18 +168,18 @@ export const UserSearch: React.FC<UserSearchProps> = ({
                   size="md"
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                  <p className="text-sm font-medium text-secondary-900 truncate">
                     {user.displayName || user.username}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">@{user.username}</p>
+                  <p className="text-xs text-secondary-500 truncate">@{user.username}</p>
                 </div>
               </div>
 
               <div className="ml-3">
                 {user.isContact ? (
-                  <span className="text-sm text-gray-500 font-medium">Already a contact</span>
+                  <span className="text-sm text-secondary-500 font-medium">Already a contact</span>
                 ) : user.hasPendingRequest ? (
-                  <span className="text-sm text-blue-600 font-medium">Request sent</span>
+                  <span className="text-sm text-primary-600 font-medium">Request sent</span>
                 ) : (
                   <Button
                     onClick={() => handleSendRequest(user.id)}
@@ -204,7 +204,7 @@ export const UserSearch: React.FC<UserSearchProps> = ({
 
       {/* Helper Text */}
       {query.length > 0 && query.length < minSearchLength && (
-        <p className="text-sm text-gray-500 text-center">
+        <p className="text-sm text-secondary-500 text-center">
           Type at least {minSearchLength} characters to search
         </p>
       )}
