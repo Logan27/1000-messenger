@@ -9,6 +9,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  dndEnabled: boolean; // Do Not Disturb mode (T234)
 
   login: (username: string, password: string) => Promise<void>;
   register: (
@@ -25,6 +26,7 @@ interface AuthState {
   setError: (error: string | null) => void;
   clearError: () => void;
   initialize: () => void;
+  setDndEnabled: (enabled: boolean) => void; // T234
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -37,6 +39,7 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: false,
         isLoading: false,
         error: null,
+        dndEnabled: false, // T234
 
         initialize: () => {
           const token = localStorage.getItem('accessToken');
@@ -194,6 +197,17 @@ export const useAuthStore = create<AuthState>()(
         setError: error => set({ error }),
 
         clearError: () => set({ error: null }),
+
+        // T234: Set DND (Do Not Disturb) mode
+        setDndEnabled: enabled => {
+          set({ dndEnabled: enabled });
+          // Also update the notification service (T235)
+          if (typeof window !== 'undefined') {
+            import('../services/notification.service').then(({ notificationService }) => {
+              notificationService.setEnabled(!enabled);
+            });
+          }
+        },
       }),
       {
         name: 'auth-storage',
@@ -202,6 +216,7 @@ export const useAuthStore = create<AuthState>()(
           token: state.token,
           refreshToken: state.refreshToken,
           isAuthenticated: state.isAuthenticated,
+          dndEnabled: state.dndEnabled, // T234: Persist DND preference
         }),
       }
     ),

@@ -2,6 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { wsService } from '../services/websocket.service';
 import { useAuthStore } from '../store/authStore';
 import { useChatStore } from '../store/chatStore';
+import { notificationService } from '../services/notification.service';
 
 interface Reaction {
   id: string;
@@ -44,10 +45,44 @@ export const useWebSocket = () => {
     // Connect to WebSocket
     wsService.connect(token);
 
+    // Request notification permission on login (T230)
+    if (notificationService.isSupported()) {
+      notificationService.requestPermission().catch(err => {
+        console.error('Failed to request notification permission:', err);
+      });
+    }
+
     // Listen for new messages
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     wsService.on('message:new', (message: any) => {
       addMessage(message);
+
+      // Show browser notification if tab is not visible (T231)
+      const currentUser = useAuthStore.getState().user;
+      const dndEnabled = useAuthStore.getState().dndEnabled;
+
+      // Don't notify for own messages or if DND is enabled
+      if (message.senderId !== currentUser?.id && !dndEnabled) {
+        // Get chat info for notification
+        const chats = useChatStore.getState().chats;
+        const chat = chats.find(c => c.id === message.chatId);
+
+        // Get sender name
+        let senderName = 'Unknown User';
+        if (chat) {
+          const sender = chat.participants.find((p: any) => p.userId === message.senderId);
+          if (sender?.user) {
+            senderName = sender.user.displayName || sender.user.username;
+          }
+        }
+
+        notificationService.showMessageNotification(
+          senderName,
+          message.content,
+          message.chatId,
+          chat?.name
+        );
+      }
     });
 
     // Listen for message read receipts

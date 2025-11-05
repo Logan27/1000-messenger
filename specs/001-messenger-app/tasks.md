@@ -451,13 +451,13 @@ This is a web application with separated frontend/backend:
 
 ### Frontend Implementation for User Story 11
 
-- [ ] T230 [US11] Request notification permission on login in frontend/src/services/websocket.service.ts
-- [ ] T231 [US11] Implement notification display on message received while tab inactive
-- [ ] T232 [US11] Add click handler to open chat from notification
-- [ ] T233 [US11] Add do-not-disturb toggle in ProfilePage
-- [ ] T234 [US11] Store DND preference in authStore
-- [ ] T235 [US11] Respect DND setting when showing notifications
-- [ ] T236 [US11] Add notification sound (optional, respecting browser settings)
+- [X] T230 [US11] Request notification permission on login in frontend/src/services/websocket.service.ts
+- [X] T231 [US11] Implement notification display on message received while tab inactive
+- [X] T232 [US11] Add click handler to open chat from notification
+- [X] T233 [US11] Add do-not-disturb toggle in ProfilePage
+- [X] T234 [US11] Store DND preference in authStore
+- [X] T235 [US11] Respect DND setting when showing notifications
+- [X] T236 [US11] Add notification sound (optional, respecting browser settings)
 
 **Checkpoint**: User Story 11 complete - browser notifications working
 
