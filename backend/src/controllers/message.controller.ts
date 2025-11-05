@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { MessageService } from '../services/message.service';
 import { validateMessageContent, sanitizeMessageContent } from '../utils/validation.util';
+import '../types/express'; // Import to ensure Express types are augmented
 
 export class MessageController {
   constructor(private messageService: MessageService) {}
@@ -125,9 +126,9 @@ export class MessageController {
     try {
       const userId = req.user!.userId;
       const { q: searchQuery } = req.query;
-      const chatId = req.query.chatId as string | undefined;
-      const cursor = req.query.cursor as string | undefined;
-      const limit = parseInt(req.query.limit as string) || 50;
+      const chatId = req.query['chatId'] as string | undefined;
+      const cursor = req.query['cursor'] as string | undefined;
+      const limit = parseInt(req.query['limit'] as string) || 50;
 
       if (!searchQuery || typeof searchQuery !== 'string') {
         res.status(400).json({ error: 'Search query is required' });

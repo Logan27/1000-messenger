@@ -210,7 +210,7 @@ export class MessageDeliveryQueue {
           const startTime = Date.now();
           
           try {
-            const data: QueuedMessage = JSON.parse(message.data);
+            const data: QueuedMessage = JSON.parse(message['data'] as string);
             
             // Deliver message to recipients
             await this.deliverMessage(data);
@@ -248,10 +248,10 @@ export class MessageDeliveryQueue {
     try {
       // Get pending messages (unacknowledged) using xPendingRange
       const pending = await redisClient.xPendingRange(
-        this.STREAM_KEY, 
-        this.CONSUMER_GROUP, 
-        '-', 
-        '+', 
+        this.STREAM_KEY,
+        this.CONSUMER_GROUP,
+        '-',
+        '+',
         this.config.batchSize
       );
 
@@ -275,41 +275,45 @@ export class MessageDeliveryQueue {
             [item.id]
           );
 
-          for (const { id, message } of claimed) {
-            try {
-              const data: QueuedMessage = JSON.parse(message.data);
-              data.attempts++;
+          if (claimed && claimed.length > 0) {
+            for (const claimedItem of claimed) {
+              if (!claimedItem) continue;
+              const { id, message } = claimedItem;
+              try {
+                const data: QueuedMessage = JSON.parse(message['data'] as string);
+                data.attempts++;
 
-              // Check if max retries exceeded
-              if (data.attempts > this.config.maxRetries) {
-                logger.error(`Message ${data.messageId} failed after ${this.config.maxRetries} attempts`, {
+                // Check if max retries exceeded
+                if (data.attempts > this.config.maxRetries) {
+                  logger.error(`Message ${data.messageId} failed after ${this.config.maxRetries} attempts`, {
+                    messageId: data.messageId,
+                    chatId: data.chatId,
+                    attempts: data.attempts,
+                  });
+                 
+                  // Move to dead letter queue
+                  await this.moveToDeadLetter(data, id);
+                 
+                  // Acknowledge to remove from pending
+                  await redisClient.xAck(this.STREAM_KEY, this.CONSUMER_GROUP, id);
+                  this.metrics.deadLettered++;
+                  continue;
+                }
+
+                // Retry delivery
+                logger.info(`Retrying message delivery (attempt ${data.attempts}/${this.config.maxRetries})`, {
                   messageId: data.messageId,
                   chatId: data.chatId,
-                  attempts: data.attempts,
                 });
                 
-                // Move to dead letter queue
-                await this.moveToDeadLetter(data, id);
-                
-                // Acknowledge to remove from pending
+                await this.deliverMessage(data);
                 await redisClient.xAck(this.STREAM_KEY, this.CONSUMER_GROUP, id);
-                this.metrics.deadLettered++;
-                continue;
+                this.metrics.retried++;
+                
+              } catch (error) {
+                logger.error(`Failed to process pending message ${id}`, error);
+                // Don't ACK - will retry again
               }
-
-              // Retry delivery
-              logger.info(`Retrying message delivery (attempt ${data.attempts}/${this.config.maxRetries})`, {
-                messageId: data.messageId,
-                chatId: data.chatId,
-              });
-              
-              await this.deliverMessage(data);
-              await redisClient.xAck(this.STREAM_KEY, this.CONSUMER_GROUP, id);
-              this.metrics.retried++;
-              
-            } catch (error) {
-              logger.error(`Failed to process pending message ${id}`, error);
-              // Don't ACK - will retry again
             }
           }
         } catch (error) {

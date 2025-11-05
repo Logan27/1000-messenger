@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import { securityHeaders, apiRateLimit } from './middleware/security.middleware';
+import { securityHeaders } from './middleware/security.middleware';
+import { apiRateLimit } from './middleware/rate-limit.middleware';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 import { authRoutes } from './routes/auth.routes';
 import { userRoutes } from './routes/user.routes';

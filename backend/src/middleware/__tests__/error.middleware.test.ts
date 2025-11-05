@@ -39,7 +39,7 @@ jest.mock('../../config/env', () => ({
 describe('Error Middleware', () => {
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
-  let mockNext: NextFunction;
+  let mockNext: jest.MockedFunction<NextFunction>;
   let jsonMock: jest.Mock;
   let statusMock: jest.Mock;
 
@@ -323,7 +323,7 @@ describe('Error Middleware', () => {
 
       expect(mockNext).toHaveBeenCalled();
       expect(mockNext.mock.calls[0]?.[0]).toBeInstanceOf(Error);
-      expect(mockNext.mock.calls[0]?.[0]?.message).toBe('Sync error');
+      expect((mockNext.mock.calls[0]?.[0] as any)?.message).toBe('Sync error');
     });
   });
 });

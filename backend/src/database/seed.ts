@@ -110,7 +110,7 @@ async function seedDatabase() {
       );
 
       console.log(
-        `✅ Created contact: ${testUsers[contact.user1].username} <-> ${testUsers[contact.user2].username}`
+        `✅ Created contact: ${testUsers[contact.user1]?.username} <-> ${testUsers[contact.user2]?.username}`
       );
     }
 
@@ -138,7 +138,7 @@ async function seedDatabase() {
       );
 
       console.log(
-        `✅ Created chat: ${testUsers[contact.user1].username} <-> ${testUsers[contact.user2].username}`
+        `✅ Created chat: ${testUsers[contact.user1]?.username} <-> ${testUsers[contact.user2]?.username}`
       );
 
       // Add a sample message
@@ -150,7 +150,7 @@ async function seedDatabase() {
         [
           chatId,
           userIds[senderIdx],
-          `Hi ${testUsers[contact.user2].display_name}! This is a test message.`,
+          `Hi ${testUsers[contact.user2]?.display_name}! This is a test message.`,
         ]
       );
       const messageId = messageResult.rows[0].id;

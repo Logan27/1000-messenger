@@ -32,13 +32,13 @@ const exampleRouter = Router();
 // Validate POST request body
 exampleRouter.post('/register', validate(registerSchema), async (req, res) => {
   // req.body is now validated and typed
-  const { username, password, displayName } = req.body;
+  const { username } = req.body;
   res.json({ message: 'User registered', username });
 });
 
 // Alternative: Use convenience wrapper
 exampleRouter.post('/login', validateBody(loginSchema), async (req, res) => {
-  const { username, password } = req.body;
+  const { username } = req.body;
   res.json({ message: 'User logged in', username });
 });
 

@@ -21,28 +21,15 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { 
-  verifyAccessToken, 
-  extractTokenFromHeader, 
-  JwtExpiredError, 
-  JwtInvalidError,
-  JwtPayload 
+import {
+  verifyAccessToken,
+  extractTokenFromHeader,
+  JwtExpiredError,
+  JwtInvalidError
 } from '../utils/jwt.util';
 import { logger } from '../utils/logger.util';
 
-/**
- * Extend Express Request interface to include authenticated user information
- */
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        userId: string;
-        tokenPayload?: JwtPayload;
-      };
-    }
-  }
-}
+// Express Request interface is already extended in backend/src/types/express.d.ts
 
 /**
  * Authentication Middleware Class

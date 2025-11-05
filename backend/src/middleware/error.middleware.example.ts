@@ -74,12 +74,14 @@ class ExampleService {
 // Example 2: Traditional controller with try-catch
 // ============================================================================
 
-class ExampleController {
+// Example controller class - demonstrates error handling patterns
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export class ExampleController {
   constructor(private service: ExampleService) {}
 
   getUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const user = await this.service.getUser(req.params.id);
+      const user = await this.service.getUser(req.params['id'] as string);
       res.json(user);
     } catch (error) {
       // Error middleware automatically handles conversion
@@ -107,7 +109,7 @@ class ExampleController {
 const service = new ExampleService();
 
 export const getUserHandler = asyncHandler(async (req, res) => {
-  const user = await service.getUser(req.params.id);
+  const user = await service.getUser(req.params['id'] as string);
   res.json(user);
   // No try-catch needed - asyncHandler catches and passes to error middleware
 });
@@ -121,7 +123,7 @@ export const createUserHandler = asyncHandler(async (req, res) => {
 });
 
 export const updateUserHandler = asyncHandler(async (req, res) => {
-  const userId = req.params.id;
+  const userId = req.params['id'] as string;
   const requesterId = (req as any).user?.userId;
   
   const user = await service.updateUser(userId, requesterId, req.body);
@@ -133,7 +135,7 @@ export const updateUserHandler = asyncHandler(async (req, res) => {
 // ============================================================================
 
 export const complexBusinessLogic = asyncHandler(async (req, res) => {
-  const { action, resourceId } = req.body;
+  const { action } = req.body;
   
   // Check resource exists
   const resource = null; // simulated query

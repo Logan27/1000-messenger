@@ -160,12 +160,12 @@ export class ChatService {
     }
 
     // Update chat with new slug if name changed (T220)
-    const updateData = { ...data };
+    const updateData: any = { ...data };
     if (data.name) {
       updateData.slug = generateSlug(data.name, chatId);
     }
 
-    const updatedChat = await this.chatRepo.update(chatId, updateData as any);
+    const updatedChat = await this.chatRepo.update(chatId, updateData);
     const participants = await this.chatRepo.getChatParticipants(chatId);
 
     return {

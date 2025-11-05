@@ -64,25 +64,16 @@ export const securityHeaders = helmet({
 /**
  * API Rate Limiting Middleware
  *
- * General rate limiter for all API endpoints to prevent abuse and DDoS attacks.
- * Limits requests per IP address.
+ * Note: The production API rate limiter is implemented in rate-limit.middleware.ts
+ * using Redis for distributed rate limiting across multiple server instances.
  *
- * Limits:
- * - 100 requests per minute per IP address
+ * For API endpoints, use the Redis-backed apiRateLimit from
+ * middleware/rate-limit.middleware.ts instead of this simple in-memory version.
  *
- * Responses:
- * - Returns 429 Too Many Requests when limit is exceeded
- * - Includes standard rate limit headers (RateLimit-*)
- *
+ * @see middleware/rate-limit.middleware.ts for Redis-backed rate limiting
  * @see FR-184: System MUST rate limit general operations (100 per minute)
+ * @deprecated Use apiRateLimit from rate-limit.middleware.ts for production
  */
-export const apiRateLimit = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 100, // 100 requests per minute
-  message: 'Too many requests from this IP',
-  standardHeaders: true,
-  legacyHeaders: false,
-});
 
 /**
  * Authentication Rate Limiting Middleware

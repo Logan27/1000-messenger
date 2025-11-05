@@ -22,7 +22,7 @@ import { logger, logSecurity } from '../utils/logger.util';
  * Create a Redis store for rate limiting
  * @param prefix - Key prefix for this rate limiter
  */
-function createRedisStore(prefix: string): RedisStore | undefined {
+function createRedisStore(prefix: string): any {
   try {
     // Check if Redis is connected
     if (!redisClient.isOpen) {
