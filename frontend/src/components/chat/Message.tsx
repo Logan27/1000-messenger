@@ -59,7 +59,7 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const isOwnMessage = message.senderId === user?.id;
-  
+
   // Use intersection observer to mark message as read when visible
   const messageRef = useMessageRead({
     messageId: message.id,
@@ -118,7 +118,6 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
   };
 
   const handleReply = () => {
-    // Will be handled by parent component (ChatWindow) via custom event
     const event = new CustomEvent('message:reply', { detail: message });
     window.dispatchEvent(event);
     setShowActionMenu(false);
@@ -163,14 +162,14 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
   }, [lightboxOpen, message.metadata]);
 
   const renderContent = () => {
-    // Inline Edit Mode
+    // Inline Edit Mode - Telegram style
     if (isEditing) {
       return (
         <div className="space-y-2 w-full">
           <textarea
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full px-4 py-3 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 resize-none"
             rows={3}
             autoFocus
           />
@@ -178,13 +177,13 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
             <button
               onClick={handleSaveEdit}
               disabled={!editContent.trim()}
-              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+              className="btn-primary text-sm py-2 px-4"
             >
               Save
             </button>
             <button
               onClick={handleCancelEdit}
-              className="px-3 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-sm"
+              className="btn-secondary text-sm py-2 px-4"
             >
               Cancel
             </button>
@@ -199,13 +198,13 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
         <>
           <div className="space-y-2">
             {message.content && <div dangerouslySetInnerHTML={{ __html: message.content }} />}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 mt-2">
               {images.map((img, idx: number) => (
                 <LazyImage
                   key={idx}
                   src={img.url}
                   alt="Uploaded"
-                  className="rounded cursor-pointer hover:opacity-90 transition-opacity w-full h-auto"
+                  className="rounded-lg cursor-pointer hover:opacity-90 transition-opacity w-full h-auto"
                   onClick={() => openLightbox(idx)}
                   threshold={0.1}
                   rootMargin="200px"
@@ -217,7 +216,7 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
           {/* Lightbox */}
           {lightboxOpen && (
             <div
-              className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center"
+              className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center backdrop-blur-sm"
               onClick={closeLightbox}
             >
               <button
@@ -225,7 +224,7 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
                   e.stopPropagation();
                   closeLightbox();
                 }}
-                className="absolute top-4 right-4 text-white text-3xl hover:text-gray-300"
+                className="absolute top-4 right-4 text-white text-4xl hover:text-secondary-300 transition-colors w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/10"
               >
                 ×
               </button>
@@ -237,7 +236,7 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
                       e.stopPropagation();
                       prevImage(images);
                     }}
-                    className="absolute left-4 text-white text-3xl hover:text-gray-300"
+                    className="absolute left-4 text-white text-4xl hover:text-secondary-300 transition-colors w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/10"
                   >
                     ‹
                   </button>
@@ -246,7 +245,7 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
                       e.stopPropagation();
                       nextImage(images);
                     }}
-                    className="absolute right-4 text-white text-3xl hover:text-gray-300"
+                    className="absolute right-16 text-white text-4xl hover:text-secondary-300 transition-colors w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/10"
                   >
                     ›
                   </button>
@@ -262,7 +261,7 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
                 rootMargin="0px"
               />
 
-              <div className="absolute bottom-4 text-white">
+              <div className="absolute bottom-4 text-white bg-black/50 px-4 py-2 rounded-full">
                 {lightboxIndex + 1} / {images.length}
               </div>
             </div>
@@ -286,82 +285,73 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
   );
 
   return (
-    <div ref={messageRef} className={`flex gap-2 mb-4 ${isOwnMessage ? 'flex-row-reverse' : ''}`}>
-      {/* Avatar */}
+    <div ref={messageRef} className={`flex gap-3 mb-2 ${isOwnMessage ? 'flex-row-reverse' : ''}`}>
+      {/* Avatar - Telegram style with gradient */}
       <div className="flex-shrink-0">
         {senderAvatar ? (
-          <img src={senderAvatar} alt={senderName} className="w-10 h-10 rounded-full" />
+          <img src={senderAvatar} alt={senderName} className="w-10 h-10 rounded-full object-cover shadow-sm" />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-            <span className="text-sm font-medium">{senderName.charAt(0).toUpperCase()}</span>
+          <div className="avatar-md">
+            <span>{senderName.charAt(0).toUpperCase()}</span>
           </div>
         )}
       </div>
 
-      {/* Message bubble */}
-      <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'}`}>
-        <div className="flex items-baseline gap-2 mb-1">
-          <span className="text-sm font-medium">{senderName}</span>
-          <span className="text-xs text-gray-500">
-            {format(new Date(message.createdAt), 'HH:mm')}
-          </span>
-          {message.isEdited && <span className="text-xs text-gray-400">(edited)</span>}
-          {message.isPending && <span className="text-xs text-gray-400">⏳ Sending...</span>}
-          {message.isFailed && <span className="text-xs text-red-500">❌ Failed</span>}
-        </div>
-
-        {/* Delivery status for own messages */}
-        {isOwnMessage && !message.isPending && !message.isFailed && (
-          <div className="flex items-center gap-1 mb-1">
-            {message.deliveryStatus === 'read' && (
-              <span className="text-xs text-blue-500" title="Read">
-                ✓✓
-                {message.readCount && message.readCount.total > 0 && (
-                  <span className="ml-1">
-                    Read by {message.readCount.read} of {message.readCount.total}
-                  </span>
-                )}
-              </span>
-            )}
-            {message.deliveryStatus === 'delivered' && (
-              <span className="text-xs text-gray-400" title="Delivered">
-                ✓✓
-              </span>
-            )}
-            {message.deliveryStatus === 'sent' && (
-              <span className="text-xs text-gray-400" title="Sent">
-                ✓
-              </span>
-            )}
-          </div>
+      {/* Message bubble - Telegram style */}
+      <div className={`flex flex-col max-w-[70%] ${isOwnMessage ? 'items-end' : 'items-start'}`}>
+        {/* Sender name above bubble (only for received messages) */}
+        {!isOwnMessage && (
+          <span className="text-xs font-medium text-secondary-600 mb-1 px-1">{senderName}</span>
         )}
 
         <div
-          className={`relative group max-w-md px-4 py-2 rounded-lg ${
+          className={`relative group ${
             message.isFailed
-              ? 'bg-red-100 border border-red-300'
+              ? 'bg-error-100 border border-error-300 rounded-[18px] px-4 py-3'
               : message.isPending
-                ? 'bg-gray-100 opacity-60'
+                ? 'bg-secondary-100 opacity-70 rounded-[18px] px-4 py-3'
                 : isOwnMessage
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white border border-gray-200'
+                  ? 'message-bubble-sent'
+                  : 'message-bubble-received'
           }`}
           onMouseEnter={() => setShowReactions(true)}
           onMouseLeave={() => setShowReactions(false)}
         >
           {/* Reply Preview */}
           {message.replyTo && (
-            <div className={`mb-2 pb-2 border-l-4 pl-2 text-xs ${isOwnMessage ? 'border-blue-300' : 'border-gray-300'}`}>
-              <div className={`font-medium ${isOwnMessage ? 'text-blue-100' : 'text-gray-600'}`}>
+            <div className={`mb-2 pb-2 border-l-4 pl-2 text-xs ${isOwnMessage ? 'border-white/30' : 'border-primary-400'}`}>
+              <div className={`font-medium ${isOwnMessage ? 'text-white/90' : 'text-primary-600'}`}>
                 {message.replyTo.sender?.username || 'Unknown User'}
               </div>
-              <div className={`truncate ${isOwnMessage ? 'text-blue-100 opacity-80' : 'text-gray-500'}`}>
+              <div className={`truncate ${isOwnMessage ? 'text-white/70' : 'text-secondary-500'}`}>
                 {message.replyTo.content}
               </div>
             </div>
           )}
 
           {renderContent()}
+
+          {/* Time and status - Telegram style (inline at bottom right) */}
+          <div className={`flex items-center gap-1.5 mt-1.5 text-2xs ${isOwnMessage ? 'text-white/70' : 'text-secondary-400'} justify-end`}>
+            <span>{format(new Date(message.createdAt), 'HH:mm')}</span>
+            {message.isEdited && <span className="italic">edited</span>}
+            {message.isPending && <span>⏳</span>}
+            {message.isFailed && <span className="text-error-500">❌</span>}
+            {/* Delivery status for own messages - Telegram checkmarks */}
+            {isOwnMessage && !message.isPending && !message.isFailed && (
+              <>
+                {message.deliveryStatus === 'read' && (
+                  <span title="Read" className="text-white font-bold">✓✓</span>
+                )}
+                {message.deliveryStatus === 'delivered' && (
+                  <span title="Delivered" className="text-white/70">✓✓</span>
+                )}
+                {message.deliveryStatus === 'sent' && (
+                  <span title="Sent" className="text-white/70">✓</span>
+                )}
+              </>
+            )}
+          </div>
 
           {/* Action Menu Button */}
           {!message.isPending && !message.isFailed && !isEditing && (
@@ -370,63 +360,64 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
                 e.stopPropagation();
                 setShowActionMenu(!showActionMenu);
               }}
-              className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 rounded"
+              className={`absolute -top-2 ${isOwnMessage ? 'left-2' : 'right-2'} opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full backdrop-blur-sm ${isOwnMessage ? 'hover:bg-white/20' : 'hover:bg-secondary-200'}`}
             >
-              <span className="text-gray-600">⋮</span>
+              <span className={isOwnMessage ? 'text-white' : 'text-secondary-600'}>⋮</span>
             </button>
           )}
 
-          {/* Action Menu Dropdown */}
+          {/* Action Menu Dropdown - Telegram style */}
           {showActionMenu && (
-            <div className="absolute top-8 right-0 bg-white border rounded-lg shadow-lg py-1 z-10 min-w-[120px]">
+            <div className={`dropdown ${isOwnMessage ? 'right-0' : 'left-0'} top-8 min-w-[140px]`}>
               <button
                 onClick={handleReply}
-                className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                className="dropdown-item"
               >
-                Reply
+                <span>💬</span>
+                <span>Reply</span>
               </button>
-              {/* Copy message link (T227) */}
               {message.chatId && (
                 <button
                   onClick={() => {
                     const url = `${window.location.origin}/chat/${message.chatId}/message/${message.id}`;
                     navigator.clipboard.writeText(url);
                     setShowActionMenu(false);
-                    // TODO: Show toast notification
-                    console.log('Message link copied to clipboard');
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                  className="dropdown-item"
                 >
-                  Copy link
+                  <span>🔗</span>
+                  <span>Copy link</span>
                 </button>
               )}
               {isOwnMessage && (
                 <>
                   <button
                     onClick={handleEdit}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                    className="dropdown-item"
                   >
-                    Edit
+                    <span>✏️</span>
+                    <span>Edit</span>
                   </button>
                   <button
                     onClick={handleDelete}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600"
+                    className="dropdown-item text-error-600 hover:bg-error-50"
                   >
-                    Delete
+                    <span>🗑️</span>
+                    <span>Delete</span>
                   </button>
                 </>
               )}
             </div>
           )}
 
-          {/* Quick reactions + emoji picker button */}
+          {/* Quick reactions - Telegram style */}
           {showReactions && !isEditing && (
-            <div className="absolute -top-8 left-0 bg-white border rounded-lg shadow-lg p-2 flex gap-1 z-10">
+            <div className={`absolute -top-10 ${isOwnMessage ? 'right-0' : 'left-0'} bg-white rounded-xl shadow-medium p-1.5 flex gap-1 z-10 border border-secondary-100`}>
               {['👍', '❤️', '😂', '😮', '😢', '🎉'].map(emoji => (
                 <button
                   key={emoji}
                   onClick={() => handleReact(emoji)}
-                  className="hover:bg-gray-100 rounded p-1 text-lg"
+                  className="hover:bg-secondary-100 rounded-lg p-1.5 text-lg transition-colors"
                 >
                   {emoji}
                 </button>
@@ -437,7 +428,7 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
                   setShowEmojiPicker(true);
                   setShowReactions(false);
                 }}
-                className="hover:bg-gray-100 rounded px-2 text-sm text-gray-600"
+                className="hover:bg-secondary-100 rounded-lg px-2 text-sm text-secondary-600 transition-colors"
                 title="More emojis"
               >
                 ➕
@@ -456,9 +447,9 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
           )}
         </div>
 
-        {/* Reactions display */}
+        {/* Reactions display - Telegram style */}
         {groupedReactions && Object.keys(groupedReactions).length > 0 && (
-          <div className="flex gap-1 mt-1">
+          <div className="flex gap-1.5 mt-1.5 flex-wrap">
             {Object.entries(groupedReactions).map(([emoji, reactions]) => {
               const userReaction = reactions.find(r => r.userId === user?.id);
               return (
@@ -471,15 +462,15 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
                       handleReact(emoji);
                     }
                   }}
-                  className={`rounded-full px-2 py-1 text-xs flex items-center gap-1 transition-colors ${
+                  className={`rounded-full px-2.5 py-1 text-xs flex items-center gap-1 transition-all shadow-sm ${
                     userReaction
-                      ? 'bg-blue-200 hover:bg-blue-300 border border-blue-400'
-                      : 'bg-gray-100 hover:bg-gray-200'
+                      ? 'bg-primary-100 hover:bg-primary-200 border border-primary-400 text-primary-700'
+                      : 'bg-white hover:bg-secondary-50 border border-secondary-200'
                   }`}
                   title={`${reactions.length} reaction${reactions.length > 1 ? 's' : ''}`}
                 >
                   <span>{emoji}</span>
-                  <span>{reactions.length}</span>
+                  <span className="font-medium">{reactions.length}</span>
                 </button>
               );
             })}

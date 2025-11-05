@@ -71,7 +71,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
         <svg
           className={`w-5 h-5 transition-colors ${
-            isFocused ? 'text-blue-500' : 'text-gray-400'
+            isFocused ? 'text-primary-500' : 'text-gray-400'
           }`}
           fill="none"
           stroke="currentColor"
@@ -98,8 +98,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         autoFocus={autoFocus}
         className={`
           w-full pl-10 pr-10 py-2
-          border border-gray-300 rounded-lg
-          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+          border border-secondary-300 rounded-xl
+          focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent
           transition-all duration-200
           ${isFocused ? 'shadow-md' : 'shadow-sm'}
         `}
@@ -111,8 +111,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           type="button"
           onClick={handleClear}
           className="absolute right-3 top-1/2 transform -translate-y-1/2
-                     text-gray-400 hover:text-gray-600
-                     focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full
+                     text-gray-400 hover:text-secondary-600
+                     focus:outline-none focus:ring-2 focus:ring-primary-400 rounded-full
                      transition-colors p-1"
           aria-label="Clear search"
         >
@@ -130,7 +130,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       {/* Helper Text */}
       {query.length > 0 && query.length < minLength && (
         <div className="absolute top-full left-0 right-0 mt-1">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-secondary-500">
             Type at least {minLength} characters to search
           </p>
         </div>

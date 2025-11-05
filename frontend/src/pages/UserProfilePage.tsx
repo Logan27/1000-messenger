@@ -75,10 +75,10 @@ export const UserProfilePage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
+      <div className="flex-1 flex items-center justify-center bg-secondary-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading profile...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
+          <p className="text-secondary-500">Loading profile...</p>
         </div>
       </div>
     );
@@ -86,9 +86,9 @@ export const UserProfilePage = () => {
 
   if (error && !user) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
+      <div className="flex-1 flex items-center justify-center bg-secondary-50">
         <div className="text-center max-w-md p-6">
-          <div className="text-red-600 mb-4">
+          <div className="text-error-600 mb-4">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-16 w-16 mx-auto mb-4"
@@ -104,10 +104,10 @@ export const UserProfilePage = () => {
               />
             </svg>
           </div>
-          <p className="text-gray-700 mb-4">{error}</p>
+          <p className="text-secondary-700 mb-4">{error}</p>
           <button
             onClick={() => navigate('/')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700"
           >
             Go back
           </button>
@@ -121,10 +121,10 @@ export const UserProfilePage = () => {
   }
 
   return (
-    <div className="flex-1 bg-gray-50 overflow-y-auto">
+    <div className="flex-1 bg-secondary-50 overflow-y-auto">
       <div className="max-w-2xl mx-auto p-6">
         {/* Profile Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-secondary-200 p-6">
           {/* Avatar and Name */}
           <div className="flex flex-col items-center mb-6">
             {user.avatarUrl ? (
@@ -134,17 +134,17 @@ export const UserProfilePage = () => {
                 className="w-32 h-32 rounded-full mb-4"
               />
             ) : (
-              <div className="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center mb-4">
-                <span className="text-4xl font-medium text-gray-700">
+              <div className="w-32 h-32 rounded-full bg-secondary-300 flex items-center justify-center mb-4">
+                <span className="text-4xl font-medium text-secondary-700">
                   {user.username.charAt(0).toUpperCase()}
                 </span>
               </div>
             )}
 
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">
+            <h1 className="text-2xl font-bold text-secondary-900 mb-1">
               {user.displayName || user.username}
             </h1>
-            <p className="text-gray-500 mb-2">@{user.username}</p>
+            <p className="text-secondary-500 mb-2">@{user.username}</p>
 
             {/* Status Badge */}
             <div className="flex items-center gap-2 mb-4">
@@ -157,7 +157,7 @@ export const UserProfilePage = () => {
                       : 'bg-gray-400'
                 }`}
               ></span>
-              <span className="text-sm text-gray-600 capitalize">{user.status}</span>
+              <span className="text-sm text-secondary-600 capitalize">{user.status}</span>
             </div>
           </div>
 
@@ -165,47 +165,47 @@ export const UserProfilePage = () => {
           <div className="flex gap-3">
             <button
               onClick={handleSendMessage}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors"
             >
               Send Message
             </button>
             <button
               onClick={handleAddContact}
-              className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              className="flex-1 px-4 py-2 bg-secondary-200 text-secondary-700 rounded-xl hover:bg-secondary-300 transition-colors"
             >
               Add Contact
             </button>
           </div>
 
           {error && (
-            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+            <div className="mt-4 p-3 bg-error-50 border border-error-200 rounded text-error-700 text-sm">
               {error}
             </div>
           )}
         </div>
 
         {/* User Info */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-4">
+        <div className="bg-white rounded-xl shadow-sm border border-secondary-200 p-6 mt-4">
           <h2 className="text-lg font-semibold mb-4">User Information</h2>
           <div className="space-y-3">
             <div>
-              <label className="text-sm font-medium text-gray-500">Username</label>
-              <p className="text-gray-900">{user.username}</p>
+              <label className="text-sm font-medium text-secondary-500">Username</label>
+              <p className="text-secondary-900">{user.username}</p>
             </div>
             {user.displayName && (
               <div>
-                <label className="text-sm font-medium text-gray-500">Display Name</label>
-                <p className="text-gray-900">{user.displayName}</p>
+                <label className="text-sm font-medium text-secondary-500">Display Name</label>
+                <p className="text-secondary-900">{user.displayName}</p>
               </div>
             )}
             <div>
-              <label className="text-sm font-medium text-gray-500">Status</label>
-              <p className="text-gray-900 capitalize">{user.status}</p>
+              <label className="text-sm font-medium text-secondary-500">Status</label>
+              <p className="text-secondary-900 capitalize">{user.status}</p>
             </div>
             {user.lastSeen && user.status === 'offline' && (
               <div>
-                <label className="text-sm font-medium text-gray-500">Last Seen</label>
-                <p className="text-gray-900">
+                <label className="text-sm font-medium text-secondary-500">Last Seen</label>
+                <p className="text-secondary-900">
                   {new Date(user.lastSeen).toLocaleString()}
                 </p>
               </div>

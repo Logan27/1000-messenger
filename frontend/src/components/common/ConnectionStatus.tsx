@@ -165,13 +165,13 @@ export const ConnectionIndicator: React.FC = () => {
       case 'excellent':
         return 'bg-green-500';
       case 'good':
-        return 'bg-blue-500';
+        return 'bg-primary-500';
       case 'poor':
         return 'bg-yellow-500';
       case 'offline':
-        return 'bg-red-500';
+        return 'bg-error-500';
       default:
-        return 'bg-gray-500';
+        return 'bg-secondary-500';
     }
   };
 

@@ -31,7 +31,7 @@ export const ParticipantList: React.FC<ParticipantListProps> = ({
 
     try {
       await apiService.removeParticipant(chat.id, userId);
-      
+
       // Update local state
       updateChat(chat.id, {
         participants: chat.participants.filter(p => p.userId !== userId),
@@ -48,25 +48,25 @@ export const ParticipantList: React.FC<ParticipantListProps> = ({
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'owner':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-700';
       case 'admin':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-primary-100 text-primary-700';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-secondary-100 text-secondary-700';
     }
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">
+    <div className="bg-white rounded-2xl shadow-soft border border-secondary-200">
+      {/* Header - Telegram style */}
+      <div className="px-6 py-4 border-b border-secondary-100 flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-secondary-900">
           Participants ({chat.participants.length})
         </h3>
         {onClose && (
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="btn-icon text-secondary-400 hover:text-secondary-600"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -86,37 +86,37 @@ export const ParticipantList: React.FC<ParticipantListProps> = ({
         )}
       </div>
 
-      {/* Error Message */}
+      {/* Error Message - Telegram style */}
       {error && (
-        <div className="px-4 py-2 bg-red-50 border-b border-red-200">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="px-6 py-3 bg-error-50 border-b border-error-200">
+          <p className="text-sm text-error-700 font-medium">{error}</p>
         </div>
       )}
 
-      {/* Participants List */}
+      {/* Participants List - Telegram style */}
       <div className="max-h-96 overflow-y-auto">
         {chat.participants.map((participant: ChatParticipant) => (
           <div
             key={participant.id}
-            className="px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
+            className="px-6 py-3 hover:bg-secondary-50 transition-all duration-200 border-b border-secondary-100 last:border-b-0"
           >
             {showRemoveConfirm === participant.userId ? (
               <div className="space-y-2">
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-secondary-700">
                   Remove {participant.user?.displayName || participant.user?.username || 'this participant'} from the
                   group?
                 </p>
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => handleRemoveParticipant(participant.userId)}
-                    className="px-3 py-1 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-gray-400"
+                    className="px-3 py-2 text-sm font-medium text-white bg-error-600 rounded-xl hover:bg-error-700 disabled:bg-secondary-400 shadow-soft transition-all duration-200"
                     disabled={!!isLoading}
                   >
                     {isLoading === participant.userId ? 'Removing...' : 'Confirm'}
                   </button>
                   <button
                     onClick={() => setShowRemoveConfirm(null)}
-                    className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                    className="px-3 py-2 text-sm font-medium text-secondary-700 bg-secondary-100 rounded-xl hover:bg-secondary-200 transition-all duration-200"
                     disabled={!!isLoading}
                   >
                     Cancel
@@ -134,7 +134,7 @@ export const ParticipantList: React.FC<ParticipantListProps> = ({
                       className="h-10 w-10 rounded-full object-cover flex-shrink-0"
                     />
                   ) : (
-                    <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-sm font-medium flex-shrink-0 shadow-soft">
                       {(participant.user?.displayName || participant.user?.username || '?')
                         .charAt(0)
                         .toUpperCase()}
@@ -144,14 +144,14 @@ export const ParticipantList: React.FC<ParticipantListProps> = ({
                   {/* User Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-secondary-900 truncate">
                         {participant.user?.displayName || participant.user?.username || 'Unknown User'}
                         {participant.userId === currentUserId && (
-                          <span className="ml-1 text-gray-500">(You)</span>
+                          <span className="ml-1 text-secondary-500">(You)</span>
                         )}
                       </p>
                       <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getRoleBadgeColor(
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${getRoleBadgeColor(
                           participant.role
                         )}`}
                       >
@@ -159,7 +159,7 @@ export const ParticipantList: React.FC<ParticipantListProps> = ({
                       </span>
                     </div>
                     {participant.user?.username && (
-                      <p className="text-xs text-gray-500 truncate">@{participant.user.username}</p>
+                      <p className="text-xs text-secondary-500 truncate">@{participant.user.username}</p>
                     )}
                   </div>
                 </div>
@@ -170,7 +170,7 @@ export const ParticipantList: React.FC<ParticipantListProps> = ({
                   participant.role !== 'owner' && (
                     <button
                       onClick={() => setShowRemoveConfirm(participant.userId)}
-                      className="ml-2 p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors flex-shrink-0"
+                      className="ml-2 btn-icon text-error-600 hover:bg-error-50"
                       disabled={!!isLoading}
                     >
                       <svg

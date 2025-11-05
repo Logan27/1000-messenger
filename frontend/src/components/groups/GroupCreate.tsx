@@ -63,14 +63,14 @@ export const GroupCreate: React.FC<GroupCreateProps> = ({ onClose, onSuccess, co
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] flex flex-col">
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">Create Group Chat</h2>
+    <div className="modal-overlay">
+      <div className="bg-white rounded-2xl shadow-telegram max-w-md w-full max-h-[90vh] flex flex-col">
+        {/* Header - Telegram style */}
+        <div className="px-6 py-4 border-b border-secondary-100 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-secondary-900">Create Group Chat</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="btn-icon text-secondary-400 hover:text-secondary-600"
             disabled={isLoading}
           >
             <svg
@@ -90,12 +90,12 @@ export const GroupCreate: React.FC<GroupCreateProps> = ({ onClose, onSuccess, co
           </button>
         </div>
 
-        {/* Content */}
+        {/* Content - Telegram style */}
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
           <div className="px-6 py-4 space-y-4 flex-shrink-0">
             {/* Group Name Input */}
             <div>
-              <label htmlFor="groupName" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="groupName" className="block text-sm font-medium text-secondary-700 mb-2">
                 Group Name
               </label>
               <input
@@ -103,7 +103,7 @@ export const GroupCreate: React.FC<GroupCreateProps> = ({ onClose, onSuccess, co
                 id="groupName"
                 value={groupName}
                 onChange={e => setGroupName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input-field"
                 placeholder="Enter group name"
                 maxLength={100}
                 disabled={isLoading}
@@ -112,7 +112,7 @@ export const GroupCreate: React.FC<GroupCreateProps> = ({ onClose, onSuccess, co
 
             {/* Search Input */}
             <div>
-              <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="search" className="block text-sm font-medium text-secondary-700 mb-2">
                 Add Participants
               </label>
               <input
@@ -120,35 +120,35 @@ export const GroupCreate: React.FC<GroupCreateProps> = ({ onClose, onSuccess, co
                 id="search"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input-field"
                 placeholder="Search contacts..."
                 disabled={isLoading}
               />
             </div>
 
             {/* Selected Count */}
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-secondary-600 font-medium">
               {selectedParticipants.length} participant{selectedParticipants.length !== 1 && 's'}{' '}
               selected
             </div>
           </div>
 
-          {/* Participants List */}
+          {/* Participants List - Telegram style */}
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="space-y-2">
               {filteredContacts.length === 0 ? (
-                <p className="text-sm text-gray-500 text-center py-4">No contacts found</p>
+                <p className="text-sm text-secondary-500 text-center py-4">No contacts found</p>
               ) : (
                 filteredContacts.map(contact => (
                   <label
                     key={contact.id}
-                    className="flex items-center p-2 hover:bg-gray-50 rounded-md cursor-pointer"
+                    className="flex items-center p-3 hover:bg-secondary-50 rounded-xl cursor-pointer transition-all duration-200"
                   >
                     <input
                       type="checkbox"
                       checked={selectedParticipants.includes(contact.id)}
                       onChange={() => toggleParticipant(contact.id)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      className="h-5 w-5 text-primary-500 focus:ring-primary-400 border-secondary-300 rounded"
                       disabled={isLoading}
                     />
                     <div className="ml-3 flex items-center flex-1">
@@ -156,16 +156,16 @@ export const GroupCreate: React.FC<GroupCreateProps> = ({ onClose, onSuccess, co
                         <img
                           src={contact.avatarUrl}
                           alt={contact.displayName}
-                          className="h-8 w-8 rounded-full object-cover"
+                          className="h-10 w-10 rounded-full object-cover"
                         />
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-medium">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-sm font-medium shadow-soft">
                           {contact.displayName.charAt(0).toUpperCase()}
                         </div>
                       )}
                       <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-900">{contact.displayName}</p>
-                        <p className="text-xs text-gray-500">@{contact.username}</p>
+                        <p className="text-sm font-medium text-secondary-900">{contact.displayName}</p>
+                        <p className="text-xs text-secondary-500">@{contact.username}</p>
                       </div>
                     </div>
                   </label>
@@ -174,26 +174,26 @@ export const GroupCreate: React.FC<GroupCreateProps> = ({ onClose, onSuccess, co
             </div>
           </div>
 
-          {/* Error Message */}
+          {/* Error Message - Telegram style */}
           {error && (
             <div className="px-6 py-2">
-              <p className="text-sm text-red-600">{error}</p>
+              <p className="text-sm text-error-600 font-medium">{error}</p>
             </div>
           )}
 
-          {/* Footer */}
-          <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-end space-x-3">
+          {/* Footer - Telegram style */}
+          <div className="px-6 py-4 border-t border-secondary-100 flex items-center justify-end space-x-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+              className="px-5 py-2.5 text-sm font-medium text-secondary-700 bg-secondary-100 rounded-xl hover:bg-secondary-200 transition-all duration-200"
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 text-sm font-medium text-white bg-primary-500 rounded-xl hover:bg-primary-600 transition-all duration-200 disabled:bg-secondary-300 disabled:cursor-not-allowed shadow-soft hover:shadow-medium"
               disabled={isLoading || !groupName.trim() || selectedParticipants.length === 0}
             >
               {isLoading ? 'Creating...' : 'Create Group'}

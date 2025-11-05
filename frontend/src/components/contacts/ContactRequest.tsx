@@ -48,7 +48,7 @@ export const ContactRequest = ({ request, onAccept, onReject }: ContactRequestPr
   };
 
   return (
-    <div className="flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors">
+    <div className="flex items-start gap-3 p-4 hover:bg-secondary-50 transition-colors">
       {/* Avatar */}
       <Avatar
         src={request.contact?.avatarUrl}
@@ -62,14 +62,14 @@ export const ContactRequest = ({ request, onAccept, onReject }: ContactRequestPr
         {/* User info and timestamp */}
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate">
+            <h3 className="font-semibold text-secondary-900 truncate">
               {request.contact?.displayName || request.contact?.username || 'Unknown User'}
             </h3>
             {request.contact?.username && request.contact?.displayName && (
-              <p className="text-sm text-gray-500 truncate">@{request.contact.username}</p>
+              <p className="text-sm text-secondary-500 truncate">@{request.contact.username}</p>
             )}
           </div>
-          <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
+          <span className="text-xs text-secondary-500 whitespace-nowrap flex-shrink-0">
             {getTimeAgo(request.createdAt)}
           </span>
         </div>

@@ -46,11 +46,11 @@ export const PendingRequests = () => {
   if (isLoading) {
     return (
       <div className="p-4">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
+        <h2 className="text-sm font-semibold text-secondary-500 uppercase tracking-wide mb-4">
           Pending Requests
         </h2>
         <div className="flex items-center justify-center py-8">
-          <div className="text-gray-500">Loading...</div>
+          <div className="text-secondary-500">Loading...</div>
         </div>
       </div>
     );
@@ -59,10 +59,10 @@ export const PendingRequests = () => {
   if (error) {
     return (
       <div className="p-4">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
+        <h2 className="text-sm font-semibold text-secondary-500 uppercase tracking-wide mb-4">
           Pending Requests
         </h2>
-        <div className="text-red-500 text-sm p-4 bg-red-50 rounded-lg">
+        <div className="text-error-500 text-sm p-4 bg-error-50 rounded-xl">
           {error}
         </div>
       </div>
@@ -71,14 +71,14 @@ export const PendingRequests = () => {
 
   return (
     <div>
-      <div className="px-4 py-3 border-b border-gray-200">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-secondary-200">
+        <h2 className="text-sm font-semibold text-secondary-500 uppercase tracking-wide">
           Pending Requests {requests.length > 0 && `(${requests.length})`}
         </h2>
       </div>
       
       {requests.length === 0 ? (
-        <div className="p-4 text-center text-gray-500 text-sm">
+        <div className="p-4 text-center text-secondary-500 text-sm">
           No pending requests
         </div>
       ) : (

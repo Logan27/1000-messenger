@@ -3,6 +3,7 @@ import { useChatStore } from '../../store/chatStore';
 import { GroupSettings } from '../groups/GroupSettings';
 import { ParticipantList } from '../groups/ParticipantList';
 import { useAuthStore } from '../../store/authStore';
+import { Avatar } from '../common/Avatar';
 
 interface ChatHeaderProps {
   chatId: string;
@@ -17,12 +18,12 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ chatId }) => {
 
   if (!chat) {
     return (
-      <div className="bg-white border-b p-4">
+      <div className="bg-white border-b border-secondary-100 shadow-soft p-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
+          <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full animate-pulse"></div>
           <div>
-            <h2 className="font-semibold">Loading...</h2>
-            <p className="text-sm text-gray-500">Connecting...</p>
+            <h2 className="font-semibold text-secondary-900">Loading...</h2>
+            <p className="text-sm text-secondary-500">Connecting...</p>
           </div>
         </div>
       </div>
@@ -31,33 +32,35 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ chatId }) => {
 
   return (
     <>
-      <div className="bg-white border-b p-4">
+      <div className="bg-white border-b border-secondary-100 shadow-soft p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-              <span className="text-sm font-medium">
-                {chat.name ? chat.name.charAt(0).toUpperCase() : 'C'}
-              </span>
-            </div>
+            <Avatar
+              name={chat.name || 'Direct Message'}
+              size="md"
+              status="online"
+            />
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="font-semibold">{chat.name || 'Direct Message'}</h2>
+                <h2 className="font-semibold text-secondary-900">
+                  {chat.name || 'Direct Message'}
+                </h2>
                 {chat.type === 'group' && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-700">
                     {chat.participants.length}
                   </span>
                 )}
               </div>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-secondary-500">
                 {chat.type === 'group' ? (
                   <button
                     onClick={() => setShowParticipants(true)}
-                    className="hover:underline"
+                    className="hover:text-primary-600 transition-colors duration-200"
                   >
                     {chat.participants.length} member{chat.participants.length !== 1 ? 's' : ''}
                   </button>
                 ) : (
-                  'Online'
+                  <span className="text-success-500">Online</span>
                 )}
               </p>
             </div>
@@ -74,7 +77,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ chatId }) => {
                 // TODO: Show toast notification
                 console.log('Link copied to clipboard');
               }}
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+              className="btn-icon text-secondary-500 hover:text-primary-600 hover:bg-primary-50"
               aria-label="Copy chat link"
               title="Copy link"
             >
@@ -98,7 +101,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ chatId }) => {
             {chat.type === 'group' && user && (
               <button
                 onClick={() => setShowSettings(true)}
-                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+                className="btn-icon text-secondary-500 hover:text-primary-600 hover:bg-primary-50"
                 aria-label="Group settings"
               >
                 <svg
@@ -137,8 +140,8 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ chatId }) => {
       )}
 
       {showParticipants && user && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="max-w-md w-full">
+        <div className="modal-overlay">
+          <div className="modal-content max-w-md">
             <ParticipantList
               chat={chat}
               currentUserId={user.id}

@@ -262,9 +262,16 @@ export const ChatWindow: React.FC = () => {
 
   if (!effectiveChatId) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
-        <div className="text-center text-gray-500">
-          <p className="text-xl">Select a chat to start messaging</p>
+      <div className="flex-1 flex items-center justify-center bg-secondary-50">
+        <div className="text-center">
+          <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center shadow-telegram">
+            <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+          </div>
+          <p className="text-xl text-secondary-600 font-medium">Select a chat to start messaging</p>
+          <p className="text-sm text-secondary-400 mt-2">Choose a conversation from the left sidebar</p>
         </div>
       </div>
     );
@@ -274,10 +281,13 @@ export const ChatWindow: React.FC = () => {
     <div className="flex-1 flex flex-col h-full">
       <ChatHeader chatId={effectiveChatId} />
 
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 bg-gray-50">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 bg-secondary-50">
         {effectiveChatId && isLoadingMessages[effectiveChatId] && (
-          <div className="text-center py-2">
-            <span className="text-gray-500">Loading more messages...</span>
+          <div className="text-center py-3">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-soft">
+              <div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-sm text-secondary-600">Loading more messages...</span>
+            </div>
           </div>
         )}
         <MessageList messages={currentMessages} highlightedMessageId={highlightedMessageId} />

@@ -88,14 +88,14 @@ export const GroupSettings: React.FC<GroupSettingsProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] flex flex-col">
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">Group Settings</h2>
+    <div className="modal-overlay">
+      <div className="bg-white rounded-2xl shadow-telegram max-w-lg w-full max-h-[90vh] flex flex-col">
+        {/* Header - Telegram style */}
+        <div className="px-6 py-4 border-b border-secondary-100 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-secondary-900">Group Settings</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="btn-icon text-secondary-400 hover:text-secondary-600"
             disabled={isLoading}
           >
             <svg
@@ -115,25 +115,25 @@ export const GroupSettings: React.FC<GroupSettingsProps> = ({
           </button>
         </div>
 
-        {/* Content */}
+        {/* Content - Telegram style */}
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
           {/* Group Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Group Name</label>
+            <label className="block text-sm font-medium text-secondary-700 mb-2">Group Name</label>
             {isEditing ? (
               <div className="space-y-2">
                 <input
                   type="text"
                   value={groupName}
                   onChange={e => setGroupName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="input-field"
                   maxLength={100}
                   disabled={isLoading}
                 />
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={handleSave}
-                    className="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+                    className="px-4 py-2 text-sm font-medium text-white bg-primary-500 rounded-xl hover:bg-primary-600 disabled:bg-secondary-300 shadow-soft transition-all duration-200"
                     disabled={isLoading || !groupName.trim()}
                   >
                     Save
@@ -144,7 +144,7 @@ export const GroupSettings: React.FC<GroupSettingsProps> = ({
                       setIsEditing(false);
                       setError(null);
                     }}
-                    className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                    className="px-4 py-2 text-sm font-medium text-secondary-700 bg-secondary-100 rounded-xl hover:bg-secondary-200 transition-all duration-200"
                     disabled={isLoading}
                   >
                     Cancel
@@ -152,12 +152,12 @@ export const GroupSettings: React.FC<GroupSettingsProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="flex items-center justify-between">
-                <p className="text-gray-900">{chat.name}</p>
+              <div className="flex items-center justify-between p-3 bg-secondary-50 rounded-xl">
+                <p className="text-secondary-900 font-medium">{chat.name}</p>
                 {canManage && (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="text-sm text-blue-600 hover:text-blue-700"
+                    className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors duration-200"
                   >
                     Edit
                   </button>
@@ -168,31 +168,35 @@ export const GroupSettings: React.FC<GroupSettingsProps> = ({
 
           {/* Participants Count */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Participants</label>
-            <p className="text-gray-900">{chat.participants.length} member{chat.participants.length !== 1 && 's'}</p>
+            <label className="block text-sm font-medium text-secondary-700 mb-2">Participants</label>
+            <p className="text-secondary-900 p-3 bg-secondary-50 rounded-xl font-medium">
+              {chat.participants.length} member{chat.participants.length !== 1 && 's'}
+            </p>
           </div>
 
           {/* Your Role */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Your Role</label>
-            <p className="text-gray-900 capitalize">{currentParticipant?.role || 'Member'}</p>
+            <label className="block text-sm font-medium text-secondary-700 mb-2">Your Role</label>
+            <p className="text-secondary-900 p-3 bg-secondary-50 rounded-xl font-medium capitalize">
+              {currentParticipant?.role || 'Member'}
+            </p>
           </div>
 
-          {/* Error Message */}
+          {/* Error Message - Telegram style */}
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="p-4 bg-error-50 border border-error-200 rounded-xl animate-slide-down">
+              <p className="text-sm text-error-700 font-medium">{error}</p>
             </div>
           )}
         </div>
 
-        {/* Footer - Actions */}
-        <div className="px-6 py-4 border-t border-gray-200 space-y-2">
+        {/* Footer - Actions - Telegram style */}
+        <div className="px-6 py-4 border-t border-secondary-100 space-y-2">
           {!showLeaveConfirm && !showDeleteConfirm && (
             <>
               <button
                 onClick={() => setShowLeaveConfirm(true)}
-                className="w-full px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors"
+                className="w-full px-4 py-3 text-sm font-medium text-error-600 bg-error-50 rounded-xl hover:bg-error-100 transition-all duration-200"
                 disabled={isLoading}
               >
                 Leave Group
@@ -200,7 +204,7 @@ export const GroupSettings: React.FC<GroupSettingsProps> = ({
               {isOwner && (
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="w-full px-4 py-2 text-sm font-medium text-red-700 bg-red-100 rounded-md hover:bg-red-200 transition-colors"
+                  className="w-full px-4 py-3 text-sm font-medium text-error-700 bg-error-100 rounded-xl hover:bg-error-200 transition-all duration-200"
                   disabled={isLoading}
                 >
                   Delete Group
@@ -209,24 +213,24 @@ export const GroupSettings: React.FC<GroupSettingsProps> = ({
             </>
           )}
 
-          {/* Leave Confirmation */}
+          {/* Leave Confirmation - Telegram style */}
           {showLeaveConfirm && (
-            <div className="space-y-2">
-              <p className="text-sm text-gray-700">
+            <div className="space-y-3">
+              <p className="text-sm text-secondary-700">
                 Are you sure you want to leave this group?
                 {isOwner && ' Ownership will be transferred to another admin or member.'}
               </p>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={handleLeave}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-gray-400"
+                  className="flex-1 px-4 py-3 text-sm font-medium text-white bg-error-600 rounded-xl hover:bg-error-700 disabled:bg-secondary-400 shadow-soft transition-all duration-200"
                   disabled={isLoading}
                 >
                   {isLoading ? 'Leaving...' : 'Confirm Leave'}
                 </button>
                 <button
                   onClick={() => setShowLeaveConfirm(false)}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                  className="flex-1 px-4 py-3 text-sm font-medium text-secondary-700 bg-secondary-100 rounded-xl hover:bg-secondary-200 transition-all duration-200"
                   disabled={isLoading}
                 >
                   Cancel
@@ -235,24 +239,24 @@ export const GroupSettings: React.FC<GroupSettingsProps> = ({
             </div>
           )}
 
-          {/* Delete Confirmation */}
+          {/* Delete Confirmation - Telegram style */}
           {showDeleteConfirm && (
-            <div className="space-y-2">
-              <p className="text-sm text-gray-700">
+            <div className="space-y-3">
+              <p className="text-sm text-secondary-700">
                 Are you sure you want to delete this group? This action cannot be undone and all
                 members will lose access.
               </p>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={handleDelete}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-700 rounded-md hover:bg-red-800 disabled:bg-gray-400"
+                  className="flex-1 px-4 py-3 text-sm font-medium text-white bg-error-700 rounded-xl hover:bg-error-800 disabled:bg-secondary-400 shadow-soft transition-all duration-200"
                   disabled={isLoading}
                 >
                   {isLoading ? 'Deleting...' : 'Confirm Delete'}
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                  className="flex-1 px-4 py-3 text-sm font-medium text-secondary-700 bg-secondary-100 rounded-xl hover:bg-secondary-200 transition-all duration-200"
                   disabled={isLoading}
                 >
                   Cancel

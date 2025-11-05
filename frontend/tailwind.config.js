@@ -10,18 +10,19 @@ export default {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       colors: {
+        // Telegram-inspired blue palette
         primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
-          950: '#172554',
+          50: '#e3f2fd',
+          100: '#b3e0fc',
+          200: '#81cefb',
+          300: '#4fbcfa',
+          400: '#2bafe9',
+          500: '#0088cc', // Telegram blue
+          600: '#0077b3',
+          700: '#00659a',
+          800: '#005481',
+          900: '#003d5c',
+          950: '#002d44',
         },
         secondary: {
           50: '#f8fafc',
@@ -97,9 +98,11 @@ export default {
         '4xl': '2rem',
       },
       boxShadow: {
-        'soft': '0 2px 8px 0 rgba(0, 0, 0, 0.08)',
-        'medium': '0 4px 16px 0 rgba(0, 0, 0, 0.12)',
-        'strong': '0 8px 24px 0 rgba(0, 0, 0, 0.16)',
+        'soft': '0 1px 3px 0 rgba(0, 0, 0, 0.05)',
+        'medium': '0 2px 12px 0 rgba(0, 0, 0, 0.08)',
+        'strong': '0 4px 20px 0 rgba(0, 0, 0, 0.12)',
+        'telegram': '0 1px 2px 0 rgba(0, 0, 0, 0.05), 0 2px 8px 0 rgba(0, 0, 0, 0.04)',
+        'chat-bubble': '0 1px 2px 0 rgba(0, 0, 0, 0.06)',
       },
       animation: {
         'fade-in': 'fadeIn 0.2s ease-in-out',
