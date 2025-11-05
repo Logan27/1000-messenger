@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { StorageService } from '../services/storage.service';
 import { MessageService } from '../services/message.service';
+import { validateImageFile } from '../utils/validation.util';
 
 export class AttachmentController {
   constructor(
@@ -17,6 +18,9 @@ export class AttachmentController {
         res.status(400).json({ error: 'No file uploaded' });
         return;
       }
+
+      // Validate image file (T101)
+      validateImageFile(file);
 
       // Upload image to storage
       const uploadResult = await this.storageService.uploadImage(file, userId);
