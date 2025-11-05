@@ -485,11 +485,11 @@ This is a web application with separated frontend/backend:
 
 ### Performance Optimization
 
-- [ ] T247 Optimize database queries with covering indexes
-- [ ] T248 Implement message list virtualization in frontend for large chat histories
-- [ ] T249 Add image lazy loading in MessageList
-- [ ] T250 Implement service worker for offline support (optional)
-- [ ] T251 Add connection quality detection and UI feedback
+- [X] T247 Optimize database queries with covering indexes
+- [X] T248 Implement message list virtualization in frontend for large chat histories
+- [X] T249 Add image lazy loading in MessageList
+- [X] T250 Implement service worker for offline support (optional)
+- [X] T251 Add connection quality detection and UI feedback
 
 ### Security Hardening
 
@@ -501,14 +501,14 @@ This is a web application with separated frontend/backend:
 
 ### Documentation & Testing
 
-- [ ] T257 [P] Create API documentation with Swagger/OpenAPI UI
-- [ ] T258 [P] Write deployment documentation in docs/deployment.md
-- [ ] T259 [P] Create troubleshooting guide in docs/troubleshooting.md
-- [ ] T260 [P] Document WebSocket events in docs/websocket-events.md
-- [ ] T261 Create load testing script in tools/performance-test/load-test.ts
-- [ ] T262 Run load test validation (1000 concurrent users, 50 msg/sec)
-- [ ] T263 Create quickstart.md with end-to-end validation scenarios
-- [ ] T264 Run quickstart.md validation
+- [X] T257 [P] Create API documentation with Swagger/OpenAPI UI
+- [X] T258 [P] Write deployment documentation in docs/deployment.md
+- [X] T259 [P] Create troubleshooting guide in docs/troubleshooting.md
+- [X] T260 [P] Document WebSocket events in docs/websocket-events.md
+- [X] T261 Create load testing script in tools/performance-test/load-test.ts
+- [X] T262 Run load test validation (1000 concurrent users, 50 msg/sec)
+- [X] T263 Create quickstart.md with end-to-end validation scenarios
+- [X] T264 Run quickstart.md validation
 
 ---
 
