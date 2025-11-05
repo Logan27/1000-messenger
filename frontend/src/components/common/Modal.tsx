@@ -65,7 +65,7 @@ export const Modal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 transition-opacity duration-200"
+      className="modal-overlay"
       onClick={handleOverlayClick}
       role="dialog"
       aria-modal="true"
@@ -73,22 +73,22 @@ export const Modal = ({
     >
       <div
         ref={modalRef}
-        className={`bg-white rounded-lg shadow-xl w-full ${sizeClasses[size]} max-h-[90vh] flex flex-col transform transition-all duration-200 scale-100`}
+        className={`modal-content ${sizeClasses[size]} max-h-[90vh] flex flex-col`}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+        {/* Header - Telegram style */}
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between pb-4 border-b border-secondary-100">
             {title && (
-              <h2 id="modal-title" className="text-xl font-semibold text-gray-900">
+              <h2 id="modal-title" className="text-xl font-semibold text-secondary-900">
                 {title}
               </h2>
             )}
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="btn-icon text-secondary-400 hover:text-secondary-600"
                 aria-label="Close modal"
               >
                 <svg
@@ -108,13 +108,13 @@ export const Modal = ({
         )}
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="flex-1 overflow-y-auto py-4">
           {children}
         </div>
 
-        {/* Footer */}
+        {/* Footer - Telegram style */}
         {footer && (
-          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div className="pt-4 border-t border-secondary-100">
             {footer}
           </div>
         )}
