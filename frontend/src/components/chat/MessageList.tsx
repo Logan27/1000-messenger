@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, memo, useState } from 'react';
-import { VariableSizeList as List } from 'react-window';
+import React, { useEffect, memo, useState, useCallback } from 'react';
+import { List, useDynamicRowHeight, useListRef } from 'react-window';
 import { Message } from './Message';
 
 interface MessageMetadata {
@@ -53,6 +53,12 @@ const estimateMessageHeight = (message: MessageListProps['messages'][0]): number
   return Math.max(REGULAR_MESSAGE_BASE_HEIGHT, contentHeight + reactionsHeight + 40);
 };
 
+// Row props interface for the new API
+interface RowProps {
+  message: MessageListProps['messages'][0];
+  isHighlighted: boolean;
+}
+
 // Non-virtualized component for small lists
 const SimpleMessageList: React.FC<MessageListProps> = ({ messages, highlightedMessageId }) => {
   return (
@@ -98,49 +104,36 @@ const SimpleMessageList: React.FC<MessageListProps> = ({ messages, highlightedMe
   );
 };
 
-// Virtualized component for large lists
+// Virtualized component for large lists using new react-window API
 const VirtualizedMessageList: React.FC<MessageListProps> = ({ messages, highlightedMessageId }) => {
-  const listRef = useRef<List>(null);
+  const listRef = useListRef();
   const [containerHeight, setContainerHeight] = useState(600);
-  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Update container height on mount and resize
-  useEffect(() => {
-    const updateHeight = () => {
-      if (containerRef.current) {
-        setContainerHeight(containerRef.current.clientHeight);
-      }
-    };
+  // Use dynamic row height hook
+  const dynamicRowHeight = useDynamicRowHeight({
+    defaultRowHeight: REGULAR_MESSAGE_BASE_HEIGHT,
+    key: 'message-list',
+  });
 
-    updateHeight();
-    window.addEventListener('resize', updateHeight);
-    return () => window.removeEventListener('resize', updateHeight);
-  }, []);
-
-  // Scroll to highlighted message
-  useEffect(() => {
-    if (highlightedMessageId && listRef.current) {
-      const index = messages.findIndex(m => m.id === highlightedMessageId);
-      if (index !== -1) {
-        listRef.current.scrollToItem(index, 'center');
-      }
-    }
-  }, [highlightedMessageId, messages]);
-
-  // Get item size function
-  const getItemSize = (index: number): number => {
-    return estimateMessageHeight(messages[index]);
-  };
-
-  // Row renderer
-  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
+  // Row renderer component - match the new API signature
+  const RowComponent = useCallback(({
+    index,
+    style,
+    ariaAttributes
+  }: {
+    index: number;
+    style: React.CSSProperties;
+    ariaAttributes: any;
+  }) => {
     const message = messages[index];
+    if (!message) return null;
+
     const isHighlighted = message.id === highlightedMessageId;
 
     // System messages
     if (message.contentType === 'system') {
       return (
-        <div style={style}>
+        <div style={style} {...ariaAttributes}>
           <div
             id={`message-${message.id}`}
             className="flex justify-center py-2"
@@ -155,7 +148,7 @@ const VirtualizedMessageList: React.FC<MessageListProps> = ({ messages, highligh
 
     // Regular messages
     return (
-      <div style={style}>
+      <div style={style} {...ariaAttributes}>
         <div
           id={`message-${message.id}`}
           className={`px-4 py-2 transition-all duration-300 ${
@@ -172,20 +165,47 @@ const VirtualizedMessageList: React.FC<MessageListProps> = ({ messages, highligh
         </div>
       </div>
     );
-  };
+  }, [messages, highlightedMessageId]);
+
+  // Update container height on mount and resize
+  useEffect(() => {
+    const updateHeight = () => {
+      const current = listRef.current;
+      if (current?.element?.parentElement) {
+        setContainerHeight(current.element.parentElement.clientHeight || 600);
+      }
+    };
+
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, [listRef]);
+
+  // Scroll to highlighted message
+  useEffect(() => {
+    if (highlightedMessageId && listRef.current) {
+      const index = messages.findIndex(m => m.id === highlightedMessageId);
+      if (index !== -1) {
+        listRef.current.scrollToRow({
+          index,
+          align: 'center',
+          behavior: 'smooth',
+        });
+      }
+    }
+  }, [highlightedMessageId, messages, listRef]);
 
   return (
-    <div ref={containerRef} className="h-full">
+    <div className="h-full">
       <List
-        ref={listRef}
-        height={containerHeight}
-        itemCount={messages.length}
-        itemSize={getItemSize}
-        width="100%"
-        overscanCount={5} // Render 5 extra items above and below viewport
-      >
-        {Row}
-      </List>
+        listRef={listRef.current ? undefined : listRef as any}
+        defaultHeight={containerHeight}
+        rowCount={messages.length}
+        rowHeight={dynamicRowHeight}
+        rowComponent={RowComponent}
+        rowProps={{}}
+        overscanCount={5}
+      />
     </div>
   );
 };
