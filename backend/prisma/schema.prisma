@@ -158,6 +158,8 @@ model Message {
   @@index([chatId, createdAt(sort: Desc)])
   @@index([senderId, createdAt(sort: Desc)])
   @@index([replyToId])
+  @@index([chatId, isDeleted, createdAt(sort: Desc)]) // Covering index for active messages
+  @@index([replyToId, createdAt(sort: Desc)]) // Index for replies lookup
   @@map("messages")
 }
 

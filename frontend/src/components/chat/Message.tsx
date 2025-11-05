@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { apiService } from '../../services/api.service';
 import { EmojiPicker } from './EmojiPicker';
 import { useMessageRead } from '../../hooks/useMessageRead';
+import { LazyImage } from '../common/LazyImage';
 
 interface ImageMetadata {
   url: string;
@@ -200,12 +201,14 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
             {message.content && <div dangerouslySetInnerHTML={{ __html: message.content }} />}
             <div className="grid grid-cols-2 gap-2">
               {images.map((img, idx: number) => (
-                <img
+                <LazyImage
                   key={idx}
                   src={img.url}
                   alt="Uploaded"
-                  className="rounded cursor-pointer hover:opacity-90 transition-opacity"
+                  className="rounded cursor-pointer hover:opacity-90 transition-opacity w-full h-auto"
                   onClick={() => openLightbox(idx)}
+                  threshold={0.1}
+                  rootMargin="200px"
                 />
               ))}
             </div>
@@ -250,11 +253,13 @@ export const Message: React.FC<MessageProps> = ({ message, senderName, senderAva
                 </>
               )}
 
-              <img
+              <LazyImage
                 src={images[lightboxIndex].originalUrl}
                 alt="Full size"
                 className="max-w-[90vw] max-h-[90vh] object-contain"
                 onClick={e => e.stopPropagation()}
+                threshold={0}
+                rootMargin="0px"
               />
 
               <div className="absolute bottom-4 text-white">
