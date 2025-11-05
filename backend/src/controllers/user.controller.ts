@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../services/user.service';
+import { getSocketManager } from '../websocket/socket.manager';
+import { logger } from '../utils/logger.util';
 
 export class UserController {
   constructor(private userService: UserService) {}
@@ -28,6 +30,9 @@ export class UserController {
 
       const updatedUser = await this.userService.getProfile(userId);
 
+      // Broadcast profile update to contacts (T212)
+      this.broadcastProfileUpdate(userId, updatedUser);
+
       res.json({ user: updatedUser });
     } catch (error) {
       next(error);
@@ -46,6 +51,9 @@ export class UserController {
 
       const avatarUrl = await this.userService.uploadAvatar(userId, file);
       const updatedUser = await this.userService.getProfile(userId);
+
+      // Broadcast profile update to contacts (T212)
+      this.broadcastProfileUpdate(userId, updatedUser);
 
       res.json({ user: updatedUser, avatarUrl });
     } catch (error) {
@@ -82,4 +90,28 @@ export class UserController {
       next(error);
     }
   };
+
+  /**
+   * Broadcast profile update to all user's contacts via WebSocket (T212)
+   */
+  private broadcastProfileUpdate(userId: string, updatedUser: any): void {
+    try {
+      const socketManager = getSocketManager();
+      if (!socketManager) {
+        logger.warn('SocketManager not available, skipping profile broadcast');
+        return;
+      }
+
+      // Broadcast to all connected clients (they will filter by contact relationship)
+      socketManager.broadcast('user:profile:update', {
+        userId,
+        user: updatedUser,
+        timestamp: new Date().toISOString(),
+      });
+
+      logger.info(`Profile update broadcasted for user ${userId}`);
+    } catch (error) {
+      logger.error('Failed to broadcast profile update', error);
+    }
+  }
 }

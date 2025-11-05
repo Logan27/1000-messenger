@@ -390,6 +390,11 @@ class WebSocketService {
     return () => this.socket?.off('user.status', callback);
   }
 
+  onProfileUpdate(callback: EventCallback<{ userId: string; user: unknown; timestamp: string }>): () => void {
+    this.socket?.on('user:profile:update', callback);
+    return () => this.socket?.off('user:profile:update', callback);
+  }
+
   disconnect() {
     this.stopHeartbeat();
     this.socket?.disconnect();

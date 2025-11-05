@@ -398,22 +398,22 @@ This is a web application with separated frontend/backend:
 
 ### Backend Implementation for User Story 9
 
-- [ ] T209 [US9] Extend UserService with profile update methods in backend/src/services/user.service.ts
-- [ ] T210 [US9] Extend UserController with avatar upload in backend/src/controllers/user.controller.ts
-- [ ] T211 [US9] Implement avatar image processing in StorageService (same as message images)
-- [ ] T212 [US9] Broadcast profile updates to contacts via WebSocket
+- [X] T209 [US9] Extend UserService with profile update methods in backend/src/services/user.service.ts
+- [X] T210 [US9] Extend UserController with avatar upload in backend/src/controllers/user.controller.ts
+- [X] T211 [US9] Implement avatar image processing in StorageService (same as message images)
+- [X] T212 [US9] Broadcast profile updates to contacts via WebSocket
 
 ### Frontend Implementation for User Story 9
 
-- [ ] T213 [US9] Extend ProfilePage with edit form in frontend/src/pages/ProfilePage.tsx
-- [ ] T214 [US9] Add avatar upload component in ProfilePage
-- [ ] T215 [US9] Add display name editor in ProfilePage
-- [ ] T216 [US9] Add status selector (online/away/offline) in ProfilePage
-- [ ] T217 [US9] Implement profile update API calls in frontend/src/services/api.service.ts
-- [ ] T218 [US9] Add WebSocket listener for profile update events
-- [ ] T219 [US9] Update UI when profile changes (avatar, display name in all views)
+- [X] T213 [US9] Extend ProfilePage with edit form in frontend/src/pages/ProfilePage.tsx
+- [X] T214 [US9] Add avatar upload component in ProfilePage
+- [X] T215 [US9] Add display name editor in ProfilePage
+- [X] T216 [US9] Add status selector (online/away/offline) in ProfilePage
+- [X] T217 [US9] Implement profile update API calls in frontend/src/services/api.service.ts
+- [X] T218 [US9] Add WebSocket listener for profile update events
+- [X] T219 [US9] Update UI when profile changes (avatar, display name in all views)
 
-**Checkpoint**: User Story 9 complete - profile management working
+**Checkpoint**: ✅ User Story 9 complete - profile management working
 
 ---
 

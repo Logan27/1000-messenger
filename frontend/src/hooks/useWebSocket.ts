@@ -35,7 +35,7 @@ interface ReactionData {
 }
 
 export const useWebSocket = () => {
-  const { token, isAuthenticated } = useAuthStore();
+  const { token, isAuthenticated, updateUser } = useAuthStore();
   const { addMessage, updateMessageStatus, addReaction } = useChatStore();
 
   useEffect(() => {
@@ -86,6 +86,15 @@ export const useWebSocket = () => {
       // Update user status in store
     });
 
+    // Listen for profile updates (T218 & T219)
+    wsService.on('user:profile:update', (data: { userId: string; user: unknown; timestamp: string }) => {
+      // Update the current user's profile if it's their own update
+      const currentUser = useAuthStore.getState().user;
+      if (currentUser && currentUser.id === data.userId) {
+        updateUser(data.user as Partial<typeof currentUser>);
+      }
+    });
+
     // Listen for read receipts
     wsService.on('message:read', (data: MessageReadData) => {
       // Update message delivery status
@@ -96,7 +105,7 @@ export const useWebSocket = () => {
     return () => {
       wsService.disconnect();
     };
-  }, [isAuthenticated, token, addMessage, updateMessageStatus, addReaction]);
+  }, [isAuthenticated, token, addMessage, updateMessageStatus, addReaction, updateUser]);
 
   const sendMessage = useCallback((chatId: string, content: string) => {
     wsService.emit('message:send', { chatId, content });
