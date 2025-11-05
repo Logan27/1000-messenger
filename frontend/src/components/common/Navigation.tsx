@@ -8,46 +8,48 @@ export const Navigation: React.FC = () => {
   const { user, logout } = useAuthStore();
 
   const isActive = (path: string) => {
-    return location.pathname === path;
+    return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
   const navButtonClass = (path: string) => `
-    p-2 rounded-lg transition-colors
+    btn-icon
     ${
       isActive(path)
-        ? 'bg-blue-100 text-blue-600'
-        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+        ? 'bg-primary-100 text-primary-600'
+        : 'text-secondary-600 hover:text-secondary-900'
     }
   `;
 
   return (
-    <div className="bg-white border-b border-gray-200 px-4 py-2">
-      <div className="flex items-center justify-between">
-        {/* Left: App Logo/Name */}
+    <div className="bg-white border-b border-secondary-100 px-4 py-3 shadow-soft">
+      <div className="flex items-center justify-between max-w-screen-2xl mx-auto">
+        {/* Left: App Logo/Name - Telegram style */}
         <div className="flex items-center space-x-4">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center space-x-2 font-bold text-xl text-blue-600 hover:text-blue-700"
+            className="flex items-center space-x-2 font-bold text-xl text-primary-500 hover:text-primary-600 transition-colors"
           >
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-              />
-            </svg>
-            <span>1000 Messenger</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white shadow-soft">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
+            </div>
+            <span className="hidden md:inline">1000 Messenger</span>
           </button>
         </div>
 
-        {/* Center: Navigation Links */}
-        <div className="flex items-center space-x-2">
+        {/* Center: Navigation Links - Telegram style */}
+        <div className="flex items-center space-x-1">
           <button
             onClick={() => navigate('/')}
             className={navButtonClass('/')}
@@ -94,16 +96,16 @@ export const Navigation: React.FC = () => {
           </button>
         </div>
 
-        {/* Right: User Menu */}
-        <div className="flex items-center space-x-3">
+        {/* Right: User Menu - Telegram style */}
+        <div className="flex items-center space-x-2">
           <button
             onClick={() => navigate('/profile')}
-            className="flex items-center space-x-2 text-gray-700 hover:text-gray-900"
+            className="flex items-center space-x-2 px-3 py-2 rounded-full hover:bg-secondary-50 transition-all"
           >
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
-              {user?.username?.charAt(0).toUpperCase() || 'U'}
+            <div className="avatar-sm">
+              <span>{user?.username?.charAt(0).toUpperCase() || 'U'}</span>
             </div>
-            <span className="text-sm font-medium hidden md:inline">
+            <span className="text-sm font-medium text-secondary-700 hidden md:inline">
               {user?.username || 'User'}
             </span>
           </button>
@@ -113,7 +115,7 @@ export const Navigation: React.FC = () => {
               logout();
               navigate('/login');
             }}
-            className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="btn-icon text-secondary-600 hover:text-error-600 hover:bg-error-50"
             title="Logout"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
