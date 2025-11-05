@@ -66,7 +66,7 @@ export const MessageSearchResults: React.FC<MessageSearchResultsProps> = ({
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center p-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mb-4"></div>
         <p className="text-secondary-600">Searching...</p>
       </div>
     );
@@ -104,7 +104,7 @@ export const MessageSearchResults: React.FC<MessageSearchResultsProps> = ({
         <button
           key={message.id}
           onClick={() => onResultClick(message)}
-          className="w-full text-left p-4 bg-white border border-secondary-200 rounded-xl hover:bg-secondary-50 hover:border-blue-300 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full text-left p-4 bg-white border border-secondary-200 rounded-xl hover:bg-secondary-50 hover:border-primary-300 transition-all focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
           <div className="flex items-start space-x-3">
             {/* Avatar */}

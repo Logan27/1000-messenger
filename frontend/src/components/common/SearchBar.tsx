@@ -99,7 +99,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         className={`
           w-full pl-10 pr-10 py-2
           border border-secondary-300 rounded-xl
-          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+          focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent
           transition-all duration-200
           ${isFocused ? 'shadow-md' : 'shadow-sm'}
         `}
@@ -112,7 +112,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           onClick={handleClear}
           className="absolute right-3 top-1/2 transform -translate-y-1/2
                      text-gray-400 hover:text-secondary-600
-                     focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full
+                     focus:outline-none focus:ring-2 focus:ring-primary-400 rounded-full
                      transition-colors p-1"
           aria-label="Clear search"
         >
