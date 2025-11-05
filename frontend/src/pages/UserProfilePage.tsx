@@ -134,7 +134,7 @@ export const UserProfilePage = () => {
                 className="w-32 h-32 rounded-full mb-4"
               />
             ) : (
-              <div className="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center mb-4">
+              <div className="w-32 h-32 rounded-full bg-secondary-300 flex items-center justify-center mb-4">
                 <span className="text-4xl font-medium text-secondary-700">
                   {user.username.charAt(0).toUpperCase()}
                 </span>
@@ -171,14 +171,14 @@ export const UserProfilePage = () => {
             </button>
             <button
               onClick={handleAddContact}
-              className="flex-1 px-4 py-2 bg-secondary-200 text-secondary-700 rounded-xl hover:bg-gray-300 transition-colors"
+              className="flex-1 px-4 py-2 bg-secondary-200 text-secondary-700 rounded-xl hover:bg-secondary-300 transition-colors"
             >
               Add Contact
             </button>
           </div>
 
           {error && (
-            <div className="mt-4 p-3 bg-error-50 border border-error-200 rounded text-red-700 text-sm">
+            <div className="mt-4 p-3 bg-error-50 border border-error-200 rounded text-error-700 text-sm">
               {error}
             </div>
           )}

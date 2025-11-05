@@ -71,7 +71,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
         <svg
           className={`w-5 h-5 transition-colors ${
-            isFocused ? 'text-blue-500' : 'text-gray-400'
+            isFocused ? 'text-primary-500' : 'text-gray-400'
           }`}
           fill="none"
           stroke="currentColor"

@@ -62,7 +62,7 @@ export const PendingRequests = () => {
         <h2 className="text-sm font-semibold text-secondary-500 uppercase tracking-wide mb-4">
           Pending Requests
         </h2>
-        <div className="text-red-500 text-sm p-4 bg-error-50 rounded-xl">
+        <div className="text-error-500 text-sm p-4 bg-error-50 rounded-xl">
           {error}
         </div>
       </div>

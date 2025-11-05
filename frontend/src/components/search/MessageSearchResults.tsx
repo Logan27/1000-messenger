@@ -76,7 +76,7 @@ export const MessageSearchResults: React.FC<MessageSearchResultsProps> = ({
     return (
       <div className="flex flex-col items-center justify-center p-12 text-secondary-500">
         <svg
-          className="w-16 h-16 mb-4 text-gray-300"
+          className="w-16 h-16 mb-4 text-secondary-300"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -90,7 +90,7 @@ export const MessageSearchResults: React.FC<MessageSearchResultsProps> = ({
         </svg>
         <p className="text-center">{emptyMessage}</p>
         {searchQuery && (
-          <p className="text-sm text-gray-400 mt-2">
+          <p className="text-sm text-secondary-400 mt-2">
             No results for &quot;{searchQuery}&quot;
           </p>
         )}
@@ -136,7 +136,7 @@ export const MessageSearchResults: React.FC<MessageSearchResultsProps> = ({
               {/* Chat Info */}
               <div className="flex items-center space-x-2 mt-2">
                 <svg
-                  className="w-4 h-4 text-gray-400"
+                  className="w-4 h-4 text-secondary-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -156,7 +156,7 @@ export const MessageSearchResults: React.FC<MessageSearchResultsProps> = ({
 
               {/* Edited Indicator */}
               {message.isEdited && (
-                <span className="text-xs text-gray-400 italic mt-1 block">
+                <span className="text-xs text-secondary-400 italic mt-1 block">
                   (edited)
                 </span>
               )}

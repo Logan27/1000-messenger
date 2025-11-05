@@ -195,7 +195,7 @@ export const ProfilePage = () => {
                       disabled={isLoading}
                     />
                   </label>
-                  <p className="text-xs text-gray-500 mt-1">Max 5MB, PNG/JPG/GIF</p>
+                  <p className="text-xs text-secondary-500 mt-1">Max 5MB, PNG/JPG/GIF</p>
                 </div>
               )}
             </div>
@@ -308,8 +308,8 @@ export const ProfilePage = () => {
 
           {/* Additional Info */}
           {profile?.lastSeen && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <p className="text-sm text-gray-600">
+            <div className="mt-6 pt-6 border-t border-secondary-200">
+              <p className="text-sm text-secondary-600">
                 Last seen: {new Date(profile.lastSeen).toLocaleString()}
               </p>
             </div>
