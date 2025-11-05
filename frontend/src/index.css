@@ -1,12 +1,11 @@
 /**
- * Global Styles - Real-Time Messenger Application
- * 
- * This file contains TailwindCSS-based global styles including:
- * - Base layer: Typography, scrollbar styling, accessibility improvements
- * - Components: Reusable UI components (buttons, inputs, cards, message bubbles, badges, etc.)
- * - Utilities: Custom utility classes for enhanced functionality
- * 
- * All styles leverage the custom color palette and animations defined in tailwind.config.js
+ * Global Styles - Real-Time Messenger Application (Telegram-inspired)
+ *
+ * Modern, clean design inspired by Telegram with:
+ * - Telegram blue color scheme (#0088cc)
+ * - Rounded message bubbles with subtle shadows
+ * - Clean typography and generous spacing
+ * - Smooth animations and transitions
  */
 
 @tailwind base;
@@ -20,15 +19,16 @@
   }
 
   body {
-    @apply bg-secondary-50 text-secondary-900;
+    @apply bg-[#f4f4f5] text-secondary-900;
   }
 
   * {
     @apply scroll-smooth;
   }
 
+  /* Custom scrollbar - Telegram style */
   ::-webkit-scrollbar {
-    @apply w-2 h-2;
+    @apply w-1.5 h-1.5;
   }
 
   ::-webkit-scrollbar-track {
@@ -36,11 +36,11 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-secondary-300 rounded-full;
+    @apply bg-secondary-300/60 rounded-full;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-secondary-400;
+    @apply bg-secondary-400/80;
   }
 
   h1 {
@@ -72,7 +72,7 @@
   }
 
   a {
-    @apply text-primary-600 hover:text-primary-700 transition-colors;
+    @apply text-primary-500 hover:text-primary-600 transition-colors;
   }
 
   button:disabled {
@@ -81,64 +81,70 @@
 }
 
 @layer components {
+  /* Buttons - Telegram style */
   .btn-primary {
-    @apply bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 shadow-sm hover:shadow focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white font-medium py-2.5 px-6 rounded-xl transition-all duration-200 shadow-soft hover:shadow-medium focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply bg-secondary-200 hover:bg-secondary-300 active:bg-secondary-400 text-secondary-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2;
+    @apply bg-secondary-100 hover:bg-secondary-200 active:bg-secondary-300 text-secondary-800 font-medium py-2.5 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-secondary-400 focus:ring-offset-2;
   }
 
   .btn-danger {
-    @apply bg-error-500 hover:bg-error-600 active:bg-error-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 shadow-sm hover:shadow focus:outline-none focus:ring-2 focus:ring-error-500 focus:ring-offset-2;
+    @apply bg-error-500 hover:bg-error-600 active:bg-error-700 text-white font-medium py-2.5 px-6 rounded-xl transition-all duration-200 shadow-soft hover:shadow-medium focus:outline-none focus:ring-2 focus:ring-error-400 focus:ring-offset-2;
   }
 
   .btn-ghost {
-    @apply bg-transparent hover:bg-secondary-100 active:bg-secondary-200 text-secondary-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2;
+    @apply bg-transparent hover:bg-secondary-100 active:bg-secondary-200 text-secondary-700 font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-secondary-400 focus:ring-offset-1;
   }
 
   .btn-icon {
-    @apply p-2 rounded-lg hover:bg-secondary-100 active:bg-secondary-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-1;
+    @apply p-2.5 rounded-full hover:bg-secondary-100 active:bg-secondary-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-secondary-400 focus:ring-offset-1;
   }
 
+  /* Input fields - cleaner style */
   .input-field {
-    @apply w-full px-3 py-2 border border-secondary-300 rounded-lg bg-white text-secondary-900 placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-shadow duration-200 disabled:bg-secondary-100 disabled:cursor-not-allowed;
+    @apply w-full px-4 py-3 border border-secondary-200 rounded-xl bg-white text-secondary-900 placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400 transition-all duration-200 disabled:bg-secondary-50 disabled:cursor-not-allowed;
   }
 
   .input-error {
-    @apply border-error-500 focus:ring-error-500;
+    @apply border-error-500 focus:ring-error-400 focus:border-error-400;
   }
 
+  /* Cards */
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-secondary-200 overflow-hidden;
+    @apply bg-white rounded-2xl shadow-telegram border border-secondary-100 overflow-hidden;
   }
 
   .card-hover {
-    @apply card hover:shadow-md hover:border-secondary-300 transition-all duration-200 cursor-pointer;
+    @apply card hover:shadow-medium hover:border-secondary-200 transition-all duration-200 cursor-pointer;
   }
 
+  /* Message bubbles - Telegram style */
   .message-bubble-sent {
-    @apply bg-primary-500 text-white rounded-2xl rounded-tr-sm px-4 py-2 max-w-lg break-words shadow-sm;
+    @apply bg-primary-500 text-white rounded-[18px] rounded-br-md px-4 py-3 max-w-lg break-words shadow-chat-bubble;
   }
 
   .message-bubble-received {
-    @apply bg-white text-secondary-900 rounded-2xl rounded-tl-sm px-4 py-2 max-w-lg break-words shadow-sm border border-secondary-200;
+    @apply bg-white text-secondary-900 rounded-[18px] rounded-bl-md px-4 py-3 max-w-lg break-words shadow-chat-bubble;
   }
 
+  /* Status indicators */
   .status-online {
-    @apply w-3 h-3 rounded-full bg-success-500 border-2 border-white;
+    @apply w-3 h-3 rounded-full bg-success-500 border-2 border-white shadow-sm;
   }
 
   .status-offline {
-    @apply w-3 h-3 rounded-full bg-secondary-400 border-2 border-white;
+    @apply w-3 h-3 rounded-full bg-secondary-300 border-2 border-white;
   }
 
   .status-away {
-    @apply w-3 h-3 rounded-full bg-warning-500 border-2 border-white;
+    @apply w-3 h-3 rounded-full bg-warning-500 border-2 border-white shadow-sm;
   }
 
+  /* Badges */
   .badge {
-    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-full;
+    @apply inline-flex items-center justify-center px-2.5 py-1 text-xs font-semibold rounded-full;
   }
 
   .badge-primary {
@@ -158,11 +164,12 @@
   }
 
   .badge-count {
-    @apply badge bg-error-500 text-white min-w-[1.25rem] h-5;
+    @apply badge bg-primary-500 text-white min-w-[1.25rem] h-5 shadow-sm;
   }
 
+  /* Avatars - Telegram style */
   .avatar {
-    @apply rounded-full object-cover bg-secondary-200 flex items-center justify-center;
+    @apply rounded-full object-cover bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-medium;
   }
 
   .avatar-sm {
@@ -181,6 +188,7 @@
     @apply avatar w-16 h-16 text-lg;
   }
 
+  /* Dividers */
   .divider {
     @apply border-t border-secondary-200 my-4;
   }
@@ -189,6 +197,7 @@
     @apply border-l border-secondary-200 mx-4;
   }
 
+  /* Spinners */
   .spinner {
     @apply inline-block animate-spin rounded-full border-2 border-current border-t-transparent;
   }
@@ -205,50 +214,56 @@
     @apply spinner w-8 h-8;
   }
 
+  /* Skeleton loading */
   .skeleton {
-    @apply bg-secondary-200 animate-pulse rounded;
+    @apply bg-secondary-200 animate-pulse rounded-lg;
   }
 
+  /* Chat containers */
   .chat-container {
-    @apply flex flex-col h-full overflow-hidden;
+    @apply flex flex-col h-full overflow-hidden bg-[#e8e8e8];
   }
 
   .chat-messages {
-    @apply flex-1 overflow-y-auto px-4 py-2 space-y-4;
+    @apply flex-1 overflow-y-auto px-4 py-3 space-y-3;
   }
 
   .chat-input-container {
     @apply border-t border-secondary-200 bg-white p-4;
   }
 
+  /* Sidebar - Telegram style */
   .sidebar {
-    @apply bg-white border-r border-secondary-200 overflow-y-auto;
+    @apply bg-white overflow-y-auto;
   }
 
   .sidebar-item {
-    @apply flex items-center gap-3 px-4 py-3 hover:bg-secondary-50 cursor-pointer transition-colors duration-150;
+    @apply flex items-center gap-3 px-4 py-3 hover:bg-secondary-50 cursor-pointer transition-all duration-200 border-b border-secondary-100/50;
   }
 
   .sidebar-item-active {
-    @apply sidebar-item bg-primary-50 border-l-4 border-primary-500;
+    @apply sidebar-item bg-primary-50;
   }
 
+  /* Modals */
   .modal-overlay {
-    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in;
+    @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fade-in backdrop-blur-sm;
   }
 
   .modal-content {
-    @apply bg-white rounded-lg shadow-strong p-6 max-w-lg w-full mx-4 animate-slide-up;
+    @apply bg-white rounded-2xl shadow-strong p-6 max-w-lg w-full mx-4 animate-slide-up;
   }
 
+  /* Dropdowns */
   .dropdown {
-    @apply absolute bg-white rounded-lg shadow-medium border border-secondary-200 py-1 z-40 animate-fade-in;
+    @apply absolute bg-white rounded-xl shadow-medium border border-secondary-100 py-1.5 z-40 animate-fade-in;
   }
 
   .dropdown-item {
-    @apply px-4 py-2 hover:bg-secondary-50 cursor-pointer transition-colors duration-150 flex items-center gap-2;
+    @apply px-4 py-2.5 hover:bg-secondary-50 cursor-pointer transition-colors duration-150 flex items-center gap-3 text-sm;
   }
 
+  /* Typing indicator */
   .typing-indicator {
     @apply flex gap-1 items-center p-2;
   }
@@ -257,8 +272,9 @@
     @apply w-2 h-2 bg-secondary-400 rounded-full animate-pulse;
   }
 
+  /* Notifications */
   .notification-toast {
-    @apply fixed top-4 right-4 bg-white rounded-lg shadow-strong border border-secondary-200 p-4 max-w-sm animate-slide-down z-50;
+    @apply fixed top-4 right-4 bg-white rounded-xl shadow-strong border border-secondary-100 p-4 max-w-sm animate-slide-down z-50;
   }
 
   .notification-success {
@@ -277,6 +293,7 @@
     @apply notification-toast border-l-4 border-warning-500;
   }
 
+  /* Text utilities */
   .text-truncate {
     @apply overflow-hidden text-ellipsis whitespace-nowrap;
   }
@@ -295,12 +312,14 @@
     -webkit-box-orient: vertical;
   }
 
+  /* Focus ring */
   .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2;
   }
 
+  /* Links */
   .link {
-    @apply text-primary-600 hover:text-primary-700 hover:underline transition-colors;
+    @apply text-primary-500 hover:text-primary-600 hover:underline transition-colors;
   }
 
   .link-muted {
@@ -322,5 +341,14 @@
     transition-property: height;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 200ms;
+  }
+
+  /* Smooth scroll snap */
+  .snap-y {
+    scroll-snap-type: y mandatory;
+  }
+
+  .snap-start {
+    scroll-snap-align: start;
   }
 }
